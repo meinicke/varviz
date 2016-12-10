@@ -19,9 +19,11 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
+import cmu.conditional.Conditional;
 import cmu.varviz.VarvizActivator;
 import cmu.varviz.trace.view.editparts.TraceEditPartFactory;
 import cmu.vatrace.IFBranch;
+import cmu.vatrace.NodeColor;
 import cmu.vatrace.Statement;
 import cmu.vatrace.Trace;
 import cmu.vatrace.filters.And;
@@ -30,6 +32,8 @@ import cmu.vatrace.filters.InteractionFilter;
 import cmu.vatrace.filters.NameFilter;
 import cmu.vatrace.filters.Or;
 import cmu.vatrace.filters.StatementFilter;
+import de.fosd.typechef.featureexpr.FeatureExpr;
+import de.fosd.typechef.featureexpr.SingleFeatureExpr;
 import gov.nasa.jpf.JPF;
 
 public class TraceView extends ViewPart {
@@ -166,13 +170,12 @@ public class TraceView extends ViewPart {
 			
 			JPF.main(args);
 			
-			// highlight path
-//			SingleFeatureExpr change26 = Conditional.features.get("patch26");
-//			SingleFeatureExpr change5 = Conditional.features.get( "patch5");
-//			SingleFeatureExpr change42 = Conditional.features.get("patch42");
-//			SingleFeatureExpr change60 = Conditional.features.get("patch60");
-//			FeatureExpr ctx = change26.not().andNot(change5).andNot(change42).andNot(change60);
-//			JPF.vatrace.highlightContext(ctx, NodeColor.limegreen, 3);
+			// highlight path ¬patch60&¬patch42&patch53
+			SingleFeatureExpr patch60 = Conditional.features.get("patch60");
+			SingleFeatureExpr patch42 = Conditional.features.get( "patch42");
+			SingleFeatureExpr patch53 = Conditional.features.get("patch53");
+			FeatureExpr ctx = patch60.not().andNot(patch42).and(patch53);
+			JPF.vatrace.highlightContext(ctx, NodeColor.limegreen, 3);
 			
 			return JPF.vatrace;
 		}
