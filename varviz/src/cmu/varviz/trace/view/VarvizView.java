@@ -19,24 +19,24 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
-import cmu.conditional.Conditional;
 import cmu.varviz.VarvizActivator;
 import cmu.varviz.trace.view.editparts.TraceEditPartFactory;
 import cmu.vatrace.IFBranch;
-import cmu.vatrace.NodeColor;
 import cmu.vatrace.Statement;
 import cmu.vatrace.Trace;
-import cmu.vatrace.filters.And;
 import cmu.vatrace.filters.ExceptionFilter;
 import cmu.vatrace.filters.InteractionFilter;
-import cmu.vatrace.filters.NameFilter;
 import cmu.vatrace.filters.Or;
 import cmu.vatrace.filters.StatementFilter;
-import de.fosd.typechef.featureexpr.FeatureExpr;
-import de.fosd.typechef.featureexpr.SingleFeatureExpr;
 import gov.nasa.jpf.JPF;
 
-public class TraceView extends ViewPart {
+/**
+ * TODO description
+ * 
+ * @author Jens Meinicke
+ *
+ */
+public class VarvizView extends ViewPart {
 
 	private ScrollingGraphicalViewer viewer;
 	private ScalableFreeformRootEditPart rootEditPart;
@@ -116,8 +116,8 @@ public class TraceView extends ViewPart {
 
 	private static Trace trace = null;
 
-	public static final String PROJECT_NAME = "MathBug";
-//	public static final String PROJECT_NAME = "SmallInteractionExamples";
+//	public static final String PROJECT_NAME = "MathBug";
+	public static final String PROJECT_NAME = "SmallInteractionExamples";
 //	public static final String PROJECT_Sources = "MathSources";
 //	public static final String PROJECT_Sources_Folder = "Bug6/src/main/java";
 //	public static final String PROJECT_Sources_Test_Folder = "Bug6/src/test/java";
@@ -128,36 +128,36 @@ public class TraceView extends ViewPart {
 	public static Trace createTrace() {
 		if (trace == null) {
 //			final String path = "C:/Users/Jens Meinicke/workspaceVarexJ/Elevator/";
-			final String path = "C:/Users/Jens Meinicke/workspaceVarexJ/" + PROJECT_NAME;
-//			final String path = "C:/Users/Jens Meinicke/git/VarexJ/" + PROJECT_NAME;
+//			final String path = "C:/Users/Jens Meinicke/workspaceVarexJ/" + PROJECT_NAME;
+			final String path = "C:/Users/Jens Meinicke/git/VarexJ/" + PROJECT_NAME;
 			final String[] args = { 
 //					"+classpath=" + path + "/bin,${jpf-core}/lib/junit-4.11.jar,${jpf-core}/lib/math6.jar,${jpf-core}/lib/bcel-5.2.jar",
-					"+classpath=" + path + "/bin,${jpf-core}/lib/junit-4.11.jar,C:/Users/Jens Meinicke/workspaceVarexJ/MathBug/commons-math-2.0-SNAPSHOT.jar,${jpf-core}/lib/bcel-5.2.jar",
-//					"+classpath=" + path + "/bin,${jpf-core}",
+//					"+classpath=" + path + "/bin,${jpf-core}/lib/junit-4.11.jar,C:/Users/Jens Meinicke/workspaceVarexJ/MathBug/commons-math-2.0-SNAPSHOT.jar,${jpf-core}/lib/bcel-5.2.jar",
+					"+classpath=" + path + "/bin,${jpf-core}",
 					"+nhandler.delegateUnhandledNative",
 					"+search.class=.search.RandomSearch",
 					"+invocation",
 //					"linux.Example"
 //					"Main"
-//					"linux.Linux2"
+					"linux.Linux1"
 //					"SmoothingPolynomialBicubicSplineInterpolatorTest"
-					"Test"
+//					"Test"
 //					"SimplexOptimizerNelderMeadTestStarter"
 					};
 			Trace.filter = new Or(
 //					new NameFilter("interpolatedDerivatives" , "previousState"),
 //					new ReferenceFilter(888),
 //					new NameFilter("tMin", "tb"),
-					new And(
-							new NameFilter("r"),
-							new NameFilter("ret"),
-							new StatementFilter() {
-								
-								@Override
-								public boolean filter(Statement s) {
-									return s.getMethod().getMethodInfo().getName().equals("logGamma");
-								}
-							}),
+//					new And(
+//							new NameFilter("r"),
+//							new NameFilter("ret"),
+//							new StatementFilter() {
+//								
+//								@Override
+//								public boolean filter(Statement s) {
+//									return s.getMethod().getMethodInfo().getName().equals("logGamma");
+//								}
+//							}),
 					new InteractionFilter(2),
 					new ExceptionFilter(), 
 					new StatementFilter() {
@@ -170,12 +170,13 @@ public class TraceView extends ViewPart {
 			
 			JPF.main(args);
 			
-			// highlight path ¬patch60&¬patch42&patch53
-			SingleFeatureExpr patch60 = Conditional.features.get("patch60");
-			SingleFeatureExpr patch42 = Conditional.features.get( "patch42");
-			SingleFeatureExpr patch53 = Conditional.features.get("patch53");
-			FeatureExpr ctx = patch60.not().andNot(patch42).and(patch53);
-			JPF.vatrace.highlightContext(ctx, NodeColor.limegreen, 3);
+			// highlight path ¬patch60&¬patch42&patch53&¬patch48
+//			SingleFeatureExpr patch60 = Conditional.features.get("patch60");
+//			SingleFeatureExpr patch42 = Conditional.features.get( "patch42");
+//			SingleFeatureExpr patch53 = Conditional.features.get("patch53");
+//			SingleFeatureExpr patch48 = Conditional.features.get("patch48");
+//			FeatureExpr ctx = patch60.not().andNot(patch42).and(patch53).andNot(patch48);
+//			JPF.vatrace.highlightContext(ctx, NodeColor.limegreen, 1);
 			
 			return JPF.vatrace;
 		}

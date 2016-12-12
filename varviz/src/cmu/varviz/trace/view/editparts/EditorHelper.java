@@ -18,7 +18,7 @@ import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.ITextEditor;
 
 import cmu.varviz.VarvizActivator;
-import cmu.varviz.trace.view.TraceView;
+import cmu.varviz.trace.view.VarvizView;
 import gov.nasa.jpf.vm.MethodInfo;
 
 /**
@@ -39,13 +39,13 @@ public class EditorHelper {
 	
 	// TODO revise this, iterate over list of possible paths
 	private static IFile getFile(MethodInfo mi) {
-		IProject prj = ResourcesPlugin.getWorkspace().getRoot().getProject(TraceView.PROJECT_NAME);		
+		IProject prj = ResourcesPlugin.getWorkspace().getRoot().getProject(VarvizView.PROJECT_NAME);		
 		IFile file = prj.getFile("src/" + mi.getSourceFileName());
 		if (!file.exists()) {
-			prj = ResourcesPlugin.getWorkspace().getRoot().getProject(TraceView.PROJECT_Sources);		
-			file = prj.getFile(TraceView.PROJECT_Sources_Folder + "/" + mi.getSourceFileName());
+			prj = ResourcesPlugin.getWorkspace().getRoot().getProject(VarvizView.PROJECT_Sources);		
+			file = prj.getFile(VarvizView.PROJECT_Sources_Folder + "/" + mi.getSourceFileName());
 			if (!file.exists()) {
-				file = prj.getFile(TraceView.PROJECT_Sources_Test_Folder + "/" + mi.getSourceFileName());
+				file = prj.getFile(VarvizView.PROJECT_Sources_Test_Folder + "/" + mi.getSourceFileName());
 			}
 		}
 		return file;

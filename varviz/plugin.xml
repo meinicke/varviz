@@ -10,7 +10,7 @@
     </category>
     <view
           category="varviz"
-          class="cmu.varviz.trace.view.TraceView"
+          class="cmu.varviz.trace.view.VarvizView"
           id="varviz"
           name="varviz"
           restorable="true">
