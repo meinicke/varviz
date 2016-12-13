@@ -15,12 +15,18 @@ public class ContextParser {
 		String[] orsplit = context.split("\\|");
 		for (int i = 0; i < orsplit.length; i++) {
 			String orCTX = orsplit[i];
-			String[] andSplit = orCTX.split("\\&amp;");
+			orCTX = orCTX.replaceAll("\\&amp;", "\\&");
+			String[] andSplit = orCTX.split("\\&");// TODO regex 
 			FeatureExpr andContext = FeatureExprFactory.True();
 			for (int j = 0; j < andSplit.length; j++) {
 				String string = andSplit[j];
+				System.out.println(string);
 				if (string.startsWith("¬") || string.startsWith("!")) {
-					SingleFeatureExpr feature = Conditional.createFeature(string.substring(1));
+					SingleFeatureExpr feature = Conditional.features.get(string);
+					
+					if (feature == null) {
+						feature = Conditional.createFeature(string.substring(1));
+					}
 					andContext = andContext.andNot(feature);
 				} else {
 					SingleFeatureExpr feature = Conditional.createFeature(string);

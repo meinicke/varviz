@@ -44,4 +44,13 @@ public class ContextParserTest {
 		FeatureExpr ctx =  ContextParser.getContext(contextString);
 		assertTrue(ctx.equivalentTo(expectedCtx));
 	}
+	
+	@Test
+	public void testContext_a_and_b2() {
+		FeatureExpr expectedCtx = a.and(b);
+		String contextString = "a&b";
+		FeatureExpr ctx =  ContextParser.getContext(contextString);
+		System.out.println(ctx);
+		assertTrue(ctx.equivalentTo(expectedCtx));
+	}
 }
