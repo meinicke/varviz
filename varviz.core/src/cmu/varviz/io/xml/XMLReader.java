@@ -1,4 +1,4 @@
-package cmu.varviz.io;
+package cmu.varviz.io.xml;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;

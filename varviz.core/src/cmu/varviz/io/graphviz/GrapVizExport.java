@@ -1,5 +1,4 @@
-package cmu.varviz.trace.export;
-
+package cmu.varviz.io.graphviz;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -12,7 +11,7 @@ import cmu.varviz.trace.Trace;
 import cmu.varviz.utils.CommandLineRunner;
 
 public class GrapVizExport {
-	
+
 	enum Format {
 		pdf
 	}
@@ -22,12 +21,7 @@ public class GrapVizExport {
 
 	public GrapVizExport(String fileName, Trace vatrace) {
 		this.fileName = fileName;
-		this.trace = vatrace;// .getSlice(574);
-		// this.graph = graph.getSlice(573);//example
-		// this.graph = graph.getSlice(579);//linux1
-		// this.graph = graph.getSlice(574);//linux2
-
-		// this.graph = graph.getSlice(580);//elevator e
+		this.trace = vatrace;
 	}
 
 	public void write() {
@@ -45,8 +39,8 @@ public class GrapVizExport {
 	}
 
 	private void callGraphviz(final File file, final String format) {
-		final String[] commands = new String[] { "dot", "-T" + format, file.getPath(), "-o", fileName + "." + format};
-		
+		final String[] commands = new String[] { "dot", "-T" + format, file.getPath(), "-o", fileName + "." + format };
+
 		try {
 			Field f = BufferedInputStream.class.getDeclaredField("DEFAULT_BUFFER_SIZE");
 			f.setAccessible(true);
@@ -55,8 +49,7 @@ public class GrapVizExport {
 		} catch (IllegalAccessException | NoSuchFieldException | SecurityException e) {
 			e.printStackTrace();
 		}
-		
-		
+
 		CommandLineRunner.process(commands);
 	}
 

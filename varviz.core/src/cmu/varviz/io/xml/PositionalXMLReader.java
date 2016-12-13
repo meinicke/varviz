@@ -1,4 +1,4 @@
-package cmu.varviz.io;
+package cmu.varviz.io.xml;
 /* FeatureIDE - A Framework for Feature-Oriented Software Development
  * Copyright (C) 2005-2013  FeatureIDE team, University of Magdeburg, Germany
  *

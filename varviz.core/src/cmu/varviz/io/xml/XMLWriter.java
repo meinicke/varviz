@@ -1,4 +1,4 @@
-package cmu.varviz.io;
+package cmu.varviz.io.xml;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;

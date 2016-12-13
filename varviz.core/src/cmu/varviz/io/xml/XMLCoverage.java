@@ -1,4 +1,4 @@
-package cmu.varviz.io;
+package cmu.varviz.io.xml;
 
 public interface XMLCoverage {
 
