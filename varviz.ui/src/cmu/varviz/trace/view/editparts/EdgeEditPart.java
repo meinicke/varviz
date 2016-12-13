@@ -12,7 +12,7 @@ import org.eclipse.swt.graphics.Color;
 
 import cmu.conditional.Conditional;
 import cmu.varviz.VarvizConstants;
-import cmu.vatrace.Edge;
+import cmu.varviz.trace.Edge;
 
 /**
  * TODO description

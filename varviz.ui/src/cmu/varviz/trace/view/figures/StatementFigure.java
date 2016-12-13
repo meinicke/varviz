@@ -13,8 +13,8 @@ import org.eclipse.swt.graphics.Font;
 
 import cmu.conditional.Conditional;
 import cmu.varviz.VarvizConstants;
-import cmu.vatrace.NodeColor;
-import cmu.vatrace.Statement;
+import cmu.varviz.trace.NodeColor;
+import cmu.varviz.trace.Statement;
 import de.fosd.typechef.featureexpr.FeatureExpr;
 
 /**
@@ -25,7 +25,7 @@ import de.fosd.typechef.featureexpr.FeatureExpr;
  */
 public class StatementFigure extends RoundedRectangle {
 
-	private Statement statement;
+	private Statement<?> statement;
 	private final Label label = new Label();
 	private final Label a = new Label();
 	private final Label b = new Label();
@@ -34,7 +34,7 @@ public class StatementFigure extends RoundedRectangle {
 	private static final int BORDER_MARGIN = 10;
 	private static final int MIN_WIDTH = 20;
 	
-	public StatementFigure(Statement statement) {
+	public StatementFigure(Statement<?> statement) {
 		super();
 		this.statement = statement;
 		this.setLayoutManager(new FreeformLayout());

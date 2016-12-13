@@ -2,6 +2,7 @@ package cmu.varviz.trace;
 
 import java.io.PrintWriter;
 
+import cmu.conditional.Conditional;
 import cmu.varviz.trace.filters.StatementFilter;
 import de.fosd.typechef.featureexpr.FeatureExpr;
 
@@ -60,14 +61,14 @@ public class Statement<T> extends MethodElement<T> {
 	/**
 	 * If the operation changes a value, this method returns its old value.
 	 */
-	public Object getOldValue() {
+	public Conditional<String> getOldValue() {
 		return null;
 	}
 	
 	/**
 	 * Returns the value of the statement.
 	 */
-	public Object getValue() {
+	public Conditional<String> getValue() {
 		return null;
 	}
 }

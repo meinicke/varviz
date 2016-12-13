@@ -4,7 +4,7 @@ import org.eclipse.draw2d.AbstractConnectionAnchor;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.geometry.Point;
 
-import cmu.vatrace.Statement;
+import cmu.varviz.trace.Statement;
 
 public class TargetAnchor  extends AbstractConnectionAnchor {
 

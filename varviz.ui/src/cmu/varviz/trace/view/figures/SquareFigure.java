@@ -9,8 +9,8 @@ import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.Rectangle;
 
 import cmu.varviz.VarvizConstants;
-import cmu.vatrace.NodeColor;
-import cmu.vatrace.Statement;
+import cmu.varviz.trace.NodeColor;
+import cmu.varviz.trace.Statement;
 
 /**
  * TODO description

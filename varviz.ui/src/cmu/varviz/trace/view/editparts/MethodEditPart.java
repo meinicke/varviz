@@ -29,9 +29,9 @@ import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.gef.Request;
 import org.eclipse.gef.editparts.AbstractGraphicalEditPart;
 
+import cmu.varviz.trace.Method;
+import cmu.varviz.trace.MethodElement;
 import cmu.varviz.trace.view.figures.MethodFigure;
-import cmu.vatrace.Method;
-import cmu.vatrace.MethodElement;
 import de.fosd.typechef.featureexpr.FeatureExpr;
 import gov.nasa.jpf.vm.MethodInfo;
 
@@ -57,7 +57,7 @@ public class MethodEditPart extends AbstractTraceEditPart {
 	@Override
 	protected List getModelChildren() {
 		List children = new ArrayList();
-		for (MethodElement child : ((Method) getModel()).getChildren()) {
+		for (MethodElement child : ((Method<?>) getModel()).getChildren()) {
 			children.add(child);
 		}
 		return children;
@@ -162,7 +162,7 @@ public class MethodEditPart extends AbstractTraceEditPart {
 			final int lineNumber = method.getLineNumber();
 			Method parent = method.getParent();
 			if (parent != null) {
-				MethodInfo mi = parent.getMethodInfo();
+				MethodInfo mi = (MethodInfo) parent.getContent();
 				EditorHelper.open(mi, lineNumber);
 			}
 		}

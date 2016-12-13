@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: varviz
-Bundle-SymbolicName: varviz.ui;singleton:=true
+Bundle-SymbolicName: varviz;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: cmu.varviz.VarvizActivator
 Require-Bundle: org.eclipse.ui,
@@ -37,4 +37,5 @@ Bundle-ClassPath: .,
  lib/org.sat4j.core-2.3.1.jar,
  lib/RunJPF.jar,
  lib/RunTest.jar,
- lib/scala-library-2.11.8.jar
+ lib/scala-library-2.11.8.jar,
+ lib/varviz.jar

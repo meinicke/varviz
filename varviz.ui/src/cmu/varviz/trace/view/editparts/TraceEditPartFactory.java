@@ -3,10 +3,10 @@ package cmu.varviz.trace.view.editparts;
 import org.eclipse.gef.EditPart;
 import org.eclipse.gef.EditPartFactory;
 
-import cmu.vatrace.Edge;
-import cmu.vatrace.Method;
-import cmu.vatrace.Statement;
-import cmu.vatrace.Trace;
+import cmu.varviz.trace.Edge;
+import cmu.varviz.trace.Method;
+import cmu.varviz.trace.Statement;
+import cmu.varviz.trace.Trace;
 
 /**
  * TODO description

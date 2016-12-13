@@ -28,12 +28,12 @@ import org.eclipse.draw2d.IFigure;
 import org.eclipse.gef.Request;
 import org.eclipse.swt.SWT;
 
+import cmu.varviz.trace.Edge;
+import cmu.varviz.trace.Shape;
+import cmu.varviz.trace.Statement;
 import cmu.varviz.trace.view.figures.IfBranchFigure;
 import cmu.varviz.trace.view.figures.SquareFigure;
 import cmu.varviz.trace.view.figures.StatementFigure;
-import cmu.vatrace.Edge;
-import cmu.vatrace.Shape;
-import cmu.vatrace.Statement;
 import gov.nasa.jpf.JPF;
 import gov.nasa.jpf.vm.Instruction;
 import gov.nasa.jpf.vm.MethodInfo;
@@ -120,11 +120,11 @@ public class StatementEditPart extends AbstractTraceEditPart {
 	public void performRequest(Request request) {
 		if ("open".equals(request.getType())) {
 			final Statement statement = getStatementModel();
-			Instruction instruction = statement.getInstruction();
+			Instruction instruction = (Instruction) statement.getContent();// TODO
 			if (instruction != null) {
 				EditorHelper.open(instruction.getMethodInfo(), instruction.getLineNumber());
 			} else {
-				MethodInfo method = statement.getMethod().getMethodInfo();
+				MethodInfo method = (MethodInfo) statement.getParent().getContent();// TODO
 				EditorHelper.open(method, method.getLineNumber(0));
 			}
 			

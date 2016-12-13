@@ -31,8 +31,8 @@ import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.Rectangle;
 
 import cmu.varviz.VarvizConstants;
-import cmu.vatrace.Edge;
-import cmu.vatrace.Trace;
+import cmu.varviz.trace.Edge;
+import cmu.varviz.trace.Trace;
 
 /**
  * TODO description

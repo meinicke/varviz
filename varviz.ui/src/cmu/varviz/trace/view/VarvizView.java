@@ -20,14 +20,14 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import cmu.varviz.VarvizActivator;
+import cmu.varviz.trace.Statement;
+import cmu.varviz.trace.Trace;
+import cmu.varviz.trace.filters.InteractionFilter;
+import cmu.varviz.trace.filters.Or;
+import cmu.varviz.trace.filters.StatementFilter;
 import cmu.varviz.trace.view.editparts.TraceEditPartFactory;
+import cmu.vatrace.ExceptionFilter;
 import cmu.vatrace.IFBranch;
-import cmu.vatrace.Statement;
-import cmu.vatrace.Trace;
-import cmu.vatrace.filters.ExceptionFilter;
-import cmu.vatrace.filters.InteractionFilter;
-import cmu.vatrace.filters.Or;
-import cmu.vatrace.filters.StatementFilter;
 import gov.nasa.jpf.JPF;
 
 /**
@@ -144,7 +144,7 @@ public class VarvizView extends ViewPart {
 //					"Test"
 //					"SimplexOptimizerNelderMeadTestStarter"
 					};
-			Trace.filter = new Or(
+			JPF.vatrace.filter = new Or(
 //					new NameFilter("interpolatedDerivatives" , "previousState"),
 //					new ReferenceFilter(888),
 //					new NameFilter("tMin", "tb"),

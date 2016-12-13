@@ -9,7 +9,7 @@ import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.Rectangle;
 
 import cmu.varviz.VarvizConstants;
-import cmu.vatrace.Method;
+import cmu.varviz.trace.Method;
 
 /**
  * TODO description

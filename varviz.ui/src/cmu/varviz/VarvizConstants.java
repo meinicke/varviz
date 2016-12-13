@@ -2,7 +2,7 @@ package cmu.varviz;
 
 import org.eclipse.swt.graphics.Color;
 
-import cmu.vatrace.NodeColor;
+import cmu.varviz.trace.NodeColor;
 
 public interface VarvizConstants {
 
