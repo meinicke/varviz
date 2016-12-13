@@ -8,8 +8,12 @@ import de.fosd.typechef.featureexpr.FeatureExpr;
 
 public class Statement<T> extends MethodElement<T> {
 
+	public Statement(T operation, Method<?> method, int line, FeatureExpr ctx) {
+		super(operation, method, line, ctx);
+	}
+	
 	public Statement(T operation, Method<?> method, FeatureExpr ctx) {
-		super(operation, method, ctx);
+		this(operation, method, -1, ctx);
 	}
 
 	@Override

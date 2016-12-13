@@ -1,4 +1,5 @@
 package cmu.varviz.io.xml;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -12,62 +13,83 @@ import javax.xml.transform.TransformerException;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import cmu.varviz.trace.Method;
+import cmu.varviz.trace.Statement;
+import cmu.varviz.trace.Trace;
+import cmu.varviz.utils.ContextParser;
+import de.fosd.typechef.featureexpr.FeatureExpr;
+import de.fosd.typechef.featureexpr.FeatureExprFactory;
 
-public class XMLReader implements XMLCoverage {
+public class XMLReader implements XMLvarviz {
 
 	public XMLReader() {
 
 	}
-	
-	public Object readFromFile(File file) throws ParserConfigurationException, TransformerException, IOException, SAXException  {
-		
+
+	public Trace readFromFile(File file) throws ParserConfigurationException, TransformerException, IOException, SAXException {
 		String fileName = file.getPath();
 		InputStream inputStream = null;
 		inputStream = new FileInputStream(fileName);
 		return readXML(inputStream);
 	}
-	
-	public Object readXML(InputStream xmlContent) throws ParserConfigurationException, TransformerException, IOException, SAXException {
+
+	public Trace readXML(InputStream xmlContent) throws ParserConfigurationException, TransformerException, IOException, SAXException {
 		Document doc = parse(xmlContent);
-		return getCoverage(doc);
-	}
-	
-	
-	public Object readXML(String xmlContent) throws ParserConfigurationException, TransformerException, IOException, SAXException {
-		Document doc = parse(xmlContent);
-		return getCoverage(doc);
+		return getTrace(doc);
 	}
 
-	private Object getCoverage(Document doc) throws NumberFormatException {
-		Object coverage = new Object(); 
+	public Trace readXML(String xmlContent) throws ParserConfigurationException, TransformerException, IOException, SAXException {
+		Document doc = parse(xmlContent);
+		return getTrace(doc);
+	}
+
+	private Trace getTrace(Document doc) throws NumberFormatException {
+		Trace coverage = new Trace();
 		for (Element rootNode : getElements(doc.getElementsByTagName(ROOT))) {
-//			coverage.setType(rootNode.getAttribute(TYPE));
-//			coverage.setBaseValue(Integer.valueOf(rootNode.getAttribute(BASE)));
-			break;
-		}
-		for (Element fileNode : getElements(doc.getElementsByTagName(FILE))) {
-//			getCoverage(coverage, fileNode);
+
+			NodeList children = rootNode.getChildNodes();
+			for (int i = 0; i < children.getLength(); i++) {
+				Node child = children.item(i);
+				if (child.getNodeName().equals(METHOD)) {
+					Node name = child.getAttributes().getNamedItem(NAME);
+					Method<String> mainMethod = new Method<>(name.getNodeValue(), FeatureExprFactory.True());
+					String file = child.getAttributes().getNamedItem(FILE).getNodeValue();
+					mainMethod.setFile(file);
+					String line = child.getAttributes().getNamedItem(LINE).getNodeValue();
+					mainMethod.setLineNumber(Integer.parseInt(line));
+					coverage.setMain(mainMethod);
+					parseChildren(child, mainMethod);
+				}
+			}
 		}
 		return coverage;
 	}
-	
-	
-	private void getCoverage(Object coverage, Element fileNode) {
-		
-		String fileName = fileNode.getAttribute(FILE_NAME);
-		Element coverageNode = getElements(fileNode.getElementsByTagName(COVERAGE_KEY)).get(0);
-		for (Element line : getElements(coverageNode.getElementsByTagName(COVERED_LINE))) {
-			try {
-				if (line.hasAttribute(THIS)) {
-//					coverage.setLineCovered(fileName, Integer.valueOf(line.getAttribute(THIS)), Integer.valueOf(line.getAttribute(INTERACTION)), line.getAttribute(TEXT));
-				} else {
-					throwError("Unknown attribute " + line.getNodeName(), line);
-				}
-			} catch (Exception e) {
-				throwError("Parse error occured " + e.getMessage(), line);
+
+	private void parseChildren(Node node, Method<String> parentMethod) {
+		NodeList children = node.getChildNodes();
+		for (int i = 0; i < children.getLength(); i++) {
+			Node child = children.item(i);
+			if (child.getNodeName().equals(METHOD)) {
+				String name = child.getAttributes().getNamedItem(NAME).getNodeValue();
+				String line = child.getAttributes().getNamedItem(LINE).getNodeValue();
+				String ctxString = child.getAttributes().getNamedItem(CTX).getNodeValue();
+				FeatureExpr ctx = ContextParser.getContext(ctxString);
+				Method<String> method = new Method<>(name, parentMethod, ctx);
+				String file = child.getAttributes().getNamedItem(FILE).getNodeValue();
+				method.setFile(file);
+				method.setLineNumber(Integer.parseInt(line));
+				parseChildren(child, method);
+			} else if (child.getNodeName().equals(STATEMENT)) {
+				String name = child.getAttributes().getNamedItem(NAME).getNodeValue();
+				String line = child.getAttributes().getNamedItem(LINE).getNodeValue();
+				String ctxString = child.getAttributes().getNamedItem(CTX).getNodeValue();
+				FeatureExpr ctx = ContextParser.getContext(ctxString);
+				Statement<String> s = new Statement<String>(name, parentMethod, ctx);
+				s.setLineNumber(Integer.parseInt(line));
 			}
 		}
 	}
@@ -82,10 +104,10 @@ public class XMLReader implements XMLCoverage {
 		doc.getDocumentElement().normalize();
 		return doc;
 	}
-	
+
 	/**
 	 * @param nodeList
-	 * @return The child nodes from type Element of the given NodeList. 
+	 * @return The child nodes from type Element of the given NodeList.
 	 */
 	private ArrayList<Element> getElements(NodeList nodeList) {
 		ArrayList<Element> elements = new ArrayList<Element>(nodeList.getLength());
@@ -98,15 +120,19 @@ public class XMLReader implements XMLCoverage {
 		}
 		return elements;
 	}
-	
+
 	/**
 	 * Throws an error that will be used for error markers
-	 * @param message The error message
-	 * @param tempNode The node that causes the error. this node is used for positioning. 
-	 * @throws UnsupportedCoverageException 
-	 * @throws NumberFormatException 
+	 * 
+	 * @param message
+	 *            The error message
+	 * @param tempNode
+	 *            The node that causes the error. this node is used for
+	 *            positioning.
+	 * @throws UnsupportedCoverageException
+	 * @throws NumberFormatException
 	 */
 	private void throwError(String message, org.w3c.dom.Node node) throws NumberFormatException {
-		throw new Error(message + Integer.parseInt (node.getUserData(PositionalXMLReader.LINE_NUMBER_KEY_NAME).toString()));
+		throw new Error(message + Integer.parseInt(node.getUserData(PositionalXMLReader.LINE_NUMBER_KEY_NAME).toString()));
 	}
 }

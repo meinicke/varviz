@@ -42,15 +42,16 @@ public abstract class MethodElement<T> {
 	}
 	
 	
-	public MethodElement(T content, Method<?> method, FeatureExpr ctx) {
-		this.ctx = ctx;
-		this.parent = method;
+	public MethodElement(T content, Method<?> parent, int line, FeatureExpr ctx) {
 		this.content = content;
-		if (method != null) {
-			method.addMethodElement(this);
+		this.parent = parent;
+		this.lineNumber = line;
+		this.ctx = ctx;
+		if (parent != null) {
+			parent.addMethodElement(this);
 		}
 	}
-
+	
 	public FeatureExpr getCTX() {
 		return ctx;
 	}

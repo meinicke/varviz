@@ -15,14 +15,33 @@ import de.fosd.typechef.featureexpr.FeatureExpr;
 public class Method<U> extends MethodElement<U> {
 
 	private final List<MethodElement<?>> execution = new ArrayList<>();
+	
+	private String file = null;
+	
+	public void setFile(String file) {
+		this.file = file;
+	}
+	
+	public String getFile() {
+		return file;
+	}
 		
 	public Method(U mi, FeatureExpr ctx) {
 		this(mi, null, ctx);
 	}
 	
-	public Method(U mi, Method<?> method, FeatureExpr ctx) {
-		super(mi, method, ctx);
+	public Method(U mi, Method<?> parent, FeatureExpr ctx) {
+		this(mi, parent, -1, ctx);
 	}
+
+	public Method(U mi, int line, FeatureExpr ctx) {
+		this(mi, null, line, ctx);
+	}
+	
+	public Method(U mi, Method<?> parent, int line, FeatureExpr ctx) {
+		super(mi, parent, line, ctx);
+	}
+	
 		
 	public void addMethodElement(MethodElement<?> e) {
 		execution.add(e);
