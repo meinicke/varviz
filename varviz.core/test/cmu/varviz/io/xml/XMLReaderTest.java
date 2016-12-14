@@ -21,14 +21,12 @@ public class XMLReaderTest {
 		
 		XMLWriter writer = new XMLWriter(trace);
 		String content = writer.write();
-		System.out.println(content);
-		System.out.println("---------------------------");
-		XMLReader reader = new XMLReader();
 		
+		XMLReader reader = new XMLReader();
 		Trace traceRead = reader.readXML(content);
+		
 		writer = new XMLWriter(traceRead);
 		String newContent = writer.write();
-		System.out.println(newContent);
 		
 		assertEquals(content, newContent);
 	}

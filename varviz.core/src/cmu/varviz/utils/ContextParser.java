@@ -16,11 +16,10 @@ public class ContextParser {
 		for (int i = 0; i < orsplit.length; i++) {
 			String orCTX = orsplit[i];
 			orCTX = orCTX.replaceAll("\\&amp;", "\\&");
-			String[] andSplit = orCTX.split("\\&");// TODO regex 
+			String[] andSplit = orCTX.split("\\&");
 			FeatureExpr andContext = FeatureExprFactory.True();
 			for (int j = 0; j < andSplit.length; j++) {
 				String string = andSplit[j];
-				System.out.println(string);
 				if (string.startsWith("¬") || string.startsWith("!")) {
 					SingleFeatureExpr feature = Conditional.features.get(string);
 					

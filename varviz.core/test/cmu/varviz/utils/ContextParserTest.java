@@ -50,7 +50,6 @@ public class ContextParserTest {
 		FeatureExpr expectedCtx = a.and(b);
 		String contextString = "a&b";
 		FeatureExpr ctx =  ContextParser.getContext(contextString);
-		System.out.println(ctx);
 		assertTrue(ctx.equivalentTo(expectedCtx));
 	}
 }

@@ -15,8 +15,7 @@ public class XMLWriterTest {
 		Trace trace = TraceFactory.createTrace();
 		
 		XMLWriter writer = new XMLWriter(trace);
-		String content = writer.write();
-		System.out.println(content);
+		writer.write();
 	}
 
 }
