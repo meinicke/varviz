@@ -50,7 +50,6 @@ public class XMLReader implements XMLvarviz {
 	private Trace getTrace(Document doc) throws NumberFormatException {
 		Trace coverage = new Trace();
 		for (Element rootNode : getElements(doc.getElementsByTagName(ROOT))) {
-
 			NodeList children = rootNode.getChildNodes();
 			for (int i = 0; i < children.getLength(); i++) {
 				Node child = children.item(i);
@@ -121,18 +120,4 @@ public class XMLReader implements XMLvarviz {
 		return elements;
 	}
 
-	/**
-	 * Throws an error that will be used for error markers
-	 * 
-	 * @param message
-	 *            The error message
-	 * @param tempNode
-	 *            The node that causes the error. this node is used for
-	 *            positioning.
-	 * @throws UnsupportedCoverageException
-	 * @throws NumberFormatException
-	 */
-	private void throwError(String message, org.w3c.dom.Node node) throws NumberFormatException {
-		throw new Error(message + Integer.parseInt(node.getUserData(PositionalXMLReader.LINE_NUMBER_KEY_NAME).toString()));
-	}
 }

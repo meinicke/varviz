@@ -91,7 +91,7 @@ public class PositionalXMLReader {
             }
 
             @Override
-            public void characters(final char ch[], final int start, final int length) throws SAXException {
+            public void characters(final char ch[], final int start, final int length) {
                 textBuffer.append(ch, start, length);
             }
 

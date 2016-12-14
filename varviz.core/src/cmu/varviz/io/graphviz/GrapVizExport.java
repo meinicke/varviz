@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
+import java.nio.charset.StandardCharsets;
 
 import cmu.varviz.trace.Trace;
 import cmu.varviz.utils.CommandLineRunner;
@@ -28,7 +29,7 @@ public class GrapVizExport {
 		final File file = new File(fileName + ".gv");
 		System.out.print("create file: " + file.getAbsolutePath());
 		System.out.flush();
-		try (PrintWriter pw = new PrintWriter(file, "UTF-8")) {
+		try (PrintWriter pw = new PrintWriter(file, StandardCharsets.UTF_8.name())) {
 			trace.print(pw);
 		} catch (FileNotFoundException | UnsupportedEncodingException e) {
 			e.printStackTrace();

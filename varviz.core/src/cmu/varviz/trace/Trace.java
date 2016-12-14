@@ -9,7 +9,6 @@ import cmu.conditional.Conditional;
 import cmu.conditional.One;
 import cmu.varviz.trace.filters.StatementFilter;
 import de.fosd.typechef.featureexpr.FeatureExpr;
-import de.fosd.typechef.featureexpr.FeatureExprFactory;
 
 public class Trace {
 	

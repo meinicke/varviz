@@ -41,7 +41,7 @@ public class TraceFactory {
 
 class MyStatement extends Statement<String> {
 
-	public MyStatement(String op, Method m, int line, FeatureExpr ctx) {
+	public MyStatement(String op, Method<?> m, int line, FeatureExpr ctx) {
 		super(op, m, line, ctx);
 	}
 	
