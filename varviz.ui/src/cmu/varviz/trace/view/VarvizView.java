@@ -13,10 +13,6 @@ import org.eclipse.swt.events.MouseWheelListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IActionBars;
-import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import cmu.varviz.VarvizActivator;
@@ -43,15 +39,15 @@ public class VarvizView extends ViewPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		IWorkbenchWindow editor = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-		IEditorPart part = null;
-
-		if (editor != null) {
-			IWorkbenchPage page = editor.getActivePage();
-			if (page != null) {
-				part = page.getActiveEditor();
-			}
-		}
+//		IWorkbenchWindow editor = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+//		IEditorPart part = null;
+//
+//		if (editor != null) {
+//			IWorkbenchPage page = editor.getActivePage();
+//			if (page != null) {
+//				part = page.getActiveEditor();
+//			}
+//		}
 
 		viewer = new ScrollingGraphicalViewer();
 		viewer.createControl(parent);
@@ -163,7 +159,7 @@ public class VarvizView extends ViewPart {
 					new StatementFilter() {
 				
 				@Override
-				public boolean filter(Statement s) {
+				public boolean filter(Statement<?> s) {
 					return s instanceof IFBranch;
 				}
 			});

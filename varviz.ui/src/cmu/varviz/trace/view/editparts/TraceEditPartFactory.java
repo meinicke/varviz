@@ -22,10 +22,10 @@ public class TraceEditPartFactory implements EditPartFactory {
 			return new TraceEditPart((Trace) model);
 		}
 		if (model instanceof Method) {
-			return new MethodEditPart((Method) model);
+			return new MethodEditPart((Method<?>) model);
 		}
 		if (model instanceof Statement) {
-			return new StatementEditPart((Statement) model);
+			return new StatementEditPart((Statement<?>) model);
 		}
 		if (model instanceof Edge) {
 			return new EdgeEditPart((Edge) model);

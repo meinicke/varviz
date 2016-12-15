@@ -8,9 +8,9 @@ import cmu.varviz.trace.Statement;
 
 public class SourceAnchor extends AbstractConnectionAnchor {
 
-	private Statement statement;
+	private Statement<?> statement;
 
-	public SourceAnchor(IFigure owner, Statement statement) {
+	public SourceAnchor(IFigure owner, Statement<?> statement) {
 		super(owner);
 		this.statement = statement;
 	}

@@ -44,25 +44,26 @@ public class MethodEditPart extends AbstractTraceEditPart {
 
 	private final static int BORDER_MARGIN = 10;
 
-	public MethodEditPart(Method method) {
+	public MethodEditPart(Method<?> method) {
 		super();
 		setModel(method);
 	}
 
 	@Override
 	protected IFigure createFigure() {
-		return new MethodFigure((Method) getModel());
+		return new MethodFigure((Method<?>) getModel());
 	}
 
 	@Override
-	protected List getModelChildren() {
-		List children = new ArrayList();
-		for (MethodElement child : ((Method<?>) getModel()).getChildren()) {
+	protected List<MethodElement<?>> getModelChildren() {
+		List<MethodElement<?>> children = new ArrayList<>();
+		for (MethodElement<?> child : ((Method<?>) getModel()).getChildren()) {
 			children.add(child);
 		}
 		return children;
 	}
 
+	@SuppressWarnings("null")
 	@Override
 	public void layout() {
 		final IFigure methodFigure = getFigure();
@@ -70,13 +71,13 @@ public class MethodEditPart extends AbstractTraceEditPart {
 		final Point referencePoint = bounds.getTopLeft();
 		int h = 40;
 
-		MethodElement previous = null;
+		MethodElement<?> previous = null;
 		AbstractTraceEditPart previousFigure = null;
 		for (Object object : getChildren()) {
 			if (object instanceof AbstractTraceEditPart) {
 				AbstractTraceEditPart childEditPart = (AbstractTraceEditPart) object;
 
-				MethodElement model = (MethodElement) childEditPart.getModel();
+				MethodElement<?> model = (MethodElement<?>) childEditPart.getModel();
 				FeatureExpr ctx = model.getCTX();
 				if (previous != null) {
 					FeatureExpr prevctx = previous.getCTX();
@@ -151,16 +152,16 @@ public class MethodEditPart extends AbstractTraceEditPart {
 		methodFigure.setBounds(bounds);
 	}
 
-	public Method getMethodModel() {
-		return (Method) getModel();
+	public Method<?> getMethodModel() {
+		return (Method<?>) getModel();
 	}
 
 	@Override
 	public void performRequest(Request request) {
 		if ("open".equals(request.getType())) {
-			final Method method = getMethodModel();
+			final Method<?> method = getMethodModel();
 			final int lineNumber = method.getLineNumber();
-			Method parent = method.getParent();
+			Method<?> parent = method.getParent();
 			if (parent != null) {
 				MethodInfo mi = (MethodInfo) parent.getContent();
 				EditorHelper.open(mi, lineNumber);

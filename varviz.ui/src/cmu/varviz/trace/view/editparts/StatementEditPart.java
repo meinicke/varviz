@@ -48,18 +48,18 @@ public class StatementEditPart extends AbstractTraceEditPart {
 	private ConnectionAnchor sourceAnchor = null;
 	private ConnectionAnchor targetAnchor = null;
 	
-	public StatementEditPart(Statement method) {
+	public StatementEditPart(Statement<?> method) {
 		super();
 		setModel(method);
 	}
 
-	public Statement getRoleModel() {
-		return (Statement) getModel();
+	public Statement<?> getRoleModel() {
+		return (Statement<?>) getModel();
 	}
 
 	@Override
 	protected IFigure createFigure() {
-		Statement model = getRoleModel();
+		Statement<?> model = getRoleModel();
 		final Shape shape = model.getShape();
 		if (shape == null) {
 			StatementFigure statementFigure = new StatementFigure(model);
@@ -112,14 +112,14 @@ public class StatementEditPart extends AbstractTraceEditPart {
 		
 	}
 	
-	public Statement getStatementModel() {
-		return (Statement) getModel();
+	public Statement<?> getStatementModel() {
+		return (Statement<?>) getModel();
 	}
 	
 	@Override
 	public void performRequest(Request request) {
 		if ("open".equals(request.getType())) {
-			final Statement statement = getStatementModel();
+			final Statement<?> statement = getStatementModel();
 			Instruction instruction = (Instruction) statement.getContent();// TODO
 			if (instruction != null) {
 				EditorHelper.open(instruction.getMethodInfo(), instruction.getLineNumber());

@@ -19,11 +19,11 @@ import cmu.varviz.trace.Method;
  */
 public class MethodFigure extends Figure {
 
-	private Method method;
+	private Method<?> method;
 	private final Label label = new Label();
 	private int height = 20;
 	
-	public MethodFigure(Method method) {
+	public MethodFigure(Method<?> method) {
 		super();
 		this.method = method;
 		this.setLayoutManager(new FreeformLayout());

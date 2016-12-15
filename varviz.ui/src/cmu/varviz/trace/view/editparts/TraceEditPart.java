@@ -31,7 +31,6 @@ import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.Rectangle;
 
 import cmu.varviz.VarvizConstants;
-import cmu.varviz.trace.Edge;
 import cmu.varviz.trace.Trace;
 
 /**
@@ -40,8 +39,6 @@ import cmu.varviz.trace.Trace;
  * @author Jens Meinicke
  */
 public class TraceEditPart extends AbstractTraceEditPart {
-
-	private Edge edge;
 
 	public TraceEditPart(Trace model) {
 		super();

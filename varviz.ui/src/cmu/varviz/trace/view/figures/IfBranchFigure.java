@@ -23,15 +23,14 @@ public class IfBranchFigure extends Shape {
 
 	protected PointList diamond = new PointList(4);
 	
-	private Statement statement;
+	private Statement<?> statement;
 	private final Label label = new Label();
 	private SourceAnchor sourceAnchor;
 	private TargetAnchor targetAnchor;
 	private static final int BORDER_MARGIN = 10;
 	private static final int MIN_WIDTH = 20;
-	private static final int BORDER_WIDTH = 2;
 	
-	public IfBranchFigure(Statement statement) {
+	public IfBranchFigure(Statement<?> statement) {
 		super();
 		this.statement = statement;
 		this.setLayoutManager(new FreeformLayout());

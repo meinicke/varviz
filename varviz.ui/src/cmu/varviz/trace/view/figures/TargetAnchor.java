@@ -8,9 +8,9 @@ import cmu.varviz.trace.Statement;
 
 public class TargetAnchor  extends AbstractConnectionAnchor {
 
-	private Statement statement;
+	private Statement<?> statement;
 
-	public TargetAnchor(IFigure owner, Statement statement) {
+	public TargetAnchor(IFigure owner, Statement<?> statement) {
 		super(owner);
 		this.statement = statement;
 	}

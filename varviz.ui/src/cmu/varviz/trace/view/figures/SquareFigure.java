@@ -20,7 +20,7 @@ import cmu.varviz.trace.Statement;
  */
 public class SquareFigure extends RectangleFigure {
 
-	private Statement statement;
+	private Statement<?> statement;
 	private final Label label = new Label();
 	private SourceAnchor sourceAnchor;
 	private TargetAnchor targetAnchor;
@@ -28,7 +28,7 @@ public class SquareFigure extends RectangleFigure {
 	private static final int MIN_WIDTH = 20;
 	private static final int BORDER_WIDTH = 2;
 	
-	public SquareFigure(Statement statement) {
+	public SquareFigure(Statement<?> statement) {
 		super();
 		this.statement = statement;
 		this.setLayoutManager(new FreeformLayout());
