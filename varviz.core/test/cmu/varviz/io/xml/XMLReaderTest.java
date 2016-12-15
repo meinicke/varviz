@@ -11,7 +11,7 @@ import org.junit.Test;
 import org.xml.sax.SAXException;
 
 import cmu.varviz.trace.Trace;
-import cmu.vaviz.io.testutils.TraceFactory;
+import cmu.vaviz.testutils.TraceFactory;
 
 public class XMLReaderTest {
 

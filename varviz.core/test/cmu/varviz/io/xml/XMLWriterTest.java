@@ -6,7 +6,7 @@ import javax.xml.transform.TransformerException;
 import org.junit.Test;
 
 import cmu.varviz.trace.Trace;
-import cmu.vaviz.io.testutils.TraceFactory;
+import cmu.vaviz.testutils.TraceFactory;
 
 public class XMLWriterTest {
 

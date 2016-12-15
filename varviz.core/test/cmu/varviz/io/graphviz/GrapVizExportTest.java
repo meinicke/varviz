@@ -11,7 +11,7 @@ import org.xml.sax.SAXException;
 import cmu.varviz.io.xml.XMLReader;
 import cmu.varviz.io.xml.XMLWriter;
 import cmu.varviz.trace.Trace;
-import cmu.vaviz.io.testutils.TraceFactory;
+import cmu.vaviz.testutils.TraceFactory;
 import de.fosd.typechef.featureexpr.FeatureExprFactory;
 
 public class GrapVizExportTest {

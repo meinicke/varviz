@@ -1,4 +1,4 @@
-package cmu.vaviz.io.testutils;
+package cmu.vaviz.testutils;
 
 import cmu.varviz.trace.Method;
 import cmu.varviz.trace.Statement;

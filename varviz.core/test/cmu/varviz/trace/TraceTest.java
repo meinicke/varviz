@@ -4,7 +4,7 @@ import java.io.PrintWriter;
 
 import org.junit.Test;
 
-import cmu.vaviz.io.testutils.TraceFactory;
+import cmu.vaviz.testutils.TraceFactory;
 
 public class TraceTest {
 
