@@ -24,8 +24,11 @@ import org.w3c.dom.Element;
 import cmu.conditional.Conditional;
 import cmu.varviz.trace.Method;
 import cmu.varviz.trace.MethodElement;
+import cmu.varviz.trace.NodeColor;
+import cmu.varviz.trace.Shape;
 import cmu.varviz.trace.Statement;
 import cmu.varviz.trace.Trace;
+import de.fosd.typechef.featureexpr.FeatureExpr;
 
 public class XMLWriter implements XMLvarviz {
 
@@ -70,8 +73,22 @@ public class XMLWriter implements XMLvarviz {
 		String elementType = isStatement ? STATEMENT : METHOD;
 		Element element = doc.createElement(elementType);
 		element.setAttribute(NAME, methodElement.toString());
-		element.setAttribute(LINE, Integer.toString(methodElement.getLineNumber()));
-		element.setAttribute(CTX, Conditional.getCTXString(methodElement.getCTX()));
+		
+		int lineNumber = methodElement.getLineNumber();
+		if (lineNumber != DEFAULT_LINE_NUMBER) {
+			element.setAttribute(LINE, Integer.toString(lineNumber));
+		}
+		
+		FeatureExpr ctx = methodElement.getCTX();
+		if (!Conditional.isTautology(ctx)) {
+			element.setAttribute(CTX, Conditional.getCTXString(ctx));
+		}
+		
+		setColor(methodElement, element);
+		if (methodElement instanceof Statement) {
+			setShape((Statement<?>) methodElement, element);
+		}
+		
 		if (!isStatement) { 
 			Method<?> method = (Method<?>) methodElement;
 			element.setAttribute(FILE, method.getFile());
@@ -81,6 +98,20 @@ public class XMLWriter implements XMLvarviz {
 		}
 		
 		parent.appendChild(element);
+	}
+
+	private void setColor(MethodElement<?> methodElement, Element element) {
+		NodeColor color = methodElement.getColor();
+		if (color != null) {
+			element.setAttribute(COLOR, color.name());
+		}
+	}
+
+	private void setShape(Statement<?> methodElement, Element element) {
+		Shape shape = methodElement.getShape();
+		if (shape != null) {
+			element.setAttribute(SHAPE, shape.name());
+		}
 	}
 
 	public void writeToFile(File file) throws ParserConfigurationException, TransformerException {

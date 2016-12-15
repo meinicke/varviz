@@ -22,7 +22,6 @@ public class ContextParser {
 				String string = andSplit[j];
 				if (string.startsWith("¬") || string.startsWith("!")) {
 					SingleFeatureExpr feature = Conditional.features.get(string);
-					
 					if (feature == null) {
 						feature = Conditional.createFeature(string.substring(1));
 					}

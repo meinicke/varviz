@@ -11,7 +11,7 @@ public class Statement<T> extends MethodElement<T> {
 	public Statement(T operation, Method<?> method, int line, FeatureExpr ctx) {
 		super(operation, method, line, ctx);
 	}
-	
+
 	public Statement(T operation, Method<?> method, FeatureExpr ctx) {
 		this(operation, method, -1, ctx);
 	}
@@ -68,11 +68,21 @@ public class Statement<T> extends MethodElement<T> {
 	public Conditional<String> getOldValue() {
 		return null;
 	}
-	
+
 	/**
 	 * Returns the value of the statement.
 	 */
 	public Conditional<String> getValue() {
 		return null;
+	}
+
+	protected Shape shape = null;
+
+	public void setShape(Shape shape) {
+		this.shape = shape;
+	}
+
+	public Shape getShape() {
+		return shape;
 	}
 }

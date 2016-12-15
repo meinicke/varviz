@@ -10,4 +10,8 @@ public interface XMLvarviz {
 	String ROOT = "varviz";
 	String CTX = "ctx";
 
+	String SHAPE = "Shape";
+	String COLOR = "Color";
+	
+	int DEFAULT_LINE_NUMBER = -1;
 }

@@ -77,8 +77,7 @@ public abstract class MethodElement<T> {
 	
 	protected NodeColor color = null;
 	protected int width = 1;
-	protected Shape shape = null;
-
+	
 	public void setColor(NodeColor color) {
 		this.color = color;
 	}
@@ -93,14 +92,6 @@ public abstract class MethodElement<T> {
 	
 	public int getWidth() {
 		return width;
-	}
-
-	public void setShape(Shape shape) {
-		this.shape = shape;
-	}
-	
-	public Shape getShape() {
-		return shape;
 	}
 
 	public String getID() {
