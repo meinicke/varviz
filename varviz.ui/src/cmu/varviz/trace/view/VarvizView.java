@@ -26,16 +26,10 @@ import cmu.varviz.VarvizActivator;
 import cmu.varviz.io.graphviz.GrapVizExport;
 import cmu.varviz.io.xml.XMLReader;
 import cmu.varviz.io.xml.XMLWriter;
-import cmu.varviz.trace.IFStatement;
-import cmu.varviz.trace.Statement;
 import cmu.varviz.trace.Trace;
-import cmu.varviz.trace.filters.InteractionFilter;
-import cmu.varviz.trace.filters.Or;
-import cmu.varviz.trace.filters.StatementFilter;
 import cmu.varviz.trace.view.actions.HideAction;
 import cmu.varviz.trace.view.actions.HighlightPathAction;
 import cmu.varviz.trace.view.editparts.TraceEditPartFactory;
-import cmu.vatrace.ExceptionFilter;
 import gov.nasa.jpf.JPF;
 
 /**
@@ -159,14 +153,14 @@ public class VarvizView extends ViewPart {
 					"+invocation",
 //					"linux.Example"
 //					"Main"
-					"linux.Linux1"
-//					"linux.Linux" + ((projectID++)%5 +1)
+//					"linux.Linux1"
+					"linux.Linux" + ((projectID++)%5 +1)
 //					"SmoothingPolynomialBicubicSplineInterpolatorTest"
 //					"Test"
 //					"SimplexOptimizerNelderMeadTestStarter"
 					};
 			JPF.vatrace = new Trace();
-			JPF.vatrace.filter = new Or(
+//			JPF.vatrace.filter = new Or(
 //					new NameFilter("interpolatedDerivatives" , "previousState"),
 //					new ReferenceFilter(888),
 //					new NameFilter("tMin", "tb"),
@@ -180,15 +174,15 @@ public class VarvizView extends ViewPart {
 //									return s.getMethod().getMethodInfo().getName().equals("logGamma");
 //								}
 //							}),
-					new InteractionFilter(2),
-					new ExceptionFilter(), 
-					new StatementFilter() {
-				
-				@Override
-				public boolean filter(Statement<?> s) {
-					return s instanceof IFStatement;
-				}
-			});
+//					new InteractionFilter(2),
+//					new ExceptionFilter(), 
+//					new StatementFilter() {
+//				
+//				@Override
+//				public boolean filter(Statement<?> s) {
+//					return s instanceof IFStatement;
+//				}
+//			});
 			
 			JPF.main(args);
 			
