@@ -25,6 +25,8 @@ import java.util.List;
 
 import org.eclipse.draw2d.ConnectionAnchor;
 import org.eclipse.draw2d.IFigure;
+import org.eclipse.gef.ConnectionEditPart;
+import org.eclipse.gef.NodeEditPart;
 import org.eclipse.gef.Request;
 import org.eclipse.swt.SWT;
 
@@ -41,7 +43,7 @@ import cmu.varviz.trace.view.figures.StatementFigure;
  * 
  * @author Jens Meinicke
  */
-public class StatementEditPart extends AbstractTraceEditPart {
+public class StatementEditPart extends AbstractTraceEditPart implements NodeEditPart {
 
 	private ConnectionAnchor sourceAnchor = null;
 	private ConnectionAnchor targetAnchor = null;
@@ -86,14 +88,6 @@ public class StatementEditPart extends AbstractTraceEditPart {
 		
 	}
 
-	public ConnectionAnchor getSourceAnchor() {
-		return sourceAnchor;
-	}
-	
-	public ConnectionAnchor getTargetAnchor() {
-		return targetAnchor;
-	}
-	
 	List<Edge> connections;
 
 	@Override
@@ -139,6 +133,26 @@ public class StatementEditPart extends AbstractTraceEditPart {
 			EditorHelper.open(file, statement.getLineNumber());
 		}
 		super.performRequest(request);
+	}
+	
+	@Override
+	public ConnectionAnchor getSourceConnectionAnchor(ConnectionEditPart arg0) {
+		return sourceAnchor;
+	}
+
+	@Override
+	public ConnectionAnchor getSourceConnectionAnchor(Request arg0) {
+		return sourceAnchor;
+	}
+
+	@Override
+	public ConnectionAnchor getTargetConnectionAnchor(ConnectionEditPart arg0) {
+		return targetAnchor;
+	}
+
+	@Override
+	public ConnectionAnchor getTargetConnectionAnchor(Request arg0) {
+		return targetAnchor;
 	}
 	
 }
