@@ -43,7 +43,7 @@ public class ContextParser implements XMLvarviz {
 		
 	public static String ConditionalToString(Conditional<?> conditional) {
 		if (conditional.isOne()) {
-			return conditional.getValue().toString();
+			return conditional.getValue() + "";
 		}
 		StringBuilder text = new StringBuilder();
 		for (Entry<?, FeatureExpr> entry : conditional.toMap().entrySet()) {

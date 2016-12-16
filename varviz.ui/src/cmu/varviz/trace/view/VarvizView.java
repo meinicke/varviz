@@ -44,19 +44,8 @@ public class VarvizView extends ViewPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
-//		IWorkbenchWindow editor = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-//		IEditorPart part = null;
-//
-//		if (editor != null) {
-//			IWorkbenchPage page = editor.getActivePage();
-//			if (page != null) {
-//				part = page.getActiveEditor();
-//			}
-//		}
-
 		viewer = new ScrollingGraphicalViewer();
 		viewer.createControl(parent);
-		// viewer.getControl().setBackground(DIAGRAM_BACKGROUND);
 		viewer.setEditDomain(new EditDomain());
 		viewer.setEditPartFactory(new TraceEditPartFactory());
 
@@ -99,23 +88,21 @@ public class VarvizView extends ViewPart {
 	LayoutManager lm = new LayoutManager();
 	private Action refreshButton;
 
+	public static Trace trace = null;
 	public void refresh() {
-		final Trace model = createTrace();
-		if (model.getMain() == null) {
+		trace = createTrace();
+		if (trace.getMain() == null) {
 			return;
 		}
 		Display.getDefault().syncExec(new Runnable() {
 			public void run() {
-				viewer.getEditPartRegistry().clear();
-				viewer.setRootEditPart(rootEditPart);
-				viewer.setContents(model);
+				viewer.setContents(trace);
 				viewer.getContents().refresh();
 				lm.layout(viewer.getContents());
 			}
 		});
 	}
 
-	public static Trace trace = null;
 
 //	public static final String PROJECT_NAME = "MathBug";
 	public static final String PROJECT_NAME = "SmallInteractionExamples";
@@ -126,8 +113,9 @@ public class VarvizView extends ViewPart {
 	public static final String PROJECT_Sources_Folder = "src/java";
 	public static final String PROJECT_Sources_Test_Folder = "src/test";
 	
-	public static Trace createTrace() {
-		if (trace == null) {
+	static int projectID = 1;
+	
+	public Trace createTrace() {
 //			final String path = "C:/Users/Jens Meinicke/workspaceVarexJ/Elevator/";
 //			final String path = "C:/Users/Jens Meinicke/workspaceVarexJ/" + PROJECT_NAME;
 			final String path = "C:/Users/Jens Meinicke/git/VarexJ/" + PROJECT_NAME;
@@ -140,11 +128,12 @@ public class VarvizView extends ViewPart {
 					"+invocation",
 //					"linux.Example"
 //					"Main"
-					"linux.Linux1"
+					"linux.Linux" + ((projectID++)%5 +1)
 //					"SmoothingPolynomialBicubicSplineInterpolatorTest"
 //					"Test"
 //					"SimplexOptimizerNelderMeadTestStarter"
 					};
+			JPF.vatrace = new Trace();
 			JPF.vatrace.filter = new Or(
 //					new NameFilter("interpolatedDerivatives" , "previousState"),
 //					new ReferenceFilter(888),
@@ -175,12 +164,11 @@ public class VarvizView extends ViewPart {
 			XMLWriter writer = new XMLWriter(JPF.vatrace);
 			try {
 				writer.writeToFile(xmlFile);
-
 				XMLReader reader = new XMLReader();
 				Trace trace = reader.readFromFile(xmlFile);
 				GrapVizExport exporter = new GrapVizExport("graph", trace);
 				exporter.write();
-				VarvizView.trace= trace;
+				return trace;
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -194,8 +182,8 @@ public class VarvizView extends ViewPart {
 //			JPF.vatrace.highlightContext(ctx, NodeColor.limegreen, 1);
 			
 //			return JPF.vatrace;
-		}
-		return trace;
+//		}
+		return null;
 	}
 
 }

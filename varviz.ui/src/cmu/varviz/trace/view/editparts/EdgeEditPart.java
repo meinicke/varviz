@@ -76,7 +76,14 @@ public class EdgeEditPart extends AbstractConnectionEditPart {
 	}
 	
 	@Override
+	public void activate() {
+		getFigure().setVisible(getTarget() != null);
+		super.activate();
+	}
+
+	@Override
 	public void deactivate() {
+		super.deactivate();
 		getFigure().setVisible(false);
 	}
 

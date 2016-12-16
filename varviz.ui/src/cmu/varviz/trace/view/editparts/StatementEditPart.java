@@ -94,12 +94,16 @@ public class StatementEditPart extends AbstractTraceEditPart {
 		return targetAnchor;
 	}
 	
+	List<Edge> connections;
+
 	@Override
 	protected List<Edge> getModelTargetConnections() {
-		List<Edge> connections = new ArrayList<>();
-		for (Edge edge : VarvizView.trace.getEdges()) {
-			if (edge.getTo() == getModel()) {
-				connections.add(edge);
+		if (connections == null) {
+			connections = new ArrayList<>();
+			for (Edge edge : VarvizView.trace.getEdges()) {
+				if (edge.getTo() == getModel()) {
+					connections.add(edge);
+				}
 			}
 		}
 		return connections;
@@ -115,19 +119,24 @@ public class StatementEditPart extends AbstractTraceEditPart {
 	}
 	
 	@Override
+	public void activate() {
+		getFigure().setVisible(true);
+		super.activate();
+	}
+
+	@Override
+	public void deactivate() {
+		super.deactivate();
+		getFigure().setVisible(false);		
+		getModelTargetConnections().forEach(edge ->	((EdgeEditPart) getViewer().getEditPartRegistry().get(edge)).deactivate());
+	}
+	
+	@Override
 	public void performRequest(Request request) {
 		if ("open".equals(request.getType())) {
 			final Statement<?> statement = getStatementModel();
 			String file = statement.getParent().getFile();
-//			Instruction instruction = (Instruction) statement.getContent();// TODO
-//			if (instruction != null) {
 			EditorHelper.open(file, statement.getLineNumber());
-//			} else {
-//				MethodInfo method = (MethodInfo) statement.getParent().getContent();// TODO
-//				EditorHelper.open(method, method.getLineNumber(0));
-//			}
-			
-			
 		}
 		super.performRequest(request);
 	}
