@@ -52,6 +52,12 @@ public class EdgeEditPart extends AbstractConnectionEditPart {
 	}
 	
 	@Override
+	public void refresh() {
+		super.refresh();
+		refreshVisuals();
+	}
+	
+	@Override
 	protected void refreshVisuals() {
 		Edge edge = (Edge) getModel();
 		StatementEditPart source = (StatementEditPart) getViewer().getEditPartRegistry().get(edge.getFrom());
@@ -63,6 +69,9 @@ public class EdgeEditPart extends AbstractConnectionEditPart {
 		StatementEditPart target = (StatementEditPart) getViewer().getEditPartRegistry().get(edge.getTo());
 		setTarget(target);
 		figure.setToolTip(new Label(Conditional.getCTXString(edge.getCtx())));
+		
+		figure.setForegroundColor(VarvizConstants.getColor(edge.getColor()));
+		((PolylineConnection)figure).setLineWidth(edge.getWidth());
 	}
 
 	private void createLabel(Edge edge, PolylineConnection figure) {
@@ -90,6 +99,10 @@ public class EdgeEditPart extends AbstractConnectionEditPart {
 	public void deactivate() {
 		super.deactivate();
 		getFigure().setVisible(false);
+	}
+
+	public Edge getEdgeModel() {
+		return (Edge)getModel();
 	}
 
 }

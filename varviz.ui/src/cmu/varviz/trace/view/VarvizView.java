@@ -33,6 +33,7 @@ import cmu.varviz.trace.filters.InteractionFilter;
 import cmu.varviz.trace.filters.Or;
 import cmu.varviz.trace.filters.StatementFilter;
 import cmu.varviz.trace.view.actions.HideAction;
+import cmu.varviz.trace.view.actions.HighlightPathAction;
 import cmu.varviz.trace.view.editparts.TraceEditPartFactory;
 import cmu.vatrace.ExceptionFilter;
 import gov.nasa.jpf.JPF;
@@ -105,7 +106,8 @@ public class VarvizView extends ViewPart {
 	}
 	
 	private void fillContextMenu(IMenuManager menuMgr) {
-		menuMgr.add(new HideAction("HIDE", viewer, this));
+		menuMgr.add(new HideAction("Hide", viewer, this));
+		menuMgr.add(new HighlightPathAction("Highlight Path", viewer, this));
 	}
 
 	@Override
