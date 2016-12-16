@@ -8,12 +8,17 @@ import org.eclipse.gef.LayerConstants;
 import org.eclipse.gef.editparts.ScalableFreeformRootEditPart;
 import org.eclipse.gef.ui.parts.ScrollingGraphicalViewer;
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IMenuListener;
+import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.action.MenuManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseWheelListener;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.part.ViewPart;
 
@@ -27,6 +32,7 @@ import cmu.varviz.trace.Trace;
 import cmu.varviz.trace.filters.InteractionFilter;
 import cmu.varviz.trace.filters.Or;
 import cmu.varviz.trace.filters.StatementFilter;
+import cmu.varviz.trace.view.actions.HideAction;
 import cmu.varviz.trace.view.editparts.TraceEditPartFactory;
 import cmu.vatrace.ExceptionFilter;
 import gov.nasa.jpf.JPF;
@@ -78,6 +84,28 @@ public class VarvizView extends ViewPart {
 				}
 			}
 		});
+		
+		createContextMenu();
+	}
+	
+	public void createContextMenu() {
+		MenuManager menuMgr = new MenuManager("#PopupMenu");
+		menuMgr.setRemoveAllWhenShown(true);
+
+		menuMgr.addMenuListener(new IMenuListener() {
+			public void menuAboutToShow(IMenuManager m) {
+				fillContextMenu(m);
+			}
+		});
+		Control control = viewer.getControl();
+		Menu menu = menuMgr.createContextMenu(control);
+		control.setMenu(menu);
+		getSite().registerContextMenu(menuMgr, viewer);
+
+	}
+	
+	private void fillContextMenu(IMenuManager menuMgr) {
+		menuMgr.add(new HideAction("HIDE", viewer, this));
 	}
 
 	@Override
@@ -91,9 +119,10 @@ public class VarvizView extends ViewPart {
 	public static Trace trace = null;
 	public void refresh() {
 		trace = createTrace();
-		if (trace.getMain() == null) {
-			return;
-		}
+		refreshVisuals();
+	}
+
+	public void refreshVisuals() {
 		Display.getDefault().syncExec(new Runnable() {
 			public void run() {
 				viewer.setContents(trace);
@@ -128,7 +157,8 @@ public class VarvizView extends ViewPart {
 					"+invocation",
 //					"linux.Example"
 //					"Main"
-					"linux.Linux" + ((projectID++)%5 +1)
+					"linux.Linux1"
+//					"linux.Linux" + ((projectID++)%5 +1)
 //					"SmoothingPolynomialBicubicSplineInterpolatorTest"
 //					"Test"
 //					"SimplexOptimizerNelderMeadTestStarter"

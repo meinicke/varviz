@@ -53,13 +53,9 @@ public class StatementEditPart extends AbstractTraceEditPart implements NodeEdit
 		setModel(method);
 	}
 
-	public Statement<?> getRoleModel() {
-		return (Statement<?>) getModel();
-	}
-
 	@Override
 	protected IFigure createFigure() {
-		Statement<?> model = getRoleModel();
+		Statement<?> model = getStatementModel();
 		final Shape shape = model.getShape();
 		if (shape == null) {
 			StatementFigure statementFigure = new StatementFigure(model);

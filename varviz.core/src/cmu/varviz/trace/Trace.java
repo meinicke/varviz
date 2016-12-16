@@ -50,6 +50,7 @@ public class Trace {
 	}
 	
 	public void createEdges() {
+		edges.clear();
 		addStatement(START);
 		main.addStatements(this);
 		addStatement(END);
@@ -101,8 +102,7 @@ public class Trace {
 		}
 	}
 
-	private void highlightNotTautology() {
-		// highlight ctx
+	public void highlightNotTautology() {
 		for (Edge e : edges) {
 			if (!e.ctx.isTautology()) {
 				e.setColor(NodeColor.darkorange);

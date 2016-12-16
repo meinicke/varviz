@@ -64,7 +64,9 @@ public class TraceEditPart extends AbstractTraceEditPart {
 		Trace t = getRoleModel();
 		List<Object> list = new ArrayList<Object>();
 		list.add(t.getSTART());
-		list.add(t.getMain());
+		if (t.getMain() != null) {
+			list.add(t.getMain());
+		}
 		list.add(t.getEND());
 		return list;
 	}

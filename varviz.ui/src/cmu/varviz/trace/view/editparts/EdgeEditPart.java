@@ -55,9 +55,14 @@ public class EdgeEditPart extends AbstractConnectionEditPart {
 	protected void refreshVisuals() {
 		Edge edge = (Edge) getModel();
 		StatementEditPart source = (StatementEditPart) getViewer().getEditPartRegistry().get(edge.getFrom());
+		if (source == null) {
+			deactivate();
+			return;
+		}
 		setSource(source);
 		StatementEditPart target = (StatementEditPart) getViewer().getEditPartRegistry().get(edge.getTo());
 		setTarget(target);
+		figure.setToolTip(new Label(Conditional.getCTXString(edge.getCtx())));
 	}
 
 	private void createLabel(Edge edge, PolylineConnection figure) {

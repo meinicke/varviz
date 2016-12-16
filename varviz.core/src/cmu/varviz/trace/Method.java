@@ -60,6 +60,10 @@ public class Method<U> extends MethodElement<U> {
 		return !execution.isEmpty();
 	}
 	
+	public void remove(MethodElement<?> element) {
+		execution.remove(element);
+	}
+	
 	public void printLabel(PrintWriter pw) {
 		pw.println("subgraph \"cluster_" + TraceUtils.toShortID(id) + "\" {");
 		pw.println("label = \"" + toString() + "\";");
