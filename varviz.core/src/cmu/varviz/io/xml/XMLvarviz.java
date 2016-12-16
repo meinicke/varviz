@@ -14,4 +14,7 @@ public interface XMLvarviz {
 	String COLOR = "Color";
 	
 	int DEFAULT_LINE_NUMBER = -1;
+	
+	char valueSplitChar = ',';
+	String entrySplitChar = ":";
 }

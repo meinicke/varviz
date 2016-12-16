@@ -1,11 +1,16 @@
 package cmu.varviz.utils;
 
+import java.util.Map.Entry;
+
+import cmu.conditional.ChoiceFactory;
 import cmu.conditional.Conditional;
+import cmu.conditional.One;
+import cmu.varviz.io.xml.XMLvarviz;
 import de.fosd.typechef.featureexpr.FeatureExpr;
 import de.fosd.typechef.featureexpr.FeatureExprFactory;
 import de.fosd.typechef.featureexpr.SingleFeatureExpr;
 
-public class ContextParser {
+public class ContextParser implements XMLvarviz {
 
 	public static FeatureExpr getContext(String context) {
 		if (context.equals("True")) {
@@ -34,6 +39,36 @@ public class ContextParser {
 			ctx = ctx.or(andContext);
 		}
 		return ctx;
+	}
+		
+	public static String ConditionalToString(Conditional<?> conditional) {
+		if (conditional.isOne()) {
+			return conditional.getValue().toString();
+		}
+		StringBuilder text = new StringBuilder();
+		for (Entry<?, FeatureExpr> entry : conditional.toMap().entrySet()) {
+			text.append(Conditional.getCTXString(entry.getValue()));
+			text.append(':');
+			text.append(entry.getKey());
+			text.append(valueSplitChar);
+		}
+		return text.substring(0, text.length() - 1);
+	}
+	
+	public static Conditional<String> StringToConditional(String string) {
+		if (!string.contains(valueSplitChar + "")) {
+			return new One<>(string);
+		}
+		String[] split = string.split("\\" + valueSplitChar);
+		
+		Conditional<String> value = new One<>(null);
+		for (String entry : split) {
+			String[] entrySplit = entry.split(entrySplitChar);
+			String contextString = entrySplit[0];
+			String valueString = entrySplit[1];
+			value = ChoiceFactory.create(getContext(contextString), new One<>(valueString), value);
+		}
+		return value.simplify();
 	}
 
 }

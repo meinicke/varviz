@@ -37,6 +37,27 @@ public class EditorHelper {
 		scrollToLine(editor, lineNumber);
 	}
 	
+	public static void open(String fileName, int lineNumber) {
+		IFile file = getFile(fileName);
+		IWorkbenchWindow dw = VarvizActivator.getDefault().getWorkbench().getActiveWorkbenchWindow();
+		IWorkbenchPage page = dw.getActivePage();
+		IEditorPart editor = openEditor(file, page);
+		scrollToLine(editor, lineNumber);
+	}
+	
+	private static IFile getFile(String fileName) {
+		IProject prj = ResourcesPlugin.getWorkspace().getRoot().getProject(VarvizView.PROJECT_NAME);		
+		IFile file = prj.getFile("src/" + fileName);
+		if (!file.exists()) {
+			prj = ResourcesPlugin.getWorkspace().getRoot().getProject(VarvizView.PROJECT_Sources);		
+			file = prj.getFile(VarvizView.PROJECT_Sources_Folder + "/" + fileName);
+			if (!file.exists()) {
+				file = prj.getFile(VarvizView.PROJECT_Sources_Test_Folder + "/" + fileName);
+			}
+		}
+		return file;
+	}
+	
 	// TODO revise this, iterate over list of possible paths
 	private static IFile getFile(MethodInfo mi) {
 		IProject prj = ResourcesPlugin.getWorkspace().getRoot().getProject(VarvizView.PROJECT_NAME);		

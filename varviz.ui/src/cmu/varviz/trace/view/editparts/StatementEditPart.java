@@ -31,12 +31,10 @@ import org.eclipse.swt.SWT;
 import cmu.varviz.trace.Edge;
 import cmu.varviz.trace.Shape;
 import cmu.varviz.trace.Statement;
+import cmu.varviz.trace.view.VarvizView;
 import cmu.varviz.trace.view.figures.IfBranchFigure;
 import cmu.varviz.trace.view.figures.SquareFigure;
 import cmu.varviz.trace.view.figures.StatementFigure;
-import gov.nasa.jpf.JPF;
-import gov.nasa.jpf.vm.Instruction;
-import gov.nasa.jpf.vm.MethodInfo;
 
 /**
  * TODO description
@@ -99,7 +97,7 @@ public class StatementEditPart extends AbstractTraceEditPart {
 	@Override
 	protected List<Edge> getModelTargetConnections() {
 		List<Edge> connections = new ArrayList<>();
-		for (Edge edge : JPF.vatrace.getEdges()) {
+		for (Edge edge : VarvizView.trace.getEdges()) {
 			if (edge.getTo() == getModel()) {
 				connections.add(edge);
 			}
@@ -120,13 +118,14 @@ public class StatementEditPart extends AbstractTraceEditPart {
 	public void performRequest(Request request) {
 		if ("open".equals(request.getType())) {
 			final Statement<?> statement = getStatementModel();
-			Instruction instruction = (Instruction) statement.getContent();// TODO
-			if (instruction != null) {
-				EditorHelper.open(instruction.getMethodInfo(), instruction.getLineNumber());
-			} else {
-				MethodInfo method = (MethodInfo) statement.getParent().getContent();// TODO
-				EditorHelper.open(method, method.getLineNumber(0));
-			}
+			String file = statement.getParent().getFile();
+//			Instruction instruction = (Instruction) statement.getContent();// TODO
+//			if (instruction != null) {
+			EditorHelper.open(file, statement.getLineNumber());
+//			} else {
+//				MethodInfo method = (MethodInfo) statement.getParent().getContent();// TODO
+//				EditorHelper.open(method, method.getLineNumber(0));
+//			}
 			
 			
 		}

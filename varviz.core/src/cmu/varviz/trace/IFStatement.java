@@ -6,14 +6,11 @@ import de.fosd.typechef.featureexpr.FeatureExpr;
 public class IFStatement<T> extends Statement<T> {
 
 	private FeatureExpr targetContext;
-
-	private IFStatement(T op, Method<?> m, FeatureExpr ctx) {
-		super(op, m, ctx);
-	}
 	
-	public IFStatement(T op, Method<?> m, FeatureExpr targetContext, FeatureExpr ctx) {
-		this(op, m, ctx);
+	public IFStatement(T op, Method<?> m, int line, FeatureExpr targetContext, FeatureExpr ctx) {
+		super(op, m, line, ctx);
 		this.targetContext = targetContext;
+		this.lineNumber = line;
 		setShape(Shape.Mdiamond);
 		setColor(NodeColor.white);
 	}

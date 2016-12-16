@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
+import java.util.Map.Entry;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -28,6 +29,7 @@ import cmu.varviz.trace.NodeColor;
 import cmu.varviz.trace.Shape;
 import cmu.varviz.trace.Statement;
 import cmu.varviz.trace.Trace;
+import cmu.varviz.utils.ContextParser;
 import de.fosd.typechef.featureexpr.FeatureExpr;
 
 public class XMLWriter implements XMLvarviz {
@@ -53,7 +55,7 @@ public class XMLWriter implements XMLvarviz {
 
 	private String createXMLDocument(Document doc) throws TransformerException {
 		Element root = doc.createElement(ROOT);
-		
+
 		writeTraceElements(trace.getMain(), doc, root);
 
 		doc.appendChild(root);
@@ -68,36 +70,62 @@ public class XMLWriter implements XMLvarviz {
 	}
 
 	private void writeTraceElements(MethodElement<?> methodElement, Document doc, Element parent) {
-		boolean isStatement = methodElement instanceof Statement;
-		
-		String elementType = isStatement ? STATEMENT : METHOD;
+
+		String elementType = methodElement instanceof Statement ? STATEMENT : METHOD;
 		Element element = doc.createElement(elementType);
 		element.setAttribute(NAME, methodElement.toString());
-		
+
 		int lineNumber = methodElement.getLineNumber();
 		if (lineNumber != DEFAULT_LINE_NUMBER) {
 			element.setAttribute(LINE, Integer.toString(lineNumber));
 		}
-		
+
 		FeatureExpr ctx = methodElement.getCTX();
 		if (!Conditional.isTautology(ctx)) {
 			element.setAttribute(CTX, Conditional.getCTXString(ctx));
 		}
-		
+
 		setColor(methodElement, element);
 		if (methodElement instanceof Statement) {
 			setShape((Statement<?>) methodElement, element);
+			setValues((Statement<?>) methodElement, element);
 		}
-		
-		if (!isStatement) { 
+
+		if (methodElement instanceof Method) {
 			Method<?> method = (Method<?>) methodElement;
 			element.setAttribute(FILE, method.getFile());
 			for (MethodElement<?> child : method.getChildren()) {
 				writeTraceElements(child, doc, element);
 			}
 		}
-		
+
 		parent.appendChild(element);
+	}
+
+	private void setValues(Statement<?> statement, Element element) {
+		Conditional<?> oldValue = statement.getOldValue();
+		Conditional<?> value = statement.getValue();
+		if (oldValue != null) {
+			element.setAttribute("old", ContextParser.ConditionalToString(oldValue));
+		}
+		if (value != null) {
+			element.setAttribute("new", ContextParser.ConditionalToString(value));
+		}
+	}
+	
+	private String createString(Conditional<?> value) {
+		if (value.isOne()) {
+			return value.getValue().toString();
+		} else {
+			final StringBuilder text = new StringBuilder();
+			for (Entry<?, FeatureExpr> entry : value.toMap().entrySet()) {
+				text.append(entry.getKey());
+				text.append(" : ");
+				text.append(Conditional.getCTXString(entry.getValue()));
+				text.append('\n');
+			}
+			return text.subSequence(0, text.length() - 1).toString();
+		}
 	}
 
 	private void setColor(MethodElement<?> methodElement, Element element) {

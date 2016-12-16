@@ -48,6 +48,12 @@ public class Trace {
 		}
 		m.filterExecution(filter);
 	}
+	
+	public void createEdges() {
+		addStatement(START);
+		main.addStatements(this);
+		addStatement(END);
+	}
 
 	@SuppressWarnings("null")
 	public void print(PrintWriter pw) {

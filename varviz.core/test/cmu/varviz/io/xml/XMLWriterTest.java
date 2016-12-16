@@ -9,7 +9,7 @@ import cmu.varviz.trace.Trace;
 import cmu.vaviz.testutils.TraceFactory;
 
 public class XMLWriterTest {
-
+	
 	@Test
 	public void test() throws ParserConfigurationException, TransformerException {
 		Trace trace = TraceFactory.createTrace();

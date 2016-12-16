@@ -94,7 +94,20 @@ public class XMLReader implements XMLvarviz {
 				setColor(attributes, statement);
 				setShape(attributes, statement);
 				setLine(attributes, statement);
+				setValues(attributes, statement);
 			}
+		}
+	}
+
+	private void setValues(NamedNodeMap attributes, Statement<String> statement) {
+		String oldValue = getAttribute(attributes, "old", v -> v);
+		String value = getAttribute(attributes, "new", v -> v);
+		
+		if (oldValue != null) {
+			statement.setOldValue(ContextParser.StringToConditional(oldValue));
+		}
+		if (value != null) {
+			statement.setValue(ContextParser.StringToConditional(value));
 		}
 	}
 

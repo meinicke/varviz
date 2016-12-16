@@ -12,13 +12,11 @@ import cmu.varviz.io.xml.XMLReader;
 import cmu.varviz.io.xml.XMLWriter;
 import cmu.varviz.trace.Trace;
 import cmu.vaviz.testutils.TraceFactory;
-import de.fosd.typechef.featureexpr.FeatureExprFactory;
 
 public class GrapVizExportTest {
 
 	@Test
 	public void testXMLexportImportDotExport() throws ParserConfigurationException, TransformerException, IOException, SAXException {
-		FeatureExprFactory.setDefault(FeatureExprFactory.bdd());
 		Trace trace = TraceFactory.createTrace();
 		XMLWriter writer = new XMLWriter(trace);
 		String content = writer.write();

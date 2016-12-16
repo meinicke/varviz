@@ -12,7 +12,7 @@
 	<classpathentry kind="lib" path="lib/RunJPF.jar"/>
 	<classpathentry kind="lib" path="lib/RunTest.jar"/>
 	<classpathentry kind="lib" path="lib/scala-library-2.11.8.jar"/>
-	<classpathentry kind="lib" path="lib/varviz.jar"/>
+	<classpathentry kind="lib" path="lib/varviz.jar" sourcepath="/varviz.core"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>

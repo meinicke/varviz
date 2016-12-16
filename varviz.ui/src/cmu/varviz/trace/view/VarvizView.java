@@ -1,5 +1,7 @@
 package cmu.varviz.trace.view;
 
+import java.io.File;
+
 import org.eclipse.draw2d.ConnectionLayer;
 import org.eclipse.gef.EditDomain;
 import org.eclipse.gef.LayerConstants;
@@ -16,6 +18,10 @@ import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.part.ViewPart;
 
 import cmu.varviz.VarvizActivator;
+import cmu.varviz.io.graphviz.GrapVizExport;
+import cmu.varviz.io.xml.XMLReader;
+import cmu.varviz.io.xml.XMLWriter;
+import cmu.varviz.trace.IFStatement;
 import cmu.varviz.trace.Statement;
 import cmu.varviz.trace.Trace;
 import cmu.varviz.trace.filters.InteractionFilter;
@@ -23,7 +29,6 @@ import cmu.varviz.trace.filters.Or;
 import cmu.varviz.trace.filters.StatementFilter;
 import cmu.varviz.trace.view.editparts.TraceEditPartFactory;
 import cmu.vatrace.ExceptionFilter;
-import cmu.vatrace.IFBranch;
 import gov.nasa.jpf.JPF;
 
 /**
@@ -110,7 +115,7 @@ public class VarvizView extends ViewPart {
 		});
 	}
 
-	private static Trace trace = null;
+	public static Trace trace = null;
 
 //	public static final String PROJECT_NAME = "MathBug";
 	public static final String PROJECT_NAME = "SmallInteractionExamples";
@@ -160,11 +165,25 @@ public class VarvizView extends ViewPart {
 				
 				@Override
 				public boolean filter(Statement<?> s) {
-					return s instanceof IFBranch;
+					return s instanceof IFStatement;
 				}
 			});
 			
 			JPF.main(args);
+			
+			final File xmlFile = new File("graph.xml");
+			XMLWriter writer = new XMLWriter(JPF.vatrace);
+			try {
+				writer.writeToFile(xmlFile);
+
+				XMLReader reader = new XMLReader();
+				Trace trace = reader.readFromFile(xmlFile);
+				GrapVizExport exporter = new GrapVizExport("graph", trace);
+				exporter.write();
+				VarvizView.trace= trace;
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 			
 			// highlight path ¬patch60&¬patch42&patch53&¬patch48
 //			SingleFeatureExpr patch60 = Conditional.features.get("patch60");
@@ -174,7 +193,7 @@ public class VarvizView extends ViewPart {
 //			FeatureExpr ctx = patch60.not().andNot(patch42).and(patch53).andNot(patch48);
 //			JPF.vatrace.highlightContext(ctx, NodeColor.limegreen, 1);
 			
-			return JPF.vatrace;
+//			return JPF.vatrace;
 		}
 		return trace;
 	}

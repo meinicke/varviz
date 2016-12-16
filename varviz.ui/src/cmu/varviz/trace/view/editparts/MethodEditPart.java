@@ -33,7 +33,6 @@ import cmu.varviz.trace.Method;
 import cmu.varviz.trace.MethodElement;
 import cmu.varviz.trace.view.figures.MethodFigure;
 import de.fosd.typechef.featureexpr.FeatureExpr;
-import gov.nasa.jpf.vm.MethodInfo;
 
 /**
  * TODO description
@@ -163,8 +162,7 @@ public class MethodEditPart extends AbstractTraceEditPart {
 			final int lineNumber = method.getLineNumber();
 			Method<?> parent = method.getParent();
 			if (parent != null) {
-				MethodInfo mi = (MethodInfo) parent.getContent();
-				EditorHelper.open(mi, lineNumber);
+				EditorHelper.open(parent.getFile(), lineNumber);
 			}
 		}
 		super.performRequest(request);

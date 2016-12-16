@@ -8,6 +8,9 @@ import de.fosd.typechef.featureexpr.FeatureExpr;
 
 public class Statement<T> extends MethodElement<T> {
 
+	private Conditional<?> oldValue;
+	private Conditional<?> value;
+
 	public Statement(T operation, Method<?> method, int line, FeatureExpr ctx) {
 		super(operation, method, line, ctx);
 	}
@@ -21,7 +24,18 @@ public class Statement<T> extends MethodElement<T> {
 		out.print(getID());
 		out.print("[penwidth=" + width);
 		out.print(",label=");
-		out.print("\"" + this + "\"");
+		out.print("\"");
+		out.print(this);
+		if (oldValue != null) {
+			out.print(' ');
+			out.print(oldValue.toString());
+			out.print(" \u2192");
+		}
+		if (value != null) {
+			out.print(' ');
+			out.print(value.toString());
+		}
+		out.print("\"");
 		if (color != null) {
 			if (color == NodeColor.white) {
 				out.print(",fillcolor=\"" + color + '\"');
@@ -65,15 +79,23 @@ public class Statement<T> extends MethodElement<T> {
 	/**
 	 * If the operation changes a value, this method returns its old value.
 	 */
-	public Conditional<String> getOldValue() {
-		return null;
+	public Conditional<?> getOldValue() {
+		return oldValue;
+	}
+	
+	public void setOldValue(Conditional<?> oldValue) {
+		this.oldValue = oldValue;
 	}
 
 	/**
 	 * Returns the value of the statement.
 	 */
-	public Conditional<String> getValue() {
-		return null;
+	public Conditional<?> getValue() {
+		return value;
+	}
+	
+	public void setValue(Conditional<?> value) {
+		this.value = value;
 	}
 
 	protected Shape shape = null;

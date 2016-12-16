@@ -88,19 +88,19 @@ public class StatementFigure extends RoundedRectangle {
 	}
 
 	private void createLabelOld() {
-		Conditional<String> old = statement.getOldValue();
+		Conditional<?> old = statement.getOldValue();
 		a.setText(createText(old));
 		Dimension labelSize = a.getPreferredSize();
 		a.setLocation(new Point(label.getBounds().right() + BORDER_MARGIN, BORDER_MARGIN));		
 		a.setSize(labelSize);
 	}
 
-	private String createText(Conditional<String> value) {
+	private String createText(Conditional<?> value) {
 		if (value.isOne()) {
-			return value.getValue();
+			return value.getValue().toString();
 		} else {
 			final StringBuilder text = new StringBuilder();
-			for (Entry<String, FeatureExpr> entry : value.toMap().entrySet()) {
+			for (Entry<?, FeatureExpr> entry : value.toMap().entrySet()) {
 				text.append(entry.getKey());
 				text.append(" : ");
 				text.append(Conditional.getCTXString(entry.getValue()));
@@ -109,8 +109,9 @@ public class StatementFigure extends RoundedRectangle {
 			return text.subSequence(0, text.length() - 1).toString();
 		}
 	}
+	
 	private void createLabelNew(int x) {
-		Conditional<String> newValue = statement.getValue();
+		Conditional<?> newValue = statement.getValue();
 		b.setText(createText(newValue));
 		b.setLocation(new Point(x, BORDER_MARGIN));
 		Dimension labelSize = b.getPreferredSize();
