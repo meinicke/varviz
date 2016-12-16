@@ -15,6 +15,6 @@ public interface XMLvarviz {
 	
 	int DEFAULT_LINE_NUMBER = -1;
 	
-	char valueSplitChar = ',';
-	String entrySplitChar = ":";
+	String valueSplitChar = "-split-";
+	String entrySplitChar = "-entry-";
 }

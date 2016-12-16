@@ -9,6 +9,7 @@ import cmu.conditional.Conditional;
 import cmu.conditional.One;
 import cmu.varviz.trace.filters.StatementFilter;
 import de.fosd.typechef.featureexpr.FeatureExpr;
+import de.fosd.typechef.featureexpr.FeatureExprFactory;
 
 public class Trace {
 	
@@ -71,6 +72,10 @@ public class Trace {
 		
 		highlightNotTautology();
 		
+		// highlight exception
+		
+		highlightException();
+		
 		pw.println("// Edges");
 		Edge previous = null;
 		for (Edge e : edges) {
@@ -89,6 +94,13 @@ public class Trace {
 		
 		pw.println('}');
 		pw.flush();
+	}
+
+	public void highlightException() {
+		FeatureExpr exceptionContext = main.accumulate((Statement<?> s, FeatureExpr u) -> {
+			return s.toString().contains("Exception") || s.toString().contains("Error") ? u.or(s.getCTX()) : u;
+		}, FeatureExprFactory.False());
+		highlightContext(exceptionContext, NodeColor.firebrick1, 1);
 	}
 
 	public void highlightContext(FeatureExpr ctx, NodeColor color, int width) {
@@ -142,4 +154,5 @@ public class Trace {
 	public List<Edge> getEdges() {
 		return edges;
 	}
+	
 }
