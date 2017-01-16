@@ -104,6 +104,15 @@ public class MethodEditPart extends AbstractTraceEditPart {
 							previousFigure = childEditPart;
 							continue;
 						}
+					} else {
+						childEditPart.layout();
+						childEditPart.getFigure().translateToRelative(referencePoint);
+
+						childEditPart.getFigure().setLocation(new Point(previousFigure.getFigure().getBounds().getTop().x - childEditPart.getFigure().getBounds().width/2, h));
+						h = childEditPart.getFigure().getBounds().bottom() + BORDER_MARGIN * 4;
+						previous = model;
+						previousFigure = childEditPart;
+						continue;
 					}
 				}
 
