@@ -36,6 +36,10 @@ public class MethodFigure extends Figure {
 		tooltip.setText(method.toString());
 		setToolTip(tooltip);
 	}
+	
+	public int getMinWidth() {
+		return label.getPreferredSize().width + 10;
+	}
 
 	private void setName(String name){
 		label.setText(name);

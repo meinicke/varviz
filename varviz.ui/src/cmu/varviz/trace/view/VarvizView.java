@@ -26,7 +26,11 @@ import cmu.varviz.VarvizActivator;
 import cmu.varviz.io.graphviz.GrapVizExport;
 import cmu.varviz.io.xml.XMLReader;
 import cmu.varviz.io.xml.XMLWriter;
+import cmu.varviz.trace.Method;
+import cmu.varviz.trace.Statement;
 import cmu.varviz.trace.Trace;
+import cmu.varviz.trace.filters.Or;
+import cmu.varviz.trace.filters.StatementFilter;
 import cmu.varviz.trace.view.actions.HideAction;
 import cmu.varviz.trace.view.actions.HighlightPathAction;
 import cmu.varviz.trace.view.editparts.TraceEditPartFactory;
@@ -160,7 +164,27 @@ public class VarvizView extends ViewPart {
 //					"SimplexOptimizerNelderMeadTestStarter"
 					};
 			JPF.vatrace = new Trace();
-//			JPF.vatrace.filter = new Or(
+			JPF.vatrace.filter = new Or(
+					new StatementFilter() {
+						
+						@Override
+						public boolean filter(Statement<?> s) {
+							return !(hasParent(s.getParent(), "java.", "<init>")
+									|| hasParent(s.getParent(), "java.", "<clinit>"));
+						}
+
+						private boolean hasParent(Method<?> parent, String filter, String filter2) {
+							if (parent.toString().contains(filter) && parent.toString().contains(filter)) {
+								return true;
+							}
+							parent = parent.getParent();
+							if (parent != null) {
+								return hasParent(parent, filter, filter2);
+							}
+							return false;
+						}
+					});
+					
 //					new NameFilter("interpolatedDerivatives" , "previousState"),
 //					new ReferenceFilter(888),
 //					new NameFilter("tMin", "tb"),

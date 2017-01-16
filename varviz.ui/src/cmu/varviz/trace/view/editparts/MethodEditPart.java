@@ -134,7 +134,7 @@ public class MethodEditPart extends AbstractTraceEditPart {
 			}
 		}
 
-		int maxW = bounds.width;
+		int maxW = ((MethodFigure)methodFigure).getMinWidth();
 		int maxH = bounds.height;
 		for (Object object : getChildren()) {
 			if (object instanceof AbstractGraphicalEditPart) {
