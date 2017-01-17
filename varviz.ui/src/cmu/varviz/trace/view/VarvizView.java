@@ -46,7 +46,11 @@ public class VarvizView extends ViewPart {
 
 	private ScrollingGraphicalViewer viewer;
 	private ScalableFreeformRootEditPart rootEditPart;
-
+	
+	private Action refreshButton;
+	private Action showLablesButton;
+	public static boolean showLables = false;
+	
 	@Override
 	public void createPartControl(Composite parent) {
 		viewer = new ScrollingGraphicalViewer();
@@ -59,17 +63,33 @@ public class VarvizView extends ViewPart {
 		viewer.setRootEditPart(rootEditPart);
 		refresh();
 
+		
+		IActionBars bars = getViewSite().getActionBars();
+		IToolBarManager toolbarManager = bars.getToolBarManager();
+
 		refreshButton = new Action() {
 			public void run() {
 				refresh();
 			}
 		};
-
-		IActionBars bars = getViewSite().getActionBars();
-		IToolBarManager toolbarManager = bars.getToolBarManager();
 		toolbarManager.add(refreshButton);
 		refreshButton.setImageDescriptor(VarvizActivator.REFESH_TAB_IMAGE_DESCRIPTOR);
 
+		showLablesButton = new Action() {
+			public void run() {
+				showLables = !showLables;
+				trace.createEdges();
+				trace.highlightNotTautology();
+				trace.highlightException();
+				refreshVisuals();
+			}
+		};
+		showLablesButton.setToolTipText("Show edge context");
+		toolbarManager.add(showLablesButton);
+		showLablesButton.setChecked(showLables);
+		showLablesButton.setImageDescriptor(VarvizActivator.LABEL_IMAGE_DESCRIPTOR);
+
+		
 		viewer.getControl().addMouseWheelListener(new MouseWheelListener() {
 			@Override
 			public void mouseScrolled(final MouseEvent ev) {
@@ -114,7 +134,7 @@ public class VarvizView extends ViewPart {
 	}
 
 	LayoutManager lm = new LayoutManager();
-	private Action refreshButton;
+	
 
 	public static Trace trace = null;
 	public void refresh() {

@@ -9,6 +9,7 @@ public abstract class MethodElement<T> {
 
 	private static int ID = 0;
 	protected final int id = ID++;
+	protected boolean filtered = false;
 	
 	protected final FeatureExpr ctx;
 
@@ -98,4 +99,11 @@ public abstract class MethodElement<T> {
 		return TraceUtils.toShortID(id);
 	}
 
+	public void setFiltered(boolean filtered) {
+		this.filtered = filtered;
+	}
+	
+	public boolean isFiltered() {
+		return filtered;
+	}
 }

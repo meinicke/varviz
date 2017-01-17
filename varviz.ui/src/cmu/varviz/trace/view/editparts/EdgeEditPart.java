@@ -13,6 +13,7 @@ import org.eclipse.swt.graphics.Color;
 import cmu.conditional.Conditional;
 import cmu.varviz.VarvizConstants;
 import cmu.varviz.trace.Edge;
+import cmu.varviz.trace.view.VarvizView;
 
 /**
  * TODO description
@@ -44,7 +45,7 @@ public class EdgeEditPart extends AbstractConnectionEditPart {
 		decoration.setForegroundColor(VarvizConstants.getColor(edge.getColor()));
 		figure.setTargetDecoration(decoration);
 
-		if (!Conditional.isTautology(edge.getCtx())) {
+		if (!Conditional.isTautology(edge.getCtx()) && VarvizView.showLables) {
 			createLabel(edge, figure);
 		}
 		
