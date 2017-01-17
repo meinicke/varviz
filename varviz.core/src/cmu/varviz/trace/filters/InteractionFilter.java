@@ -12,6 +12,6 @@ public class InteractionFilter implements StatementFilter {
 	
 	@Override
 	public boolean filter(Statement<?> s) {
-		return s.isInteraction(degree);
+		return degree == 1 ? true : s.isInteraction(degree);
 	}
 }

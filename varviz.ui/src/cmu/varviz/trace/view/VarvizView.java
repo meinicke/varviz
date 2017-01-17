@@ -29,11 +29,15 @@ import cmu.varviz.io.xml.XMLWriter;
 import cmu.varviz.trace.Method;
 import cmu.varviz.trace.Statement;
 import cmu.varviz.trace.Trace;
+import cmu.varviz.trace.filters.And;
+import cmu.varviz.trace.filters.InteractionFilter;
 import cmu.varviz.trace.filters.Or;
 import cmu.varviz.trace.filters.StatementFilter;
 import cmu.varviz.trace.view.actions.HideAction;
 import cmu.varviz.trace.view.actions.HighlightPathAction;
+import cmu.varviz.trace.view.actions.SetDegreeAction;
 import cmu.varviz.trace.view.editparts.TraceEditPartFactory;
+import cmu.vatrace.ExceptionFilter;
 import gov.nasa.jpf.JPF;
 
 /**
@@ -89,7 +93,6 @@ public class VarvizView extends ViewPart {
 		showLablesButton.setChecked(showLables);
 		showLablesButton.setImageDescriptor(VarvizActivator.LABEL_IMAGE_DESCRIPTOR);
 
-		
 		viewer.getControl().addMouseWheelListener(new MouseWheelListener() {
 			@Override
 			public void mouseScrolled(final MouseEvent ev) {
@@ -120,12 +123,17 @@ public class VarvizView extends ViewPart {
 		Menu menu = menuMgr.createContextMenu(control);
 		control.setMenu(menu);
 		getSite().registerContextMenu(menuMgr, viewer);
-
 	}
 	
 	private void fillContextMenu(IMenuManager menuMgr) {
 		menuMgr.add(new HideAction("Hide", viewer, this));
 		menuMgr.add(new HighlightPathAction("Highlight Path", viewer, this));
+		
+		MenuManager exportMenu = new MenuManager("Set Min Interaction Degree");
+		for (int degree = 1; degree <= 6; degree++) {
+			exportMenu.add(new SetDegreeAction(this, degree));
+		}
+		menuMgr.add(exportMenu);
 	}
 
 	@Override
@@ -152,7 +160,26 @@ public class VarvizView extends ViewPart {
 		});
 	}
 
+	private static StatementFilter basefilter = new Or(new StatementFilter() {
+		
+		@Override
+		public boolean filter(Statement<?> s) {
+			return !(hasParent(s.getParent(), "java.", "<init>")
+					|| hasParent(s.getParent(), "java.", "<clinit>"));
+		}
 
+		private boolean hasParent(Method<?> parent, String filter, String filter2) {
+			if (parent.toString().contains(filter) && parent.toString().contains(filter)) {
+				return true;
+			}
+			parent = parent.getParent();
+			if (parent != null) {
+				return hasParent(parent, filter, filter2);
+			}
+			return false;
+		}});
+	
+	
 //	public static final String PROJECT_NAME = "MathBug";
 	public static final String PROJECT_NAME = "SmallInteractionExamples";
 //	public static final String PROJECT_Sources = "MathSources";
@@ -162,7 +189,9 @@ public class VarvizView extends ViewPart {
 	public static final String PROJECT_Sources_Folder = "src/java";
 	public static final String PROJECT_Sources_Test_Folder = "src/test";
 	
-	static int projectID = 1;
+	public static int projectID = 1;
+	
+	public static int minDegree = 1;
 	
 	public Trace createTrace() {
 //			final String path = "C:/Users/Jens Meinicke/workspaceVarexJ/Elevator/";
@@ -184,26 +213,7 @@ public class VarvizView extends ViewPart {
 //					"SimplexOptimizerNelderMeadTestStarter"
 					};
 			JPF.vatrace = new Trace();
-			JPF.vatrace.filter = new Or(
-					new StatementFilter() {
-						
-						@Override
-						public boolean filter(Statement<?> s) {
-							return !(hasParent(s.getParent(), "java.", "<init>")
-									|| hasParent(s.getParent(), "java.", "<clinit>"));
-						}
-
-						private boolean hasParent(Method<?> parent, String filter, String filter2) {
-							if (parent.toString().contains(filter) && parent.toString().contains(filter)) {
-								return true;
-							}
-							parent = parent.getParent();
-							if (parent != null) {
-								return hasParent(parent, filter, filter2);
-							}
-							return false;
-						}
-					});
+			JPF.vatrace.filter = new Or(new And(basefilter, new InteractionFilter(minDegree)), new ExceptionFilter());
 					
 //					new NameFilter("interpolatedDerivatives" , "previousState"),
 //					new ReferenceFilter(888),
