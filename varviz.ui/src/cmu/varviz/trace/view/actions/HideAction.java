@@ -50,7 +50,7 @@ public class HideAction extends Action {
 			
 			// TODO revise update
 			varvizViewView.trace.createEdges();
-			varvizViewView.trace.highlightNotTautology();
+//			varvizViewView.trace.highlightNotTautology();
 			varvizViewView.trace.highlightException();
 			varvizViewView.refreshVisuals();
 		}

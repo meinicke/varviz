@@ -47,9 +47,9 @@ public class HighlightPathAction extends Action {
 
 			// TODO revise update
 			varvizViewView.trace.createEdges();
-			varvizViewView.trace.highlightNotTautology();
-			varvizViewView.trace.highlightException();
-			varvizViewView.trace.highlightContext(ctx, NodeColor.limegreen, 2);
+//			varvizViewView.trace.highlightNotTautology();
+			varvizViewView.trace.highlightException(ctx);
+//			varvizViewView.trace.highlightContext(ctx, NodeColor.limegreen, 2);
 			varvizViewView.refreshVisuals();
 		}
 	}

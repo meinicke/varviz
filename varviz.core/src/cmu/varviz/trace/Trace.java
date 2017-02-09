@@ -70,7 +70,7 @@ public class Trace {
 		main.addStatements(this);
 		addStatement(END);
 		
-		highlightNotTautology();
+//		highlightNotTautology();
 		
 		// highlight exception
 		
@@ -100,16 +100,42 @@ public class Trace {
 		FeatureExpr exceptionContext = main.accumulate((Statement<?> s, FeatureExpr u) -> {
 			return s.toString().contains("Exception") || s.toString().contains("Error") ? u.or(s.getCTX()) : u;
 		}, FeatureExprFactory.False());
-		highlightContext(exceptionContext, NodeColor.firebrick1, 1);
+		highlightException(exceptionContext);
+	}
+	
+	public void highlightException(FeatureExpr ctx) {
+		for (Edge e : edges) {// TODO shouldn't we go through the nodes?
+			if (!Conditional.isContradiction(e.ctx.and(ctx))) {
+				if (e.ctx.equivalentTo(ctx)) {// TODO only works if there is only one exception
+					e.setWidth(3);
+					e.setColor(NodeColor.red);
+					e.from.setWidth(3);
+					e.to.setWidth(3);
+				} else if (e.ctx.isTautology()) {
+					e.setWidth(1);
+					e.setColor(NodeColor.darkorange);
+				} else if (!Conditional.isContradiction(e.ctx.not().and(ctx))) {
+					e.setWidth(1);
+					e.setColor(NodeColor.yellow);
+				} else {
+					e.setWidth(2);
+					e.from.setWidth(2);
+					e.to.setWidth(2);
+					e.setColor(NodeColor.firebrick1);
+//					e.from.setWidth(1);
+//					e.to.setWidth(1);
+				}
+			}
+		}
 	}
 
 	public void highlightContext(FeatureExpr ctx, NodeColor color, int width) {
 		for (Edge e : edges) {
 			if (e.ctx.and(ctx).isSatisfiable()) {
-				e.setWidth(width);
-				e.setColor(color);
-				e.from.setWidth(width);
-				e.to.setWidth(width);
+					e.setWidth(width);
+					e.setColor(color);
+					e.from.setWidth(width);
+					e.to.setWidth(width);
 			}
 		}
 	}

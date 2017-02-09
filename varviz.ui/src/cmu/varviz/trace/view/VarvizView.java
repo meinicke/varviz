@@ -83,7 +83,7 @@ public class VarvizView extends ViewPart {
 			public void run() {
 				showLables = !showLables;
 				trace.createEdges();
-				trace.highlightNotTautology();
+//				trace.highlightNotTautology();
 				trace.highlightException();
 				refreshVisuals();
 			}
@@ -182,6 +182,7 @@ public class VarvizView extends ViewPart {
 	
 //	public static final String PROJECT_NAME = "MathBug";
 	public static final String PROJECT_NAME = "SmallInteractionExamples";
+//	public static final String PROJECT_NAME = "Mine";
 //	public static final String PROJECT_Sources = "MathSources";
 //	public static final String PROJECT_Sources_Folder = "Bug6/src/main/java";
 //	public static final String PROJECT_Sources_Test_Folder = "Bug6/src/test/java";
@@ -203,11 +204,16 @@ public class VarvizView extends ViewPart {
 					"+classpath=" + path + "/bin,${jpf-core}",
 					"+nhandler.delegateUnhandledNative",
 					"+search.class=.search.RandomSearch",
-					"+invocation",
+					"+featuremodel=C:\\Users\\Jens Meinicke\\git\\VarexJ\\SmallInteractionExamples\\model.dimacs",
+//					"+invocation",
 //					"linux.Example"
 //					"Main"
 //					"linux.Linux1"
-					"linux.Linux" + ((projectID++)%5 +1)
+					
+//					"linux.Linux" + ((projectID++)%5 +1)
+//					"debugging.Tarantula"
+					"debugging.GameScreen"
+					
 //					"SmoothingPolynomialBicubicSplineInterpolatorTest"
 //					"Test"
 //					"SimplexOptimizerNelderMeadTestStarter"
