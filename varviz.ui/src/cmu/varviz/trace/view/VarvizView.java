@@ -130,7 +130,7 @@ public class VarvizView extends ViewPart {
 	private void fillContextMenu(IMenuManager menuMgr) {
 		menuMgr.add(new HideAction("Hide Statement", viewer, this));
 		menuMgr.add(new HighlightPathAction("Highlight Path", viewer, this));
-		menuMgr.add(new IgnoreContext("Explain", viewer, this));
+		menuMgr.add(new IgnoreContext("Remove unnecessary options", viewer, this));
 		
 		MenuManager exportMenu = new MenuManager("Set Min Interaction Degree");
 		for (int degree = 1; degree <= 6; degree++) {

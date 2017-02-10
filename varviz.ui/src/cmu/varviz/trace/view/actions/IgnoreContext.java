@@ -67,9 +67,4 @@ public class IgnoreContext extends Action {
 		}
 	}
 	
-	@Override
-	public String getToolTipText() {
-		return "Remove all features that are not contained in the context of the selected elemen";
-	}
-	
 }
