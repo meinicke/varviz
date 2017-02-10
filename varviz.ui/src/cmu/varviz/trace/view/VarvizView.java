@@ -35,6 +35,7 @@ import cmu.varviz.trace.filters.Or;
 import cmu.varviz.trace.filters.StatementFilter;
 import cmu.varviz.trace.view.actions.HideAction;
 import cmu.varviz.trace.view.actions.HighlightPathAction;
+import cmu.varviz.trace.view.actions.IgnoreContext;
 import cmu.varviz.trace.view.actions.SetDegreeAction;
 import cmu.varviz.trace.view.editparts.TraceEditPartFactory;
 import cmu.vatrace.ExceptionFilter;
@@ -73,6 +74,7 @@ public class VarvizView extends ViewPart {
 
 		refreshButton = new Action() {
 			public void run() {
+				JPF.ignoredFeatures.clear();
 				refresh();
 			}
 		};
@@ -126,8 +128,9 @@ public class VarvizView extends ViewPart {
 	}
 	
 	private void fillContextMenu(IMenuManager menuMgr) {
-		menuMgr.add(new HideAction("Hide", viewer, this));
+		menuMgr.add(new HideAction("Hide Statement", viewer, this));
 		menuMgr.add(new HighlightPathAction("Highlight Path", viewer, this));
+		menuMgr.add(new IgnoreContext("Explain", viewer, this));
 		
 		MenuManager exportMenu = new MenuManager("Set Min Interaction Degree");
 		for (int degree = 1; degree <= 6; degree++) {
@@ -183,6 +186,7 @@ public class VarvizView extends ViewPart {
 //	public static final String PROJECT_NAME = "MathBug";
 	public static final String PROJECT_NAME = "SmallInteractionExamples";
 //	public static final String PROJECT_NAME = "Mine";
+//	public static final String PROJECT_NAME = "Elevator";
 //	public static final String PROJECT_Sources = "MathSources";
 //	public static final String PROJECT_Sources_Folder = "Bug6/src/main/java";
 //	public static final String PROJECT_Sources_Test_Folder = "Bug6/src/test/java";
@@ -192,7 +196,7 @@ public class VarvizView extends ViewPart {
 	
 	public static int projectID = 1;
 	
-	public static int minDegree = 1;
+	public static int minDegree = 2;
 	
 	public Trace createTrace() {
 //			final String path = "C:/Users/Jens Meinicke/workspaceVarexJ/Elevator/";
@@ -200,8 +204,8 @@ public class VarvizView extends ViewPart {
 			final String path = "C:/Users/Jens Meinicke/git/VarexJ/" + PROJECT_NAME;
 			final String[] args = { 
 //					"+classpath=" + path + "/bin,${jpf-core}/lib/junit-4.11.jar,${jpf-core}/lib/math6.jar,${jpf-core}/lib/bcel-5.2.jar",
-//					"+classpath=" + path + "/bin,${jpf-core}/lib/junit-4.11.jar,C:/Users/Jens Meinicke/workspaceVarexJ/MathBug/commons-math-2.0-SNAPSHOT.jar,${jpf-core}/lib/bcel-5.2.jar",
-					"+classpath=" + path + "/bin,${jpf-core}",
+					"+classpath=" + path + "/bin,${jpf-core}/lib/junit-4.11.jar,C:/Users/Jens Meinicke/workspaceVarexJ/MathBug/commons-math-2.0-SNAPSHOT.jar,${jpf-core}/lib/bcel-5.2.jar",
+//					"+classpath=" + path + "/bin,${jpf-core}",
 					"+nhandler.delegateUnhandledNative",
 					"+search.class=.search.RandomSearch",
 					"+featuremodel=C:\\Users\\Jens Meinicke\\git\\VarexJ\\SmallInteractionExamples\\model.dimacs",
@@ -212,12 +216,25 @@ public class VarvizView extends ViewPart {
 					
 //					"linux.Linux" + ((projectID++)%5 +1)
 //					"debugging.Tarantula"
-					"debugging.GameScreen"
+					
+					"jean.GameScreen"
+//					"jean.Http"
+//					"jean.Netpoll"
 					
 //					"SmoothingPolynomialBicubicSplineInterpolatorTest"
 //					"Test"
 //					"SimplexOptimizerNelderMeadTestStarter"
 					};
+//			for (String ignoredFeature : new String[]{
+////					"patch70","patch65","patch48","patch36","patch3","patch71","patch64"
+////					,"patch63","patch62","patch44","patch38","patch28","patch16","patch53"
+////					,"patch33","patch20","patch12","patch65","patch60","patch42","patch30",
+////					"patch25","patch17","patch23",
+//					"patch26",
+//					"patch5", 
+//					"patch23"}) {
+//				JPF.ignoredFeatures.put(ignoredFeature, null);
+//			}
 			JPF.vatrace = new Trace();
 			JPF.vatrace.filter = new Or(new And(basefilter, new InteractionFilter(minDegree)), new ExceptionFilter());
 					
@@ -253,7 +270,7 @@ public class VarvizView extends ViewPart {
 				XMLReader reader = new XMLReader();
 				Trace trace = reader.readFromFile(xmlFile);
 				GrapVizExport exporter = new GrapVizExport("graph", trace);
-				exporter.write();
+				exporter.write();// TODO calls print here, which generates the edges - should be done outside
 				return trace;
 			} catch (Exception e) {
 				e.printStackTrace();

@@ -1,28 +1,35 @@
 package cmu.varviz.trace.view.actions;
 
+import java.util.HashSet;
+import java.util.Map.Entry;
+import java.util.Set;
+
 import org.eclipse.gef.ui.parts.GraphicalViewerImpl;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.IStructuredSelection;
 
-import cmu.varviz.trace.Method;
+import cmu.conditional.Conditional;
 import cmu.varviz.trace.view.VarvizView;
 import cmu.varviz.trace.view.editparts.EdgeEditPart;
 import cmu.varviz.trace.view.editparts.MethodEditPart;
 import cmu.varviz.trace.view.editparts.StatementEditPart;
 import de.fosd.typechef.featureexpr.FeatureExpr;
+import de.fosd.typechef.featureexpr.SingleFeatureExpr;
+import gov.nasa.jpf.JPF;
+import scala.collection.Iterator;
 
 /**
- * Action to hide the selected element from the trace.
+ * Action to remove all features that are not contained in the context of the selected element.
  * 
  * @author Jens Meinicke
  *
  */
-public class HighlightPathAction extends Action {
+public class IgnoreContext extends Action {
 
 	private GraphicalViewerImpl viewer;
 	private VarvizView varvizViewView;
-
-	public HighlightPathAction(String text, GraphicalViewerImpl viewer, VarvizView varvizViewView) {
+		
+	public IgnoreContext(String text, GraphicalViewerImpl viewer, VarvizView varvizViewView) {
 		super(text);
 		this.viewer = viewer;
 		this.varvizViewView = varvizViewView;
@@ -43,25 +50,26 @@ public class HighlightPathAction extends Action {
 			} else {
 				return;
 			}
-
-			// TODO revise update
-			varvizViewView.trace.createEdges();
-//			varvizViewView.trace.highlightNotTautology();
-			varvizViewView.trace.highlightException(ctx);
-//			varvizViewView.trace.highlightContext(ctx, NodeColor.limegreen, 2);
-			varvizViewView.refreshVisuals();
+			
+			Set<String> includedFeatures = new HashSet<>();
+			scala.collection.immutable.Set<SingleFeatureExpr> distinctfeatureObjects = ctx.collectDistinctFeatureObjects();
+			Iterator<SingleFeatureExpr> iterator = distinctfeatureObjects.iterator();
+			while (iterator.hasNext()) {
+				includedFeatures.add(Conditional.getCTXString(iterator.next()));
+			}
+			
+			for (Entry<String, SingleFeatureExpr> feature : Conditional.features.entrySet()) {
+				if (!includedFeatures.contains(Conditional.getCTXString(feature.getValue()))) {
+					JPF.ignoredFeatures.put(Conditional.getCTXString(feature.getValue()), false);
+				}
+			}
+			varvizViewView.refresh();
 		}
 	}
 	
-	private void filterParents(Method<?> element) {
-		if (element != null) {
-			if (element.getChildren().isEmpty()) {
-				Method<?> parent = element.getParent();
-				if (parent != null) {
-					parent.remove(element);
-					filterParents(parent);
-				}
-			}
-		}
+	@Override
+	public String getToolTipText() {
+		return "Remove all features that are not contained in the context of the selected elemen";
 	}
+	
 }
