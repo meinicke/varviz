@@ -14,6 +14,7 @@ import cmu.varviz.trace.view.editparts.EdgeEditPart;
 import cmu.varviz.trace.view.editparts.MethodEditPart;
 import cmu.varviz.trace.view.editparts.StatementEditPart;
 import de.fosd.typechef.featureexpr.FeatureExpr;
+import de.fosd.typechef.featureexpr.FeatureExprFactory;
 import de.fosd.typechef.featureexpr.SingleFeatureExpr;
 import gov.nasa.jpf.JPF;
 import scala.collection.Iterator;
@@ -58,13 +59,45 @@ public class IgnoreContext extends Action {
 				includedFeatures.add(Conditional.getCTXString(iterator.next()));
 			}
 			
+			// select the features of the exception
+			// check whether the other features can be (de)selected
+			
+			JPF.ignoredFeatures.clear();
+			FeatureExpr ctxcheck = Conditional.simplifyCondition(ctx);
+			
 			for (Entry<String, SingleFeatureExpr> feature : Conditional.features.entrySet()) {
 				if (!includedFeatures.contains(Conditional.getCTXString(feature.getValue()))) {
-					JPF.ignoredFeatures.put(Conditional.getCTXString(feature.getValue()), false);
+					if (!Conditional.isContradiction(ctxcheck.and(feature.getValue())) &&
+						!Conditional.isContradiction(ctxcheck.andNot(feature.getValue()))) {
+						JPF.ignoredFeatures.put(feature.getValue(), false);
+						ctxcheck = ctxcheck.andNot(feature.getValue());
+					}
 				}
 			}
+			
+			createAdditioanlConstraint();
+			
 			varvizViewView.refresh();
 		}
 	}
+
+	/**
+	 * Sets the additional constraint for VarexJ
+	 */
+	private void createAdditioanlConstraint() {// TODO does that actually matter?
+		FeatureExpr additionalConstraint = FeatureExprFactory.True();
+		for (Entry<FeatureExpr, Boolean> feature : JPF.ignoredFeatures.entrySet()) {
+			if (feature.getValue() != null) {
+				final FeatureExpr f = feature.getKey();
+				if (feature.getValue()) {
+					additionalConstraint = additionalConstraint.and(f);
+				} else {
+					additionalConstraint = additionalConstraint.and(f.not());
+				}
+			}
+		}
+		Conditional.additionalConstraint = additionalConstraint;
+	}
+	
 	
 }

@@ -28,6 +28,7 @@ import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
+import cmu.conditional.Conditional;
 import cmu.varviz.VarvizActivator;
 import cmu.varviz.io.graphviz.Format;
 import cmu.varviz.io.graphviz.GrapVizExport;
@@ -46,10 +47,11 @@ import cmu.varviz.trace.view.actions.IgnoreContext;
 import cmu.varviz.trace.view.actions.SetDegreeAction;
 import cmu.varviz.trace.view.editparts.TraceEditPartFactory;
 import cmu.vatrace.ExceptionFilter;
+import de.fosd.typechef.featureexpr.FeatureExprFactory;
 import gov.nasa.jpf.JPF;
 
 /**
- * TODO description
+ * The varviz view.
  * 
  * @author Jens Meinicke
  *
@@ -220,7 +222,8 @@ public class VarvizView extends ViewPart {
 	});
 
 	// public static final String PROJECT_NAME = "MathBug";
-	public static final String PROJECT_NAME = "SmallInteractionExamples";
+//	public static final String PROJECT_NAME = "SmallInteractionExamples";
+	public static final String PROJECT_NAME = "Email";
 	// public static final String PROJECT_NAME = "Mine";
 	// public static final String PROJECT_NAME = "Elevator";
 	// public static final String PROJECT_Sources = "MathSources";
@@ -235,21 +238,19 @@ public class VarvizView extends ViewPart {
 
 	public static int minDegree = 2;
 
-	final String path = "C:/Users/Jens Meinicke/git/VarexJ/" + PROJECT_NAME;
+	final String path = "C:/Users/Jens Meinicke/workspaceVarexJ/" + PROJECT_NAME;
+//	final String path = "C:/Users/Jens Meinicke/git/VarexJ/" + PROJECT_NAME;
 
 	public Trace createTrace() {
-		// final String path = "C:/Users/Jens
-		// Meinicke/workspaceVarexJ/Elevator/";
-		// final String path = "C:/Users/Jens Meinicke/workspaceVarexJ/" +
-		// PROJECT_NAME;
 		final String[] args = {
 				// "+classpath=" + path +
 				// "/bin,${jpf-core}/lib/junit-4.11.jar,${jpf-core}/lib/math6.jar,${jpf-core}/lib/bcel-5.2.jar",
-				"+classpath=" + path
-						+ "/bin,${jpf-core}/lib/junit-4.11.jar,C:/Users/Jens Meinicke/workspaceVarexJ/MathBug/commons-math-2.0-SNAPSHOT.jar,${jpf-core}/lib/bcel-5.2.jar",
-				// "+classpath=" + path + "/bin,${jpf-core}",
+//				"+classpath=" + path
+//						+ "/bin,${jpf-core}/lib/junit-4.11.jar,C:/Users/Jens Meinicke/workspaceVarexJ/MathBug/commons-math-2.0-SNAPSHOT.jar,${jpf-core}/lib/bcel-5.2.jar",
+				 "+classpath=" + path + "/bin,${jpf-core}",
 				"+nhandler.delegateUnhandledNative", "+search.class=.search.RandomSearch",
-				"+featuremodel=C:\\Users\\Jens Meinicke\\git\\VarexJ\\SmallInteractionExamples\\model.dimacs",
+				"+featuremodel=" + path + "/email.dimacs",
+//				"+featuremodel=C:\\Users\\Jens Meinicke\\git\\VarexJ\\SmallInteractionExamples\\model.dimacs",
 				// "+invocation",
 //				 "linux.Example"
 				// "Main"
@@ -258,13 +259,15 @@ public class VarvizView extends ViewPart {
 				// "linux.Linux" + ((projectID++)%5 +1)
 				// "debugging.Tarantula"
 
-				"jean.GameScreen"
+//				"jean.GameScreen"
 				// "jean.Http"
 				// "jean.Netpoll"
 
 				// "SmoothingPolynomialBicubicSplineInterpolatorTest"
 				// "Test"
 				// "SimplexOptimizerNelderMeadTestStarter"
+				
+				"EmailSystem.Scenario"
 		};
 		// for (String ignoredFeature : new String[]{
 		//// "patch70","patch65","patch48","patch36","patch3","patch71","patch64"
@@ -303,7 +306,7 @@ public class VarvizView extends ViewPart {
 		// });
 
 		JPF.main(args);
-
+		Conditional.additionalConstraint = FeatureExprFactory.True(); 
 		final File xmlFile = new File("graph.xml");
 		XMLWriter writer = new XMLWriter(JPF.vatrace);
 		try {
