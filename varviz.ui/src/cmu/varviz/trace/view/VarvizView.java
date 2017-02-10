@@ -4,8 +4,10 @@ import java.io.File;
 
 import org.eclipse.draw2d.ConnectionLayer;
 import org.eclipse.gef.EditDomain;
+import org.eclipse.gef.GraphicalViewer;
 import org.eclipse.gef.LayerConstants;
 import org.eclipse.gef.editparts.ScalableFreeformRootEditPart;
+import org.eclipse.gef.ui.actions.PrintAction;
 import org.eclipse.gef.ui.parts.ScrollingGraphicalViewer;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
@@ -20,6 +22,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.IActionBars;
+import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.part.ViewPart;
 
 import cmu.varviz.VarvizActivator;
@@ -48,6 +51,8 @@ import gov.nasa.jpf.JPF;
  *
  */
 public class VarvizView extends ViewPart {
+	
+	private PrintAction printAction;
 
 	private ScrollingGraphicalViewer viewer;
 	private ScalableFreeformRootEditPart rootEditPart;
@@ -68,8 +73,12 @@ public class VarvizView extends ViewPart {
 		viewer.setRootEditPart(rootEditPart);
 		refresh();
 
+
+		printAction = new PrintAction(this);
 		
 		IActionBars bars = getViewSite().getActionBars();
+		bars.setGlobalActionHandler(ActionFactory.PRINT.getId(), printAction);
+		
 		IToolBarManager toolbarManager = bars.getToolBarManager();
 
 		refreshButton = new Action() {
@@ -289,4 +298,12 @@ public class VarvizView extends ViewPart {
 		return null;
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Override
+	public Object getAdapter(Class adapter) {
+		if (GraphicalViewer.class.equals(adapter) || ViewPart.class.equals(adapter))
+			return viewer;
+		return super.getAdapter(adapter);
+	}
+	
 }
