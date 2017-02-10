@@ -13,15 +13,15 @@ import cmu.varviz.utils.CommandLineRunner;
 
 public class GrapVizExport {
 
-	enum Format {
-		pdf
-	}
-
 	private String fileName;
 	private Trace trace;
+	private Format extension;
 
 	public GrapVizExport(String fileName, Trace vatrace) {
-		this.fileName = fileName;
+		int extensionPosition = fileName.lastIndexOf('.', fileName.length() - 1);
+		this.fileName = fileName.substring(0, extensionPosition);
+		String substring = fileName.substring(extensionPosition + 1);
+		this.extension = Format.valueOf(substring);
 		this.trace = vatrace;
 	}
 
@@ -30,18 +30,18 @@ public class GrapVizExport {
 		System.out.print("create file: " + file.getAbsolutePath());
 		System.out.flush();
 		try (PrintWriter pw = new PrintWriter(file, StandardCharsets.UTF_8.name())) {
-			trace.print(pw);
+			trace.printToGraphViz(pw);
 		} catch (FileNotFoundException | UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
 
-		System.out.print(" > " + fileName + "." + Format.pdf);
-		callGraphviz(file, Format.pdf.toString());
+		System.out.print(" > " + fileName + "." + extension);
+		callGraphviz(file);
+		file.delete();
 	}
 
-	private void callGraphviz(final File file, final String format) {
-		final String[] commands = new String[] { "dot", "-T" + format, file.getPath(), "-o", fileName + "." + format };
-
+	private void callGraphviz(final File file) {
+		final String[] commands = new String[] { "dot", "-T" + extension.toString(), file.getPath(), "-o", fileName + "." + extension.toString()};
 		try {
 			Field f = BufferedInputStream.class.getDeclaredField("DEFAULT_BUFFER_SIZE");
 			f.setAccessible(true);

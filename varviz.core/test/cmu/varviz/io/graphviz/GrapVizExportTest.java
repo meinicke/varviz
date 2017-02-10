@@ -23,7 +23,7 @@ public class GrapVizExportTest {
 		XMLReader reader = new XMLReader();
 		
 		Trace traceRead = reader.readXML(content);
-		GrapVizExport exporter = new GrapVizExport("graph", traceRead);
+		GrapVizExport exporter = new GrapVizExport("graph.pdf", traceRead);
 		exporter.write();
 	}
 

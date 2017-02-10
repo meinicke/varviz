@@ -4,7 +4,6 @@ import org.eclipse.gef.ui.parts.GraphicalViewerImpl;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.IStructuredSelection;
 
-import cmu.varviz.trace.Method;
 import cmu.varviz.trace.view.VarvizView;
 import cmu.varviz.trace.view.editparts.EdgeEditPart;
 import cmu.varviz.trace.view.editparts.MethodEditPart;
@@ -45,23 +44,11 @@ public class HighlightPathAction extends Action {
 			}
 
 			// TODO revise update
-			varvizViewView.trace.createEdges();
+			VarvizView.trace.createEdges();
 //			varvizViewView.trace.highlightNotTautology();
-			varvizViewView.trace.highlightException(ctx);
+			VarvizView.trace.highlightException(ctx);
 //			varvizViewView.trace.highlightContext(ctx, NodeColor.limegreen, 2);
 			varvizViewView.refreshVisuals();
-		}
-	}
-	
-	private void filterParents(Method<?> element) {
-		if (element != null) {
-			if (element.getChildren().isEmpty()) {
-				Method<?> parent = element.getParent();
-				if (parent != null) {
-					parent.remove(element);
-					filterParents(parent);
-				}
-			}
 		}
 	}
 }

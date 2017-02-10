@@ -55,26 +55,25 @@ public class Trace {
 		addStatement(START);
 		main.addStatements(this);
 		addStatement(END);
+		lastStatement = null;
+	}
+	
+	public void finalizeGraph() {
+		System.out.println("Number of nodes: " + main.size());
+
+		filterExecution();
+
+		createEdges();
+		
+		highlightException();
+
 	}
 
 	@SuppressWarnings("null")
-	public void print(PrintWriter pw) {
-		filterExecution();
-		System.out.println("Number of nodes: " + main.size());
-		
+	public void printToGraphViz(PrintWriter pw) {// TODO move to graphviz
 		pw.println("digraph G {");
 		pw.println("graph [ordering=\"out\"];");
 		pw.println("node [style=\"rounded,filled\", width=0, height=0, shape=box, concentrate=true]");
-		
-		addStatement(START);
-		main.addStatements(this);
-		addStatement(END);
-		
-//		highlightNotTautology();
-		
-		// highlight exception
-		
-		highlightException();
 		
 		pw.println("// Edges");
 		Edge previous = null;

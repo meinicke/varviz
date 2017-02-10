@@ -2,7 +2,6 @@ package cmu.varviz.trace.view.actions;
 
 import org.eclipse.jface.action.Action;
 
-import cmu.varviz.trace.Method;
 import cmu.varviz.trace.view.VarvizView;
 
 /**
@@ -24,20 +23,8 @@ public class SetDegreeAction extends Action {
 	
 	@Override
 	public void run() {
-		varvizViewView.minDegree = degree;
-		varvizViewView.projectID--;
+		VarvizView.minDegree = degree;
+		VarvizView.projectID--;
 		varvizViewView.refresh();
-	}
-	
-	private void filterParents(Method<?> element) {
-		if (element != null) {
-			if (element.getChildren().isEmpty()) {
-				Method<?> parent = element.getParent();
-				if (parent != null) {
-					parent.remove(element);
-					filterParents(parent);
-				}
-			}
-		}
 	}
 }

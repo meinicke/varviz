@@ -49,9 +49,9 @@ public class HideAction extends Action {
 			filterParents(element.getParent());
 			
 			// TODO revise update
-			varvizViewView.trace.createEdges();
+			VarvizView.trace.createEdges();
 //			varvizViewView.trace.highlightNotTautology();
-			varvizViewView.trace.highlightException();
+			VarvizView.trace.highlightException();
 			varvizViewView.refreshVisuals();
 		}
 	}
