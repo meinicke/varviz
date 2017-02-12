@@ -59,17 +59,15 @@ public class Trace {
 	}
 	
 	public void finalizeGraph() {
-		System.out.println("Number of nodes: " + main.size());
-
+		System.out.print("Number of nodes: " + main.size());
+		System.out.flush();
 		filterExecution();
-
+		removeUnnecessaryIfs(main);
 		createEdges();
-		
 		highlightException();
-
+		System.out.println(" -> " + main.size());
 	}
 
-	@SuppressWarnings("null")
 	public void printToGraphViz(PrintWriter pw) {// TODO move to graphviz
 		pw.println("digraph G {");
 		pw.println("graph [ordering=\"out\"];");
@@ -121,9 +119,10 @@ public class Trace {
 					e.from.setWidth(2);
 					e.to.setWidth(2);
 					e.setColor(NodeColor.firebrick1);
-//					e.from.setWidth(1);
-//					e.to.setWidth(1);
 				}
+			} else {
+				e.setWidth(1);
+				e.setColor(NodeColor.gray);
 			}
 		}
 	}
@@ -145,6 +144,30 @@ public class Trace {
 				e.setColor(NodeColor.darkorange);
 			}
 		}
+	}
+	
+	private static final Statement<?> removeUnnecessaryIfs(Method<?> method) {
+		List<Statement<?>> remove = new ArrayList<>();
+		Statement<?> lastif = null;
+		for (MethodElement<?> element : method.getChildren()) {
+			if (lastif != null && element.getCTX().equals(lastif.getCTX())) {
+				remove.add(lastif);
+			}
+			if (element instanceof Statement && ((Statement<?>)element).getShape() == Shape.Mdiamond) {
+				lastif = (Statement<?>) element;
+			} else {
+				lastif = null;
+			}
+			
+			if (element instanceof Method) {
+				lastif = removeUnnecessaryIfs((Method<?>)element);
+			}
+		}
+		
+		for (Statement<?> statement : remove) {
+			method.remove(statement);
+		}
+		return lastif;
 	}
 
 	public void addStatement(final Statement<?> statement) {

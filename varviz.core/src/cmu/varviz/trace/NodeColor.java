@@ -10,5 +10,5 @@ package cmu.varviz.trace;
  *
  */
 public enum NodeColor {
-	firebrick1, red, tomato, limegreen, white, black, darkorange, yellow
+	firebrick1, red, tomato, limegreen, white, black, darkorange, yellow, gray
 }

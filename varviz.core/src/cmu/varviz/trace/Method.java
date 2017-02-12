@@ -60,8 +60,26 @@ public class Method<U> extends MethodElement<U> {
 		return !execution.isEmpty();
 	}
 	
-	public void remove(MethodElement<?> element) {
-		execution.remove(element);
+	public boolean remove(MethodElement<?> element) {
+		boolean success = execution.remove(element);
+		if (!success) {
+			Method<?> lastMethod = null;
+			for (MethodElement<?> methodElement : execution) {
+				if (methodElement instanceof Method) {
+					success = ((Method<?>) methodElement).remove(element);
+					if (success) {
+						lastMethod = (Method<?>) methodElement;
+						break;
+					}
+				}
+			}
+			if (success) {
+				if (lastMethod.getChildren().isEmpty()) {
+					remove(lastMethod);
+				}
+			}
+		}
+		return success;
 	}
 	
 	public void printLabel(PrintWriter pw) {

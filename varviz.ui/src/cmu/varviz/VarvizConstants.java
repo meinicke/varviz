@@ -8,7 +8,8 @@ public interface VarvizConstants {
 
 	Color BLACK = new Color(null, 0, 0, 0);
 	Color WHITE = new Color(null, 255, 255, 255);
-	Color GRAY = new Color(null, 240, 240, 240);
+	Color GRAY2 = new Color(null, 240, 240, 240);
+	Color GRAY = new Color(null, 150, 150, 150);
 
 	Color red = new Color(null, 255, 0, 0);
 	Color yellow = new Color(null, 255, 200, 0);
@@ -19,7 +20,7 @@ public interface VarvizConstants {
 
 	static Color getColor(NodeColor c) {
 		if (c == null) {
-			return GRAY;
+			return GRAY2;
 		}
 		switch (c) {
 		case black:
@@ -38,6 +39,8 @@ public interface VarvizConstants {
 			return WHITE;
 		case yellow:
 			return yellow;
+		case gray:
+			return GRAY;
 		default:
 			break;
 		}
