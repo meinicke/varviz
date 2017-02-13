@@ -2,8 +2,10 @@ package cmu.varviz.trace.view.editparts;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.content.IContentDescription;
 import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.jface.text.BadLocationException;
@@ -77,6 +79,8 @@ public class EditorHelper {
 		if (page != null) {
 			IContentType contentType = null;
 			try {
+				file.refreshLocal(IResource.DEPTH_ZERO, new NullProgressMonitor());
+				
 				IContentDescription description = file.getContentDescription();
 				if (description != null) {
 					contentType = description.getContentType();
