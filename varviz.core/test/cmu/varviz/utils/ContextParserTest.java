@@ -20,6 +20,7 @@ import cmu.conditional.One;
 import cmu.varviz.io.xml.XMLvarviz;
 import de.fosd.typechef.featureexpr.FeatureExpr;
 import de.fosd.typechef.featureexpr.FeatureExprFactory;
+import de.fosd.typechef.featureexpr.bdd.BDDFeatureExprFactory;
 
 @RunWith(Parameterized.class)
 public class ContextParserTest {
@@ -48,7 +49,7 @@ public class ContextParserTest {
 	
 	@Test
 	public void testContext_True() {
-		FeatureExpr expectedCtx = FeatureExprFactory.True();
+		FeatureExpr expectedCtx = BDDFeatureExprFactory.True();
 		String contextString = "True";
 		FeatureExpr ctx =  ContextParser.getContext(contextString);
 		assertTrue(ctx.equivalentTo(expectedCtx));

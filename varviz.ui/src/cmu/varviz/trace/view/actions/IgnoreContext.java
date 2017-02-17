@@ -14,8 +14,8 @@ import cmu.varviz.trace.view.editparts.EdgeEditPart;
 import cmu.varviz.trace.view.editparts.MethodEditPart;
 import cmu.varviz.trace.view.editparts.StatementEditPart;
 import de.fosd.typechef.featureexpr.FeatureExpr;
-import de.fosd.typechef.featureexpr.FeatureExprFactory;
 import de.fosd.typechef.featureexpr.SingleFeatureExpr;
+import de.fosd.typechef.featureexpr.bdd.BDDFeatureExprFactory;
 import gov.nasa.jpf.JPF;
 import scala.collection.Iterator;
 
@@ -76,7 +76,7 @@ public class IgnoreContext extends Action {
 			}
 			
 			createAdditioanlConstraint();
-			
+			VarvizView.projectID--;
 			varvizViewView.refresh();
 		}
 	}
@@ -85,7 +85,7 @@ public class IgnoreContext extends Action {
 	 * Sets the additional constraint for VarexJ
 	 */
 	private void createAdditioanlConstraint() {// TODO does that actually matter?
-		FeatureExpr additionalConstraint = FeatureExprFactory.True();
+		FeatureExpr additionalConstraint = BDDFeatureExprFactory.True();
 		for (Entry<FeatureExpr, Boolean> feature : JPF.ignoredFeatures.entrySet()) {
 			if (feature.getValue() != null) {
 				final FeatureExpr f = feature.getKey();

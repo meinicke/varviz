@@ -28,6 +28,7 @@ import cmu.varviz.trace.Trace;
 import cmu.varviz.utils.ContextParser;
 import de.fosd.typechef.featureexpr.FeatureExpr;
 import de.fosd.typechef.featureexpr.FeatureExprFactory;
+import de.fosd.typechef.featureexpr.bdd.BDDFeatureExprFactory;
 
 public class XMLReader implements XMLvarviz {
 
@@ -61,7 +62,7 @@ public class XMLReader implements XMLvarviz {
 				if (child.getNodeName().equals(METHOD)) {
 					NamedNodeMap attributes = child.getAttributes();
 					String name = getName(attributes);
-					Method<String> mainMethod = new Method<>(name, FeatureExprFactory.True());
+					Method<String> mainMethod = new Method<>(name, BDDFeatureExprFactory.True());
 					setFile(attributes, mainMethod);
 					setLine(attributes,mainMethod);
 					coverage.setMain(mainMethod);
@@ -116,7 +117,7 @@ public class XMLReader implements XMLvarviz {
 	}
 
 	private FeatureExpr getcontext(NamedNodeMap attributes) {
-		return getAttribute(attributes, CTX, v -> v != null ? ContextParser.getContext(v) : FeatureExprFactory.True());
+		return getAttribute(attributes, CTX, v -> v != null ? ContextParser.getContext(v) : BDDFeatureExprFactory.True());
 	}
 
 	private void setFile(NamedNodeMap attributes, Method<?> method) {

@@ -7,15 +7,16 @@ import cmu.varviz.trace.Statement;
 import cmu.varviz.trace.Trace;
 import de.fosd.typechef.featureexpr.FeatureExpr;
 import de.fosd.typechef.featureexpr.FeatureExprFactory;
+import de.fosd.typechef.featureexpr.bdd.BDDFeatureExprFactory;
 
 public class TraceFactory {
 
 	static {
 		FeatureExprFactory.setDefault(FeatureExprFactory.bdd());
 	}
-	static final FeatureExpr TRUE = FeatureExprFactory.True();
-	static final FeatureExpr a = FeatureExprFactory.createDefinedExternal("a");
-	static final FeatureExpr b = FeatureExprFactory.createDefinedExternal("b");
+	static final FeatureExpr TRUE = BDDFeatureExprFactory.True();
+	static final FeatureExpr a = BDDFeatureExprFactory.createDefinedExternal("a");
+	static final FeatureExpr b = BDDFeatureExprFactory.createDefinedExternal("b");
 
 	public static Trace createTrace() {
 		Trace trace = new Trace();

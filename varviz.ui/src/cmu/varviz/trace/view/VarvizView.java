@@ -1,7 +1,5 @@
 package cmu.varviz.trace.view;
 
-import java.io.File;
-
 import org.eclipse.draw2d.ConnectionLayer;
 import org.eclipse.gef.EditDomain;
 import org.eclipse.gef.GraphicalViewer;
@@ -32,8 +30,6 @@ import cmu.conditional.Conditional;
 import cmu.varviz.VarvizActivator;
 import cmu.varviz.io.graphviz.Format;
 import cmu.varviz.io.graphviz.GrapVizExport;
-import cmu.varviz.io.xml.XMLReader;
-import cmu.varviz.io.xml.XMLWriter;
 import cmu.varviz.trace.Method;
 import cmu.varviz.trace.Statement;
 import cmu.varviz.trace.Trace;
@@ -48,6 +44,7 @@ import cmu.varviz.trace.view.actions.SetDegreeAction;
 import cmu.varviz.trace.view.editparts.TraceEditPartFactory;
 import cmu.vatrace.ExceptionFilter;
 import de.fosd.typechef.featureexpr.FeatureExprFactory;
+import de.fosd.typechef.featureexpr.bdd.BDDFeatureExprFactory;
 import gov.nasa.jpf.JPF;
 
 /**
@@ -222,24 +219,29 @@ public class VarvizView extends ViewPart {
 	});
 
 	// public static final String PROJECT_NAME = "MathBug";
-//	public static final String PROJECT_NAME = "SmallInteractionExamples";
-	public static final String PROJECT_NAME = "Email";
+	public static final String PROJECT_NAME = "SmallInteractionExamples";
+//	public static final String PROJECT_NAME = "Email";
 	// public static final String PROJECT_NAME = "Mine";
-	// public static final String PROJECT_NAME = "Elevator";
+//	 public static final String PROJECT_NAME = "Elevator";
+//	 public static final String PROJECT_NAME = "NanoXML";
 	// public static final String PROJECT_Sources = "MathSources";
 	// public static final String PROJECT_Sources_Folder = "Bug6/src/main/java";
 	// public static final String PROJECT_Sources_Test_Folder =
 	// "Bug6/src/test/java";
-	public static final String PROJECT_Sources = "mathIssue280";
-	public static final String PROJECT_Sources_Folder = "src/java";
-	public static final String PROJECT_Sources_Test_Folder = "src/test";
+//	public static final String PROJECT_Sources = "mathIssue280";
+	public static final String PROJECT_Sources = "NanoXML";
+	
+	public static final String PROJECT_Sources_Folder = "Sources/Java";
+	public static final String PROJECT_Sources_Test_Folder = "Test/Java";
+//	public static final String PROJECT_Sources_Folder = "src/java";
+//	public static final String PROJECT_Sources_Test_Folder = "src/test";
 
-	public static int projectID = 1;
+	public static int projectID = 0;
 
 	public static int minDegree = 2;
 
-	final String path = "C:/Users/Jens Meinicke/workspaceVarexJ/" + PROJECT_NAME;
-//	final String path = "C:/Users/Jens Meinicke/git/VarexJ/" + PROJECT_NAME;
+//	final String path = "C:/Users/Jens Meinicke/workspaceVarexJ/" + PROJECT_NAME;
+	final String path = "C:/Users/Jens Meinicke/git/VarexJ/" + PROJECT_NAME;
 
 	public Trace createTrace() {
 		final String[] args = {
@@ -248,15 +250,16 @@ public class VarvizView extends ViewPart {
 //				"+classpath=" + path
 //						+ "/bin,${jpf-core}/lib/junit-4.11.jar,C:/Users/Jens Meinicke/workspaceVarexJ/MathBug/commons-math-2.0-SNAPSHOT.jar,${jpf-core}/lib/bcel-5.2.jar",
 				 "+classpath=" + path + "/bin,${jpf-core}",
-				"+nhandler.delegateUnhandledNative", "+search.class=.search.RandomSearch",
-				"+featuremodel=" + path + "/email.dimacs",
+				"+stack=StackHandler",
+				 "+nhandler.delegateUnhandledNative", "+search.class=.search.RandomSearch",
+//				"+featuremodel=" + path + "/elevator.dimacs",
 //				"+featuremodel=C:\\Users\\Jens Meinicke\\git\\VarexJ\\SmallInteractionExamples\\model.dimacs",
-				// "+invocation",
+				 "+invocation",
 //				 "linux.Example"
-				// "Main"
+//				 "Main"
 				// "linux.Linux1"
 
-				// "linux.Linux" + ((projectID++)%5 +1)
+				 "linux.Linux" + ((projectID++)%5 +1)
 				// "debugging.Tarantula"
 
 //				"jean.GameScreen"
@@ -267,7 +270,9 @@ public class VarvizView extends ViewPart {
 				// "Test"
 				// "SimplexOptimizerNelderMeadTestStarter"
 				
-				"EmailSystem.Scenario"
+//				"EmailSystem.Scenario"
+				
+//				"DumpXML"
 		};
 		// for (String ignoredFeature : new String[]{
 		//// "patch70","patch65","patch48","patch36","patch3","patch71","patch64"
@@ -305,20 +310,24 @@ public class VarvizView extends ViewPart {
 		// }
 		// });
 
+		FeatureExprFactory.setDefault(FeatureExprFactory.bdd());
 		JPF.main(args);
-		Conditional.additionalConstraint = FeatureExprFactory.True(); 
-		final File xmlFile = new File("graph.xml");
-		XMLWriter writer = new XMLWriter(JPF.vatrace);
-		try {
-			writer.writeToFile(xmlFile);
-			XMLReader reader = new XMLReader();
-			Trace trace = reader.readFromFile(xmlFile);
-			trace.finalizeGraph();
-
-			return trace;
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		Conditional.additionalConstraint = BDDFeatureExprFactory.True(); 
+		JPF.vatrace.finalizeGraph();
+		return JPF.vatrace;
+		
+//		final File xmlFile = new File("graph.xml");
+//		XMLWriter writer = new XMLWriter(JPF.vatrace);
+//		try {
+//			writer.writeToFile(xmlFile);
+//			XMLReader reader = new XMLReader();
+//			Trace trace = reader.readFromFile(xmlFile);
+//			trace.finalizeGraph();
+//
+//			return trace;
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
 
 		// highlight path ¬patch60&¬patch42&patch53&¬patch48
 		// SingleFeatureExpr patch60 = Conditional.features.get("patch60");
@@ -331,7 +340,7 @@ public class VarvizView extends ViewPart {
 
 		// return JPF.vatrace;
 		// }
-		return null;
+//		return null;
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })

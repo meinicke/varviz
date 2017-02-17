@@ -1,7 +1,7 @@
 package cmu.varviz.trace;
 
 import de.fosd.typechef.featureexpr.FeatureExpr;
-import de.fosd.typechef.featureexpr.FeatureExprFactory;
+import de.fosd.typechef.featureexpr.bdd.BDDFeatureExprFactory;
 
 class NoStatement<T> extends Statement<T> {
 
@@ -12,7 +12,7 @@ class NoStatement<T> extends Statement<T> {
 	}
 
 	public NoStatement(String name) {
-		this(null, FeatureExprFactory.True());
+		this(null, BDDFeatureExprFactory.True());
 		this.name = name;
 	}
 	

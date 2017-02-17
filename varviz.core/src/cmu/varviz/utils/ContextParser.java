@@ -7,22 +7,22 @@ import cmu.conditional.Conditional;
 import cmu.conditional.One;
 import cmu.varviz.io.xml.XMLvarviz;
 import de.fosd.typechef.featureexpr.FeatureExpr;
-import de.fosd.typechef.featureexpr.FeatureExprFactory;
 import de.fosd.typechef.featureexpr.SingleFeatureExpr;
+import de.fosd.typechef.featureexpr.bdd.BDDFeatureExprFactory;
 
 public class ContextParser implements XMLvarviz {
 
 	public static FeatureExpr getContext(String context) {
 		if (context.equals("True")) {
-			return FeatureExprFactory.True();
+			return BDDFeatureExprFactory.True();
 		}
-		FeatureExpr ctx = FeatureExprFactory.False();
+		FeatureExpr ctx = BDDFeatureExprFactory.False();
 		String[] orsplit = context.split("\\|");
 		for (int i = 0; i < orsplit.length; i++) {
 			String orCTX = orsplit[i];
 			orCTX = orCTX.replaceAll("\\&amp;", "\\&");
 			String[] andSplit = orCTX.split("\\&");
-			FeatureExpr andContext = FeatureExprFactory.True();
+			FeatureExpr andContext = BDDFeatureExprFactory.True();
 			for (int j = 0; j < andSplit.length; j++) {
 				String string = andSplit[j];
 				if (string.startsWith("¬") || string.startsWith("!")) {

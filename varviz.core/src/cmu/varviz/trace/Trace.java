@@ -9,7 +9,7 @@ import cmu.conditional.Conditional;
 import cmu.conditional.One;
 import cmu.varviz.trace.filters.StatementFilter;
 import de.fosd.typechef.featureexpr.FeatureExpr;
-import de.fosd.typechef.featureexpr.FeatureExprFactory;
+import de.fosd.typechef.featureexpr.bdd.BDDFeatureExprFactory;
 
 public class Trace {
 	
@@ -79,7 +79,7 @@ public class Trace {
 			e.print(pw, previous);
 			previous = e;
 		}
-		if (!Conditional.isTautology(previous.ctx)) {
+		if (previous != null && !Conditional.isTautology(previous.ctx)) {
 			previous.printLabel(pw);
 		}
 		pw.println();
@@ -96,7 +96,7 @@ public class Trace {
 	public void highlightException() {
 		FeatureExpr exceptionContext = main.accumulate((Statement<?> s, FeatureExpr u) -> {
 			return s.toString().contains("Exception") || s.toString().contains("Error") ? u.or(s.getCTX()) : u;
-		}, FeatureExprFactory.False());
+		}, BDDFeatureExprFactory.False());
 		highlightException(exceptionContext);
 	}
 	
@@ -104,13 +104,13 @@ public class Trace {
 		for (Edge e : edges) {// TODO shouldn't we go through the nodes?
 			if (!Conditional.isContradiction(e.ctx.and(ctx))) {
 				if (e.ctx.equivalentTo(ctx)) {// TODO only works if there is only one exception
-					e.setWidth(3);
+					e.setWidth(2);
 					e.setColor(NodeColor.red);
-					e.from.setWidth(3);
-					e.to.setWidth(3);
-				} else if (e.ctx.isTautology()) {
+					e.from.setWidth(2);
+					e.to.setWidth(2);
+				} else if (Conditional.isTautology(e.ctx)) {
 					e.setWidth(1);
-					e.setColor(NodeColor.darkorange);
+					e.setColor(NodeColor.black);
 				} else if (!Conditional.isContradiction(e.ctx.not().and(ctx))) {
 					e.setWidth(1);
 					e.setColor(NodeColor.yellow);
@@ -118,7 +118,7 @@ public class Trace {
 					e.setWidth(2);
 					e.from.setWidth(2);
 					e.to.setWidth(2);
-					e.setColor(NodeColor.firebrick1);
+					e.setColor(NodeColor.darkorange);
 				}
 			} else {
 				e.setWidth(1);

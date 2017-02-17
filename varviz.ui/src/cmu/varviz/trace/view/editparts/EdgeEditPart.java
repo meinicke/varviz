@@ -8,11 +8,13 @@ import org.eclipse.draw2d.PolygonDecoration;
 import org.eclipse.draw2d.PolylineConnection;
 import org.eclipse.draw2d.geometry.PointList;
 import org.eclipse.gef.editparts.AbstractConnectionEditPart;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 
 import cmu.conditional.Conditional;
 import cmu.varviz.VarvizConstants;
 import cmu.varviz.trace.Edge;
+import cmu.varviz.trace.NodeColor;
 import cmu.varviz.trace.view.VarvizView;
 
 /**
@@ -31,25 +33,30 @@ public class EdgeEditPart extends AbstractConnectionEditPart {
 	@Override
 	protected IFigure createFigure() {
 		Edge edge = (Edge) getModel();
-		PolylineConnection figure = new PolylineConnection();
+		PolylineConnection line = new PolylineConnection();
 		
-		figure.setForegroundColor(VarvizConstants.getColor(edge.getColor()));
-		figure.setLineWidth(edge.getWidth());
-
-		PolygonDecoration decoration = new PolygonDecoration();
-		PointList decorationPointList = new PointList();
-		decorationPointList.addPoint(0, 0);
-		decorationPointList.addPoint(-2, 1);
-		decorationPointList.addPoint(-2, -1);
-		decoration.setTemplate(decorationPointList);
-		decoration.setForegroundColor(VarvizConstants.getColor(edge.getColor()));
-		figure.setTargetDecoration(decoration);
-
-		if (!Conditional.isTautology(edge.getCtx()) && VarvizView.showLables) {
-			createLabel(edge, figure);
+		if (edge.getColor() == NodeColor.gray) {
+			line.setLineStyle(SWT.LINE_CUSTOM);
+			line.setLineDash(new float[]{5, 5});
 		}
 		
-		return figure;
+		line.setForegroundColor(VarvizConstants.getColor(edge.getColor()));
+		line.setLineWidth(edge.getWidth());
+
+		PolygonDecoration arrow = new PolygonDecoration();
+		PointList arrowPointList = new PointList();
+		arrowPointList.addPoint(0, 0);
+		arrowPointList.addPoint(-2, 1);
+		arrowPointList.addPoint(-2, -1);
+		arrow.setTemplate(arrowPointList);
+		arrow.setForegroundColor(VarvizConstants.getColor(edge.getColor()));
+		line.setTargetDecoration(arrow);
+
+		if (!Conditional.isTautology(edge.getCtx()) && VarvizView.showLables) {
+			createLabel(edge, line);
+		}
+		
+		return line;
 	}
 	
 	@Override
