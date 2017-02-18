@@ -40,6 +40,7 @@ import cmu.varviz.trace.filters.StatementFilter;
 import cmu.varviz.trace.view.actions.HideAction;
 import cmu.varviz.trace.view.actions.HighlightPathAction;
 import cmu.varviz.trace.view.actions.IgnoreContext;
+import cmu.varviz.trace.view.actions.RemovePathAction;
 import cmu.varviz.trace.view.actions.SetDegreeAction;
 import cmu.varviz.trace.view.editparts.TraceEditPartFactory;
 import cmu.vatrace.ExceptionFilter;
@@ -165,6 +166,7 @@ public class VarvizView extends ViewPart {
 
 	private void fillContextMenu(IMenuManager menuMgr) {
 		menuMgr.add(new HideAction("Hide Statement", viewer, this));
+		menuMgr.add(new RemovePathAction("Hide Path", viewer, this));
 		menuMgr.add(new HighlightPathAction("Highlight Path", viewer, this));
 		menuMgr.add(new IgnoreContext("Remove unnecessary options", viewer, this));
 
@@ -219,10 +221,10 @@ public class VarvizView extends ViewPart {
 	});
 
 	// public static final String PROJECT_NAME = "MathBug";
-	public static final String PROJECT_NAME = "SmallInteractionExamples";
+//	public static final String PROJECT_NAME = "SmallInteractionExamples";
 //	public static final String PROJECT_NAME = "Email";
 	// public static final String PROJECT_NAME = "Mine";
-//	 public static final String PROJECT_NAME = "Elevator";
+	 public static final String PROJECT_NAME = "Elevator";
 //	 public static final String PROJECT_NAME = "NanoXML";
 	// public static final String PROJECT_Sources = "MathSources";
 	// public static final String PROJECT_Sources_Folder = "Bug6/src/main/java";
@@ -240,8 +242,8 @@ public class VarvizView extends ViewPart {
 
 	public static int minDegree = 2;
 
-//	final String path = "C:/Users/Jens Meinicke/workspaceVarexJ/" + PROJECT_NAME;
-	final String path = "C:/Users/Jens Meinicke/git/VarexJ/" + PROJECT_NAME;
+	final String path = "C:/Users/Jens Meinicke/workspaceVarexJ/" + PROJECT_NAME;
+//	final String path = "C:/Users/Jens Meinicke/git/VarexJ/" + PROJECT_NAME;
 
 	public Trace createTrace() {
 		final String[] args = {
@@ -256,10 +258,10 @@ public class VarvizView extends ViewPart {
 //				"+featuremodel=C:\\Users\\Jens Meinicke\\git\\VarexJ\\SmallInteractionExamples\\model.dimacs",
 				 "+invocation",
 //				 "linux.Example"
-//				 "Main"
+				 "Main"
 				// "linux.Linux1"
 
-				 "linux.Linux" + ((projectID++)%5 +1)
+//				 "linux.Linux" + ((projectID++)%5 +1)
 				// "debugging.Tarantula"
 
 //				"jean.GameScreen"

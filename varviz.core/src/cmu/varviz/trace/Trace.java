@@ -170,6 +170,7 @@ public class Trace {
 		return lastif;
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void addStatement(final Statement<?> statement) {
 		if (lastStatement == null) {
 			lastStatement = new One<>(statement);
@@ -177,6 +178,8 @@ public class Trace {
 			lastStatement.mapf(statement.getCTX(), (FeatureExpr ctx, Statement<?> from) -> {
 				if (!Conditional.isContradiction(ctx)) {
 					edges.add(new Edge(ctx, from, statement));
+					from.to = ChoiceFactory.create(ctx, new One(statement), from.to).simplify();
+					statement.from = ChoiceFactory.create(ctx, new One(from), statement.from).simplify();
 				}
 			});
 			lastStatement = ChoiceFactory.create(statement.getCTX(), new One<>(statement), lastStatement).simplify();
