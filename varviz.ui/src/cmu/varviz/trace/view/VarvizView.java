@@ -212,11 +212,11 @@ public class VarvizView extends ViewPart {
 //		menuMgr.add(new HighlightPathAction("Highlight Path", viewer, this));
 		menuMgr.add(new IgnoreContext("Remove unnecessary options", viewer, this));
 
-		MenuManager exportMenu = new MenuManager("Set Min Interaction Degree");
-		for (int degree = 1; degree <= 6; degree++) {
-			exportMenu.add(new SetDegreeAction(this, degree));
-		}
-		menuMgr.add(exportMenu);
+//		MenuManager exportMenu = new MenuManager("Set Min Interaction Degree");
+//		for (int degree = 1; degree <= 6; degree++) {
+//			exportMenu.add(new SetDegreeAction(this, degree));
+//		}
+//		menuMgr.add(exportMenu);
 	}
 
 	@Override
@@ -262,7 +262,7 @@ public class VarvizView extends ViewPart {
 		}
 	});
 	
-	enum projects { GAME_SCREEN, ELEVATOR, NANOXML, NETPOLL}
+	enum projects { NETPOLL, GAME_SCREEN, ELEVATOR, NANOXML}
 	
 	private static projects SELECTED_PROJECT = projects.GAME_SCREEN;
 	public static String[] PROJECT_PRAMETERS;
