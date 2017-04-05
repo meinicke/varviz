@@ -3,7 +3,18 @@ package cmu.varviz.trace.view.editparts;
 import cmu.conditional.Conditional;
 import de.fosd.typechef.featureexpr.FeatureExpr;
 
+/**
+ * Utility class for edit parts.
+ * 
+ * @author Jens Meinicke
+ *
+ */
 public class EditPartUtils {
+	
+	private static final char LOGICAL_OR = (char)0x2228;
+	private static final char LOGICAL_AND = (char)0x2227;
+
+	private EditPartUtils() {}
 
 	public static String getContext(FeatureExpr ctx) {
 		final String originalContext = Conditional.getCTXString(ctx); 
@@ -12,7 +23,7 @@ public class EditPartUtils {
 		for (int i = 0; i < split.length; i++) {
 			String current = split[i];
 			if (current.contains("|")) {
-				current = current.replaceAll("\\|", Character.toString((char)0x2228));
+				current = current.replaceAll("\\|", Character.toString(LOGICAL_OR));
 				if (split.length == 1) {
 					split[i] = current;
 				} else {
@@ -22,7 +33,7 @@ public class EditPartUtils {
 		}
 		final StringBuilder contextWithParenthesis = new StringBuilder();
 		for (int i = 0; i < split.length; i++) {
-			contextWithParenthesis.append(split[i]).append((char)0x2227);
+			contextWithParenthesis.append(split[i]).append(LOGICAL_AND);
 		}
 		
 		contextWithParenthesis.deleteCharAt(contextWithParenthesis.length() - 1);
