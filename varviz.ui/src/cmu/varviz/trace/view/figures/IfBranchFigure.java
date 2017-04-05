@@ -9,9 +9,12 @@ import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.PointList;
 import org.eclipse.draw2d.geometry.Rectangle;
 
+import cmu.conditional.Conditional;
 import cmu.varviz.VarvizConstants;
+import cmu.varviz.trace.IFStatement;
 import cmu.varviz.trace.NodeColor;
 import cmu.varviz.trace.Statement;
+import cmu.varviz.trace.view.editparts.EditPartUtils;
 
 /**
  * TODO description
@@ -34,7 +37,7 @@ public class IfBranchFigure extends Shape {
 		super();
 		this.statement = statement;
 		this.setLayoutManager(new FreeformLayout());
-		setName(statement.toString());
+		setName("if (" + EditPartUtils.getContext(((IFStatement<?>)statement).getTargetContext()) + ')');
 		NodeColor color = statement.getColor();
 		setBackgroundColor(VarvizConstants.getColor(color));
 		

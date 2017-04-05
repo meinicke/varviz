@@ -15,6 +15,7 @@ import cmu.conditional.Conditional;
 import cmu.varviz.VarvizConstants;
 import cmu.varviz.trace.NodeColor;
 import cmu.varviz.trace.Statement;
+import cmu.varviz.trace.view.editparts.EditPartUtils;
 import de.fosd.typechef.featureexpr.FeatureExpr;
 
 /**
@@ -103,7 +104,7 @@ public class StatementFigure extends RoundedRectangle {
 			for (Entry<?, FeatureExpr> entry : value.toMap().entrySet()) {
 				text.append(entry.getKey());
 				text.append(" : ");
-				text.append(Conditional.getCTXString(entry.getValue()));
+				text.append(EditPartUtils.getContext(entry.getValue()));
 				text.append('\n');
 			}
 			return text.subSequence(0, text.length() - 1).toString();

@@ -10,6 +10,7 @@ import org.eclipse.draw2d.geometry.PointList;
 import org.eclipse.gef.editparts.AbstractConnectionEditPart;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Font;
 
 import cmu.conditional.Conditional;
 import cmu.varviz.VarvizConstants;
@@ -76,15 +77,21 @@ public class EdgeEditPart extends AbstractConnectionEditPart {
 		setSource(source);
 		StatementEditPart target = (StatementEditPart) getViewer().getEditPartRegistry().get(edge.getTo());
 		setTarget(target);
-		figure.setToolTip(new Label(Conditional.getCTXString(edge.getCtx())));
+		figure.setToolTip(new Label(EditPartUtils.getContext(edge.getCtx())));
 		
 		figure.setForegroundColor(VarvizConstants.getColor(edge.getColor()));
 		((PolylineConnection)figure).setLineWidth(edge.getWidth());
 	}
 
+
+
 	private void createLabel(Edge edge, PolylineConnection figure) {
 		MidpointLocator sourceEndpointLocator = new MidpointLocator(figure, 0);
-		Label label = new Label(Conditional.getCTXString(edge.getCtx()));
+		Label label = new Label();
+		// Fonts that support logical symbols:
+		// Cambria, Lucida Sans Unicode, Malgun Gothic, Segoe UI Symbol
+		label.setFont(new Font(null, "Segoe UI Symbol",10, SWT.NORMAL));
+		label.setText(EditPartUtils.getContext(edge.getCtx()));
 		label.setForegroundColor(VarvizConstants.BLACK);
 		label.setBackgroundColor(new Color(null, 239, 242, 185));
 		figure.add(label, sourceEndpointLocator);
@@ -94,7 +101,7 @@ public class EdgeEditPart extends AbstractConnectionEditPart {
 
 	@Override
 	protected void createEditPolicies() {
-
+		// nothing here
 	}
 	
 	@Override
