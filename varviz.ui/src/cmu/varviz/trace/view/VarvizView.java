@@ -1,6 +1,7 @@
 package cmu.varviz.trace.view;
 
 import org.eclipse.draw2d.ConnectionLayer;
+import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.gef.EditDomain;
 import org.eclipse.gef.GraphicalViewer;
 import org.eclipse.gef.LayerConstants;
@@ -146,8 +147,7 @@ public class VarvizView extends ViewPart {
 	private void createRefreshButton(IToolBarManager toolbarManager) {
 		refreshButton = new Action("Build Variational Graph", Action.AS_DROP_DOWN_MENU) {
 			public void run() {
-				JPF.ignoredFeatures.clear();
-				refresh();
+				runRefreshButton();
 			}
 		};
 		toolbarManager.add(refreshButton);
@@ -171,9 +171,10 @@ public class VarvizView extends ViewPart {
 						public void run() {
 							SELECTED_PROJECT = p;
 							setProject();
-							JPF.ignoredFeatures.clear();
-							refresh();
+							runRefreshButton();
 						}
+
+						
 					};
 					ActionContributionItem contributionItem = new ActionContributionItem(activateProjectAction);
 					contributionItem.fill(fMenu, -1);
@@ -187,6 +188,16 @@ public class VarvizView extends ViewPart {
 				fMenu = null;
 			}
 		});
+	}
+	
+	private void runRefreshButton() {
+		// resizes the view
+		rootEditPart = new ScalableFreeformRootEditPart();
+		((ConnectionLayer) rootEditPart.getLayer(LayerConstants.CONNECTION_LAYER)).setAntialias(SWT.ON);
+		viewer.setRootEditPart(rootEditPart);
+		
+		JPF.ignoredFeatures.clear();
+		refresh();
 	}
 
 	public void createContextMenu() {
@@ -264,7 +275,7 @@ public class VarvizView extends ViewPart {
 	
 	enum projects { NETPOLL, GAME_SCREEN, ELEVATOR, NANOXML}
 	
-	private static projects SELECTED_PROJECT = projects.GAME_SCREEN;
+	private static projects SELECTED_PROJECT = projects.NETPOLL;
 	public static String[] PROJECT_PRAMETERS;
 	static {
 		setProject();
