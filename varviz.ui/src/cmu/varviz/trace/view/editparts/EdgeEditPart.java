@@ -36,7 +36,7 @@ public class EdgeEditPart extends AbstractConnectionEditPart {
 		Edge edge = (Edge) getModel();
 		PolylineConnection line = new PolylineConnection();
 		
-		if (edge.getColor() == NodeColor.gray) {
+		if (edge.getColor() == NodeColor.gray || edge.getColor() == NodeColor.yellow) {
 			line.setLineStyle(SWT.LINE_CUSTOM);
 			line.setLineDash(new float[]{5, 5});
 		}

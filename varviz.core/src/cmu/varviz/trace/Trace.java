@@ -101,23 +101,25 @@ public class Trace {
 	}
 	
 	public void highlightException(FeatureExpr ctx) {
-		for (Edge e : edges) {// TODO shouldn't we go through the nodes?
+		for (Edge e : edges) {
 			if (!Conditional.isContradiction(e.ctx.and(ctx))) {
-				if (e.ctx.equivalentTo(ctx)) {// TODO only works if there is only one exception
+				if (e.ctx.equivalentTo(ctx)) {
 					e.setWidth(2);
 					e.setColor(NodeColor.red);
-					e.from.setWidth(2);
-					e.to.setWidth(2);
+					if (e.to.ctx.equals(e.ctx)) {
+						e.to.setWidth(3);
+					}
 				} else if (Conditional.isTautology(e.ctx)) {
 					e.setWidth(1);
 					e.setColor(NodeColor.black);
 				} else if (!Conditional.isContradiction(e.ctx.not().and(ctx))) {
-					e.setWidth(1);
+					e.setWidth(2);
 					e.setColor(NodeColor.yellow);
 				} else {
 					e.setWidth(2);
-					e.from.setWidth(2);
-					e.to.setWidth(2);
+					if (e.to.ctx.equals(e.ctx)) {
+						e.to.setWidth(2);
+					}
 					e.setColor(NodeColor.darkorange);
 				}
 			} else {

@@ -12,7 +12,7 @@ public interface VarvizConstants {
 	Color GRAY = new Color(null, 150, 150, 150);
 
 	Color red = new Color(null, 255, 0, 0);
-	Color yellow = new Color(null, 255, 190, 0);
+	Color yellow = new Color(null, 255, 200, 0);
 	Color darkorange = new Color(null, 255, 160, 0);
 	Color limegreen = new Color(null, 124, 252, 0);
 	Color firebrick1 = new Color(null, 255, 100, 0);
