@@ -7,6 +7,7 @@ import org.eclipse.draw2d.MidpointLocator;
 import org.eclipse.draw2d.PolygonDecoration;
 import org.eclipse.draw2d.PolylineConnection;
 import org.eclipse.draw2d.geometry.PointList;
+import org.eclipse.gef.Request;
 import org.eclipse.gef.editparts.AbstractConnectionEditPart;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
@@ -26,6 +27,9 @@ import cmu.varviz.trace.view.VarvizView;
  */
 public class EdgeEditPart extends AbstractConnectionEditPart {
 
+	private Label label;
+	private boolean showLabel = false;
+	
 	public EdgeEditPart(Edge edge) {
 		super();
 		setModel(edge);
@@ -53,7 +57,7 @@ public class EdgeEditPart extends AbstractConnectionEditPart {
 		arrow.setForegroundColor(VarvizConstants.getColor(edge.getColor()));
 		line.setTargetDecoration(arrow);
 
-		if (!Conditional.isTautology(edge.getCtx()) && VarvizView.showLables) {
+		if ((!Conditional.isTautology(edge.getCtx()) && VarvizView.showLables) || showLabel) {
 			createLabel(edge, line);
 		}
 		
@@ -81,13 +85,19 @@ public class EdgeEditPart extends AbstractConnectionEditPart {
 		
 		figure.setForegroundColor(VarvizConstants.getColor(edge.getColor()));
 		((PolylineConnection)figure).setLineWidth(edge.getWidth());
+		
+		if ((!Conditional.isTautology(edge.getCtx()) && VarvizView.showLables) || showLabel) {
+			createLabel(edge, (PolylineConnection) getFigure());
+		} else if (label != null) {
+			figure.remove(label);
+		}
 	}
 
 
 
 	private void createLabel(Edge edge, PolylineConnection figure) {
 		MidpointLocator sourceEndpointLocator = new MidpointLocator(figure, 0);
-		Label label = new Label();
+		label = new Label();
 		// Fonts that support logical symbols:
 		// Cambria, Lucida Sans Unicode, Malgun Gothic, Segoe UI Symbol
 		label.setFont(new Font(null, "Segoe UI Symbol",10, SWT.NORMAL));
@@ -118,6 +128,14 @@ public class EdgeEditPart extends AbstractConnectionEditPart {
 
 	public Edge getEdgeModel() {
 		return (Edge)getModel();
+	}
+	
+	@Override
+	public void performRequest(Request request) {
+		if ("open".equals(request.getType())) {
+			showLabel = !showLabel;
+			refreshVisuals();
+		}
 	}
 
 }
