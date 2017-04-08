@@ -2,6 +2,8 @@ package cmu.varviz.trace;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import cmu.conditional.ChoiceFactory;
@@ -148,28 +150,48 @@ public class Trace {
 		}
 	}
 	
-	private static final Statement<?> removeUnnecessaryIfs(Method<?> method) {
-		List<Statement<?>> remove = new ArrayList<>();
-		Statement<?> lastif = null;
-		for (MethodElement<?> element : method.getChildren()) {
-			if (lastif != null && element.getCTX().equals(lastif.getCTX())) {
-				remove.add(lastif);
-			}
+	private static final void removeUnnecessaryIfs(Method<?> method) {
+		final Collection<MethodElement<?>> children = method.getChildren();
+		ArrayList<MethodElement<?>> reversed = new ArrayList<>();
+		reversed.addAll(children);
+		Collections.reverse(reversed);
+		
+		for (MethodElement<?> element : reversed) {
 			if (element instanceof Statement && ((Statement<?>)element).getShape() == Shape.Mdiamond) {
-				lastif = (Statement<?>) element;
-			} else {
-				lastif = null;
+				Statement<?> ifStatement = (Statement<?>)element;
+				
+				boolean hasDecission = checkForDecision(ifStatement, children);
+				if (!hasDecission) {
+					method.remove(ifStatement);
+				}
 			}
 			
 			if (element instanceof Method) {
-				lastif = removeUnnecessaryIfs((Method<?>)element);
+				removeUnnecessaryIfs((Method<?>)element);
+				if (((Method<?>)element).getChildren().isEmpty()) {
+					method.remove(element);
+				}
 			}
 		}
-		
-		for (Statement<?> statement : remove) {
-			method.remove(statement);
+	}
+	
+	private static boolean checkForDecision(Statement<?> ifStatement, Collection<MethodElement<?>> children) {
+		boolean found = false;
+		final FeatureExpr context = ifStatement.getCTX();
+		for (MethodElement<?> methodElement : children) {
+			if (methodElement == ifStatement) {
+				found = true;
+				continue;
+			}
+			if (found && context.and(methodElement.getCTX()).isSatisfiable()) {
+				if (context.equivalentTo(methodElement.getCTX())) {
+					return false;
+				} else {
+					return true;
+				}
+			}
 		}
-		return lastif;
+		return false;
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
