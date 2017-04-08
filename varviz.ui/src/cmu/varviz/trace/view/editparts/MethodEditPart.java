@@ -62,7 +62,6 @@ public class MethodEditPart extends AbstractTraceEditPart {
 		return children;
 	}
 
-	@SuppressWarnings("null")
 	@Override
 	public void layout() {
 		final IFigure methodFigure = getFigure();
