@@ -7,6 +7,7 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import cmu.varviz.trace.Method;
 import cmu.varviz.trace.MethodElement;
 import cmu.varviz.trace.view.VarvizView;
+import cmu.varviz.trace.view.VarvizViewerUtils;
 import cmu.varviz.trace.view.editparts.MethodEditPart;
 import cmu.varviz.trace.view.editparts.StatementEditPart;
 
@@ -53,9 +54,11 @@ public class HideAction extends Action {
 //			varvizViewView.trace.highlightNotTautology();
 			VarvizView.trace.highlightException();
 			varvizViewView.refreshVisuals();
+			
+			VarvizViewerUtils.refocusView(viewer);
 		}
 	}
-	
+
 	private void filterParents(Method<?> element) {
 		if (element != null) {
 			if (element.getChildren().isEmpty()) {

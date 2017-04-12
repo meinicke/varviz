@@ -186,6 +186,8 @@ public class Trace {
 			if (found && context.and(methodElement.getCTX()).isSatisfiable()) {
 				if (context.equivalentTo(methodElement.getCTX())) {
 					return false;
+				} else if (methodElement.getCTX().andNot(context).isSatisfiable()) {
+					return false;
 				} else {
 					return true;
 				}

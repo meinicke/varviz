@@ -1,7 +1,6 @@
 package cmu.varviz.trace.view;
 
 import org.eclipse.draw2d.ConnectionLayer;
-import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.gef.EditDomain;
 import org.eclipse.gef.GraphicalViewer;
 import org.eclipse.gef.LayerConstants;
@@ -41,9 +40,9 @@ import cmu.varviz.trace.filters.InteractionFilter;
 import cmu.varviz.trace.filters.Or;
 import cmu.varviz.trace.filters.StatementFilter;
 import cmu.varviz.trace.view.actions.HideAction;
+import cmu.varviz.trace.view.actions.HighlightPathAction;
 import cmu.varviz.trace.view.actions.IgnoreContext;
 import cmu.varviz.trace.view.actions.RemovePathAction;
-import cmu.varviz.trace.view.actions.SetDegreeAction;
 import cmu.varviz.trace.view.editparts.TraceEditPartFactory;
 import cmu.vatrace.ExceptionFilter;
 import de.fosd.typechef.featureexpr.FeatureExprFactory;
@@ -220,7 +219,7 @@ public class VarvizView extends ViewPart {
 //		menuMgr.add(new RemoveAllMethodsAction("Remove All Method Calls", viewer, this));
 //		menuMgr.add(new RemoveClassAction("Remove Class", viewer, this));
 		menuMgr.add(new RemovePathAction("Hide Path", viewer, this));
-//		menuMgr.add(new HighlightPathAction("Highlight Path", viewer, this));
+		menuMgr.add(new HighlightPathAction("Highlight Path", viewer, this));
 		menuMgr.add(new IgnoreContext("Remove unnecessary options", viewer, this));
 
 //		MenuManager exportMenu = new MenuManager("Set Min Interaction Degree");
@@ -273,10 +272,10 @@ public class VarvizView extends ViewPart {
 		}
 	});
 	
-	enum projects { NETPOLL, GAME_SCREEN, ELEVATOR, NANOXML}
+	enum projects { NETPOLL, GAME_SCREEN, ELEVATOR, ELEVATOR_10, ELEVATOR_14, NANOXML, MINE, EMAIL}
 	
-	private static projects SELECTED_PROJECT = projects.NETPOLL;
-	public static String[] PROJECT_PRAMETERS;
+	private static projects SELECTED_PROJECT = projects.MINE;
+	private static String[] PROJECT_PRAMETERS;
 	static {
 		setProject();
 	}
@@ -286,6 +285,12 @@ public class VarvizView extends ViewPart {
 		case ELEVATOR:
 			PROJECT_PRAMETERS = new String[]{"Elevator - Spec3", "Main", "elevator.dimacs"};
 			break;
+		case ELEVATOR_10:
+			PROJECT_PRAMETERS = new String[]{"Elevator - Spec10", "Main", "elevator.dimacs"};
+			break;
+		case ELEVATOR_14:
+			PROJECT_PRAMETERS = new String[]{"Elevator - Spec14", "Main", "elevator.dimacs"};
+			break;
 		case GAME_SCREEN:
 			PROJECT_PRAMETERS = new String[]{"GameScreen", "GameScreen"};
 			break;
@@ -294,6 +299,12 @@ public class VarvizView extends ViewPart {
 			break;
 		case NETPOLL:
 			PROJECT_PRAMETERS = new String[]{"NetPoll", "Setup"};
+			break;
+		case MINE:
+			PROJECT_PRAMETERS = new String[]{"Mine", "Main", "mine.dimacs"};
+			break;
+		case EMAIL:
+			PROJECT_PRAMETERS = new String[]{"Email", "EmailSystem.Scenario", "email.dimacs"};
 			break;
 		default:
 			throw new RuntimeException(SELECTED_PROJECT + " not covered");
