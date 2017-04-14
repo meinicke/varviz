@@ -219,7 +219,7 @@ public class VarvizView extends ViewPart {
 //		menuMgr.add(new RemoveAllMethodsAction("Remove All Method Calls", viewer, this));
 //		menuMgr.add(new RemoveClassAction("Remove Class", viewer, this));
 		menuMgr.add(new RemovePathAction("Hide Path", viewer, this));
-		menuMgr.add(new HighlightPathAction("Highlight Path", viewer, this));
+//		menuMgr.add(new HighlightPathAction("Highlight Path", viewer, this));
 		menuMgr.add(new IgnoreContext("Remove unnecessary options", viewer, this));
 
 //		MenuManager exportMenu = new MenuManager("Set Min Interaction Degree");
@@ -272,9 +272,11 @@ public class VarvizView extends ViewPart {
 		}
 	});
 	
-	enum projects { NETPOLL, GAME_SCREEN, ELEVATOR, ELEVATOR_10, ELEVATOR_14, NANOXML, MINE, EMAIL}
+	enum projects { GAME_SCREEN, ELEVATOR, NANOXML
+//		, NETPOLL, ELEVATOR_10, ELEVATOR_14, MINE, EMAIL
+		}
 	
-	private static projects SELECTED_PROJECT = projects.MINE;
+	private static projects SELECTED_PROJECT = projects.GAME_SCREEN;
 	private static String[] PROJECT_PRAMETERS;
 	static {
 		setProject();
@@ -285,27 +287,27 @@ public class VarvizView extends ViewPart {
 		case ELEVATOR:
 			PROJECT_PRAMETERS = new String[]{"Elevator - Spec3", "Main", "elevator.dimacs"};
 			break;
-		case ELEVATOR_10:
-			PROJECT_PRAMETERS = new String[]{"Elevator - Spec10", "Main", "elevator.dimacs"};
-			break;
-		case ELEVATOR_14:
-			PROJECT_PRAMETERS = new String[]{"Elevator - Spec14", "Main", "elevator.dimacs"};
-			break;
+//		case ELEVATOR_10:
+//			PROJECT_PRAMETERS = new String[]{"Elevator - Spec10", "Main", "elevator.dimacs"};
+//			break;
+//		case ELEVATOR_14:
+//			PROJECT_PRAMETERS = new String[]{"Elevator - Spec14", "Main", "elevator.dimacs"};
+//			break;
 		case GAME_SCREEN:
 			PROJECT_PRAMETERS = new String[]{"GameScreen", "GameScreen"};
 			break;
 		case NANOXML:
 			PROJECT_PRAMETERS = new String[]{"nanoxml", "net.n3.nanoxml.Parser1_vw_v1"};
 			break;
-		case NETPOLL:
-			PROJECT_PRAMETERS = new String[]{"NetPoll", "Setup"};
-			break;
-		case MINE:
-			PROJECT_PRAMETERS = new String[]{"Mine", "Main", "mine.dimacs"};
-			break;
-		case EMAIL:
-			PROJECT_PRAMETERS = new String[]{"Email", "EmailSystem.Scenario", "email.dimacs"};
-			break;
+//		case NETPOLL:
+//			PROJECT_PRAMETERS = new String[]{"NetPoll", "Setup"};
+//			break;
+//		case MINE:
+//			PROJECT_PRAMETERS = new String[]{"Mine", "Main", "mine.dimacs"};
+//			break;
+//		case EMAIL:
+//			PROJECT_PRAMETERS = new String[]{"Email", "EmailSystem.Scenario", "email.dimacs"};
+//			break;
 		default:
 			throw new RuntimeException(SELECTED_PROJECT + " not covered");
 		}
@@ -342,6 +344,7 @@ public class VarvizView extends ViewPart {
 		FeatureExprFactory.setDefault(FeatureExprFactory.bdd());
 		final String[] args = {
 				"+classpath=" + path + "/bin,${jpf-core}",
+				"+choice=MapChoice",
 				"+stack=StackHandler",
 				 "+nhandler.delegateUnhandledNative", "+search.class=.search.RandomSearch",
 				 PROJECT_PRAMETERS.length == 3 ? "+featuremodel=" + path + "/" + PROJECT_PRAMETERS[2] : "",

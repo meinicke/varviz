@@ -1,6 +1,11 @@
 package cmu.varviz.trace.view.figures;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.eclipse.draw2d.FreeformLayout;
 import org.eclipse.draw2d.Label;
@@ -100,11 +105,15 @@ public class StatementFigure extends RoundedRectangle {
 		if (value.isOne()) {
 			return value.getValue().toString();
 		} else {
+			final List<FeatureExpr> sortedExpressions = new ArrayList<>();
+			sortedExpressions.addAll(value.toMap().values());
+			Collections.sort(sortedExpressions, (o1, o2) -> o1.toString().replaceAll("!", "Z").compareToIgnoreCase(o2.toString().replaceAll("!", "Z")));
+
 			final StringBuilder text = new StringBuilder();
-			for (Entry<?, FeatureExpr> entry : value.toMap().entrySet()) {
-				text.append(entry.getKey());
+			for (FeatureExpr context : sortedExpressions) {
+				text.append(value.simplify(context));
 				text.append(" : ");
-				text.append(EditPartUtils.getContext(entry.getValue()));
+				text.append(EditPartUtils.getContext(context));
 				text.append('\n');
 			}
 			return text.subSequence(0, text.length() - 1).toString();
