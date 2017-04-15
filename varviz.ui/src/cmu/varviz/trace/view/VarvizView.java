@@ -319,7 +319,7 @@ public class VarvizView extends ViewPart {
 			throw new RuntimeException(SELECTED_PROJECT + " not covered");
 		}
 		PROJECT_NAME = PROJECT_PRAMETERS[0];
-		path = "C:/Users/Jens Meinicke/workspaceVarexJ/" + PROJECT_NAME;
+		path = "C:/Users/Jens Meinicke/git/EvaluationPrograms/" + PROJECT_NAME;
 	}
 
 	public static String PROJECT_NAME;
