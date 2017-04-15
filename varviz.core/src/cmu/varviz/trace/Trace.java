@@ -96,10 +96,14 @@ public class Trace {
 	}
 
 	public void highlightException() {
-		FeatureExpr exceptionContext = main.accumulate((Statement<?> s, FeatureExpr u) -> {
-			return s.toString().contains("Exception") || s.toString().contains("Error") ? u.or(s.getCTX()) : u;
-		}, BDDFeatureExprFactory.False());
+		FeatureExpr exceptionContext = getExceptionContext();
 		highlightException(exceptionContext);
+	}
+
+	public FeatureExpr getExceptionContext() {
+		return main.accumulate((Statement<?> s, FeatureExpr u) -> 
+			s.toString().contains("Exception") || s.toString().contains("Error") ? u.or(s.getCTX()) : u
+		, BDDFeatureExprFactory.False());
 	}
 	
 	public void highlightException(FeatureExpr ctx) {

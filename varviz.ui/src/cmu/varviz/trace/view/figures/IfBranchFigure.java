@@ -8,6 +8,8 @@ import org.eclipse.draw2d.geometry.Dimension;
 import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.PointList;
 import org.eclipse.draw2d.geometry.Rectangle;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Font;
 
 import cmu.conditional.Conditional;
 import cmu.varviz.VarvizConstants;
@@ -24,6 +26,9 @@ import cmu.varviz.trace.view.editparts.EditPartUtils;
  */
 public class IfBranchFigure extends Shape {
 
+	private static final String FONT_NAME = "Consolas";
+	private static final Font TEXT_FONT = new Font(null, FONT_NAME, 12, SWT.NORMAL);
+	
 	protected PointList diamond = new PointList(4);
 	
 	private Statement<?> statement;
@@ -50,6 +55,7 @@ public class IfBranchFigure extends Shape {
 
 	private void setName(String name){
 		label.setText(name);
+		label.setFont(TEXT_FONT);
 		Dimension labelSize = label.getPreferredSize();
 		
 		if (labelSize.width < MIN_WIDTH)

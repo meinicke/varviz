@@ -9,6 +9,7 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.IStructuredSelection;
 
 import cmu.conditional.Conditional;
+import cmu.varviz.trace.Statement;
 import cmu.varviz.trace.view.VarvizView;
 import cmu.varviz.trace.view.editparts.EdgeEditPart;
 import cmu.varviz.trace.view.editparts.MethodEditPart;
@@ -28,7 +29,7 @@ import scala.collection.Iterator;
 public class IgnoreContext extends Action {
 
 	private GraphicalViewerImpl viewer;
-	private VarvizView varvizViewView;
+	private static VarvizView varvizViewView;
 		
 	public IgnoreContext(String text, GraphicalViewerImpl viewer, VarvizView varvizViewView) {
 		super(text);
@@ -52,39 +53,45 @@ public class IgnoreContext extends Action {
 				return;
 			}
 			
-			Set<String> includedFeatures = new HashSet<>();
-			scala.collection.immutable.Set<SingleFeatureExpr> distinctfeatureObjects = ctx.collectDistinctFeatureObjects();
-			Iterator<SingleFeatureExpr> iterator = distinctfeatureObjects.iterator();
-			while (iterator.hasNext()) {
-				includedFeatures.add(Conditional.getCTXString(iterator.next()));
-			}
+			removeContext(ctx);
 			
-			// select the features of the exception
-			// check whether the other features can be (de)selected
-			
-			JPF.ignoredFeatures.clear();
-			FeatureExpr ctxcheck = Conditional.simplifyCondition(ctx);
-			
-			for (Entry<String, SingleFeatureExpr> feature : Conditional.features.entrySet()) {
-				if (!includedFeatures.contains(Conditional.getCTXString(feature.getValue()))) {
-					if (!Conditional.isContradiction(ctxcheck.and(feature.getValue())) &&
-						!Conditional.isContradiction(ctxcheck.andNot(feature.getValue()))) {
-						JPF.ignoredFeatures.put(feature.getValue(), false);
-						ctxcheck = ctxcheck.andNot(feature.getValue());
-					}
-				}
-			}
-			
-			createAdditioanlConstraint();
 			VarvizView.projectID--;
 			varvizViewView.refresh();
 		}
 	}
 
+	public static void removeContext(final FeatureExpr ctx) {
+		Set<String> includedFeatures = new HashSet<>();
+		scala.collection.immutable.Set<SingleFeatureExpr> distinctfeatureObjects = ctx.collectDistinctFeatureObjects();
+		Iterator<SingleFeatureExpr> iterator = distinctfeatureObjects.iterator();
+		while (iterator.hasNext()) {
+			includedFeatures.add(Conditional.getCTXString(iterator.next()));
+		}
+		
+		// select the features of the exception
+		// check whether the other features can be (de)selected
+		
+		JPF.ignoredFeatures.clear();
+		FeatureExpr ctxcheck = Conditional.simplifyCondition(ctx);
+		
+		for (Entry<String, SingleFeatureExpr> feature : Conditional.features.entrySet()) {
+			if (!includedFeatures.contains(Conditional.getCTXString(feature.getValue()))) {
+				if (!Conditional.isContradiction(ctxcheck.and(feature.getValue())) &&
+					!Conditional.isContradiction(ctxcheck.andNot(feature.getValue()))) {
+					JPF.ignoredFeatures.put(feature.getValue(), false);
+					ctxcheck = ctxcheck.andNot(feature.getValue());
+				}
+			}
+		}
+		
+		createAdditioanlConstraint();
+	
+	}
+
 	/**
 	 * Sets the additional constraint for VarexJ
 	 */
-	private void createAdditioanlConstraint() {// TODO does that actually matter?
+	private static void createAdditioanlConstraint() {// TODO does that actually matter?
 		FeatureExpr additionalConstraint = BDDFeatureExprFactory.True();
 		for (Entry<FeatureExpr, Boolean> feature : JPF.ignoredFeatures.entrySet()) {
 			if (feature.getValue() != null) {

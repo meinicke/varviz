@@ -45,6 +45,7 @@ import cmu.varviz.trace.view.actions.IgnoreContext;
 import cmu.varviz.trace.view.actions.RemovePathAction;
 import cmu.varviz.trace.view.editparts.TraceEditPartFactory;
 import cmu.vatrace.ExceptionFilter;
+import de.fosd.typechef.featureexpr.FeatureExpr;
 import de.fosd.typechef.featureexpr.FeatureExprFactory;
 import de.fosd.typechef.featureexpr.bdd.BDDFeatureExprFactory;
 import gov.nasa.jpf.JPF;
@@ -215,12 +216,12 @@ public class VarvizView extends ViewPart {
 	}
 
 	private void fillContextMenu(IMenuManager menuMgr) {
-		menuMgr.add(new HideAction("Hide Statement", viewer, this));
+		menuMgr.add(new HideAction("Hide Element", viewer, this));
 //		menuMgr.add(new RemoveAllMethodsAction("Remove All Method Calls", viewer, this));
 //		menuMgr.add(new RemoveClassAction("Remove Class", viewer, this));
-		menuMgr.add(new RemovePathAction("Hide Path", viewer, this));
+//		menuMgr.add(new RemovePathAction("Hide Path", viewer, this));
 //		menuMgr.add(new HighlightPathAction("Highlight Path", viewer, this));
-		menuMgr.add(new IgnoreContext("Remove unnecessary options", viewer, this));
+//		menuMgr.add(new IgnoreContext("Remove unnecessary options", viewer, this));
 
 //		MenuManager exportMenu = new MenuManager("Set Min Interaction Degree");
 //		for (int degree = 1; degree <= 6; degree++) {
@@ -272,8 +273,8 @@ public class VarvizView extends ViewPart {
 		}
 	});
 	
-	enum projects { GAME_SCREEN, ELEVATOR, NANOXML
-//		, NETPOLL, ELEVATOR_10, ELEVATOR_14, MINE, EMAIL
+	enum projects { NETPOLL, GAME_SCREEN, ELEVATOR, NANOXML,BANK_ACCOUNT
+//		, , ELEVATOR_10, ELEVATOR_14, MINE, EMAIL
 		}
 	
 	private static projects SELECTED_PROJECT = projects.GAME_SCREEN;
@@ -299,15 +300,21 @@ public class VarvizView extends ViewPart {
 		case NANOXML:
 			PROJECT_PRAMETERS = new String[]{"nanoxml", "net.n3.nanoxml.Parser1_vw_v1"};
 			break;
-//		case NETPOLL:
-//			PROJECT_PRAMETERS = new String[]{"NetPoll", "Setup"};
+//		case HTTP:
+//			PROJECT_PRAMETERS = new String[]{"HTTP", "Http"};
 //			break;
+		case NETPOLL:
+			PROJECT_PRAMETERS = new String[]{"NetPoll", "Setup"};
+			break;
 //		case MINE:
 //			PROJECT_PRAMETERS = new String[]{"Mine", "Main", "mine.dimacs"};
 //			break;
 //		case EMAIL:
 //			PROJECT_PRAMETERS = new String[]{"Email", "EmailSystem.Scenario", "email.dimacs"};
 //			break;
+		case BANK_ACCOUNT:
+			PROJECT_PRAMETERS = new String[]{"BankAccount", "Main"};
+			break;
 		default:
 			throw new RuntimeException(SELECTED_PROJECT + " not covered");
 		}
@@ -348,7 +355,7 @@ public class VarvizView extends ViewPart {
 				"+stack=StackHandler",
 				 "+nhandler.delegateUnhandledNative", "+search.class=.search.RandomSearch",
 				 PROJECT_PRAMETERS.length == 3 ? "+featuremodel=" + path + "/" + PROJECT_PRAMETERS[2] : "",
-				 "+invocation",
+//				 "+invocation",
 				 PROJECT_PRAMETERS[1]
 
 //				"+featuremodel=" + path + "/mine.dimacs",
@@ -371,10 +378,18 @@ public class VarvizView extends ViewPart {
 		};
 		JPF.vatrace = new Trace();
 		JPF.vatrace.filter = new Or(new And(basefilter, new InteractionFilter(minDegree)), new ExceptionFilter());
-
 		FeatureExprFactory.setDefault(FeatureExprFactory.bdd());
 		JPF.main(args);
-		Conditional.additionalConstraint = BDDFeatureExprFactory.True(); 
+		Conditional.additionalConstraint = BDDFeatureExprFactory.True();
+		
+		FeatureExpr exceptionContext = JPF.vatrace.getExceptionContext();
+		IgnoreContext.removeContext(exceptionContext);
+		if (!JPF.ignoredFeatures.isEmpty()) {
+			JPF.vatrace = new Trace();
+			JPF.vatrace.filter = new Or(new And(basefilter, new InteractionFilter(minDegree)), new ExceptionFilter());
+			JPF.main(args);
+			Conditional.additionalConstraint = BDDFeatureExprFactory.True();
+		}
 		JPF.vatrace.finalizeGraph();
 		return JPF.vatrace;
 	}

@@ -7,6 +7,8 @@ import org.eclipse.draw2d.RectangleFigure;
 import org.eclipse.draw2d.geometry.Dimension;
 import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.Rectangle;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Font;
 
 import cmu.varviz.VarvizConstants;
 import cmu.varviz.trace.NodeColor;
@@ -20,6 +22,9 @@ import cmu.varviz.trace.Statement;
  */
 public class SquareFigure extends RectangleFigure {
 
+	private static final String FONT_NAME = "Consolas";
+	private static final Font TEXT_FONT = new Font(null, FONT_NAME, 12, SWT.NORMAL);
+	
 	private Statement<?> statement;
 	private final Label label = new Label();
 	private SourceAnchor sourceAnchor;
@@ -47,6 +52,7 @@ public class SquareFigure extends RectangleFigure {
 
 	private void setName(String name){
 		label.setText(name);
+		label.setFont(TEXT_FONT);
 		Dimension labelSize = label.getPreferredSize();
 		
 		if (labelSize.width < MIN_WIDTH)

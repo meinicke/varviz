@@ -31,6 +31,11 @@ import de.fosd.typechef.featureexpr.FeatureExpr;
  */
 public class StatementFigure extends RoundedRectangle {
 
+	private static final String FONT_NAME = "Consolas";
+	private static final Font NAME_FONT = new Font(null, FONT_NAME, 12, SWT.BOLD);
+	private static final Font ARROW_FONT = new Font(null, FONT_NAME, 16, SWT.BOLD);
+	private static final Font TEXT_FONT = new Font(null, FONT_NAME, 12, SWT.NORMAL);
+	
 	private Statement<?> statement;
 	private final Label label = new Label();
 	private final Label a = new Label();
@@ -55,7 +60,8 @@ public class StatementFigure extends RoundedRectangle {
 				this.add(a);
 				
 				Label arrowLabel = new Label("\u2192");
-				arrowLabel.setFont(new Font(null, "arial",15, SWT.BOLD));
+				
+				arrowLabel.setFont(ARROW_FONT);
 				arrowLabel.setSize(arrowLabel.getPreferredSize());
 				arrowLabel.setLocation(new Point(a.getBounds().right() + BORDER_MARGIN / 2, a.getBounds().getRight().y - arrowLabel.getSize().height / 2));
 				this.add(arrowLabel);
@@ -88,6 +94,7 @@ public class StatementFigure extends RoundedRectangle {
 	
 	private void createLabelName() {
 		label.setText(statement.toString());
+		label.setFont(NAME_FONT);
 		Dimension labelSize = label.getPreferredSize();
 		label.setLocation(new Point(BORDER_MARGIN , BORDER_MARGIN));		
 		label.setSize(labelSize);
@@ -95,6 +102,7 @@ public class StatementFigure extends RoundedRectangle {
 
 	private void createLabelOld() {
 		Conditional<?> old = statement.getOldValue();
+		a.setFont(TEXT_FONT);
 		a.setText(createText(old));
 		Dimension labelSize = a.getPreferredSize();
 		a.setLocation(new Point(label.getBounds().right() + BORDER_MARGIN, BORDER_MARGIN));		
@@ -122,6 +130,7 @@ public class StatementFigure extends RoundedRectangle {
 	
 	private void createLabelNew(int x) {
 		Conditional<?> newValue = statement.getValue();
+		b.setFont(TEXT_FONT);
 		b.setText(createText(newValue));
 		b.setLocation(new Point(x, BORDER_MARGIN));
 		Dimension labelSize = b.getPreferredSize();

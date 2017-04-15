@@ -7,6 +7,8 @@ import org.eclipse.draw2d.LineBorder;
 import org.eclipse.draw2d.geometry.Dimension;
 import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.Rectangle;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Font;
 
 import cmu.varviz.VarvizConstants;
 import cmu.varviz.trace.Method;
@@ -18,6 +20,9 @@ import cmu.varviz.trace.Method;
  *
  */
 public class MethodFigure extends Figure {
+	
+	private static final String FONT_NAME = "Consolas";
+	private static final Font TEXT_FONT = new Font(null, FONT_NAME, 12, SWT.NORMAL);
 
 	private Method<?> method;
 	private final Label label = new Label();
@@ -43,6 +48,7 @@ public class MethodFigure extends Figure {
 
 	private void setName(String name){
 		label.setText(name);
+		label.setFont(TEXT_FONT);
 		Dimension labelSize = label.getPreferredSize();
 		label.setLocation(new Point(10,10));
 		if (labelSize.width < 100)

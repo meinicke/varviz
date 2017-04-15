@@ -27,6 +27,9 @@ import cmu.varviz.trace.view.VarvizView;
  */
 public class EdgeEditPart extends AbstractConnectionEditPart {
 
+	private static final String FONT_NAME = "Segoe UI Symbol";
+	private static final Font TEXT_FONT = new Font(null, FONT_NAME, 12, SWT.NORMAL);
+	
 	private Label label;
 	private boolean showLabel = false;
 	
@@ -81,7 +84,9 @@ public class EdgeEditPart extends AbstractConnectionEditPart {
 		setSource(source);
 		StatementEditPart target = (StatementEditPart) getViewer().getEditPartRegistry().get(edge.getTo());
 		setTarget(target);
-		figure.setToolTip(new Label(EditPartUtils.getContext(edge.getCtx())));
+		final Label contextLabel = new Label(EditPartUtils.getContext(edge.getCtx()));
+		contextLabel.setFont(TEXT_FONT);
+		figure.setToolTip(contextLabel);
 		
 		figure.setForegroundColor(VarvizConstants.getColor(edge.getColor()));
 		((PolylineConnection)figure).setLineWidth(edge.getWidth());
@@ -100,7 +105,7 @@ public class EdgeEditPart extends AbstractConnectionEditPart {
 		label = new Label();
 		// Fonts that support logical symbols:
 		// Cambria, Lucida Sans Unicode, Malgun Gothic, Segoe UI Symbol
-		label.setFont(new Font(null, "Segoe UI Symbol",10, SWT.NORMAL));
+		label.setFont(TEXT_FONT);
 		label.setText(EditPartUtils.getContext(edge.getCtx()));
 		label.setForegroundColor(VarvizConstants.BLACK);
 		label.setBackgroundColor(new Color(null, 239, 242, 185));
