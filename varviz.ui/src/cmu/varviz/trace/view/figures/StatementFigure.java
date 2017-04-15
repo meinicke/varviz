@@ -1,6 +1,7 @@
 package cmu.varviz.trace.view.figures;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -113,13 +114,21 @@ public class StatementFigure extends RoundedRectangle {
 		if (value.isOne()) {
 			return value.getValue().toString();
 		} else {
+			final Collection<?> entries = value.toMap().keySet();
+			int maxLength = 0;
+			for (Object object : entries) {
+				maxLength = Math.max(object.toString().length(), maxLength);
+			}
+			
 			final List<FeatureExpr> sortedExpressions = new ArrayList<>();
 			sortedExpressions.addAll(value.toMap().values());
 			Collections.sort(sortedExpressions, (o1, o2) -> o1.toString().replaceAll("!", "Z").compareToIgnoreCase(o2.toString().replaceAll("!", "Z")));
 
 			final StringBuilder text = new StringBuilder();
 			for (FeatureExpr context : sortedExpressions) {
-				text.append(value.simplify(context));
+				final String valueText = value.simplify(context).toString();
+				text.append(valueText);
+				text.append(new String(new char[maxLength - valueText.length()]));
 				text.append(" : ");
 				text.append(EditPartUtils.getContext(context));
 				text.append('\n');
