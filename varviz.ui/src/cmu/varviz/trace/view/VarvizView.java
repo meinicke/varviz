@@ -40,9 +40,7 @@ import cmu.varviz.trace.filters.InteractionFilter;
 import cmu.varviz.trace.filters.Or;
 import cmu.varviz.trace.filters.StatementFilter;
 import cmu.varviz.trace.view.actions.HideAction;
-import cmu.varviz.trace.view.actions.HighlightPathAction;
 import cmu.varviz.trace.view.actions.IgnoreContext;
-import cmu.varviz.trace.view.actions.RemovePathAction;
 import cmu.varviz.trace.view.editparts.TraceEditPartFactory;
 import cmu.vatrace.ExceptionFilter;
 import de.fosd.typechef.featureexpr.FeatureExpr;
@@ -273,11 +271,11 @@ public class VarvizView extends ViewPart {
 		}
 	});
 	
-	enum projects { NETPOLL, GAME_SCREEN, ELEVATOR, NANOXML,BANK_ACCOUNT
+	enum projects { FOOBAR, GAME_SCREEN, ELEVATOR, NANOXML
 //		, , ELEVATOR_10, ELEVATOR_14, MINE, EMAIL
 		}
 	
-	private static projects SELECTED_PROJECT = projects.GAME_SCREEN;
+	private static projects SELECTED_PROJECT = projects.FOOBAR;
 	private static String[] PROJECT_PRAMETERS;
 	static {
 		setProject();
@@ -303,17 +301,20 @@ public class VarvizView extends ViewPart {
 //		case HTTP:
 //			PROJECT_PRAMETERS = new String[]{"HTTP", "Http"};
 //			break;
-		case NETPOLL:
-			PROJECT_PRAMETERS = new String[]{"NetPoll", "Setup"};
-			break;
+//		case NETPOLL:
+//			PROJECT_PRAMETERS = new String[]{"NetPoll", "Setup"};
+//			break;
 //		case MINE:
 //			PROJECT_PRAMETERS = new String[]{"Mine", "Main", "mine.dimacs"};
 //			break;
 //		case EMAIL:
 //			PROJECT_PRAMETERS = new String[]{"Email", "EmailSystem.Scenario", "email.dimacs"};
 //			break;
-		case BANK_ACCOUNT:
-			PROJECT_PRAMETERS = new String[]{"BankAccount", "Main"};
+//		case BANK_ACCOUNT:
+//			PROJECT_PRAMETERS = new String[]{"BankAccount", "Main"};
+//			break;
+		case FOOBAR:
+			PROJECT_PRAMETERS = new String[]{"FooBar", "Main"};
 			break;
 		default:
 			throw new RuntimeException(SELECTED_PROJECT + " not covered");
