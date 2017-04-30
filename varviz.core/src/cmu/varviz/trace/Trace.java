@@ -170,6 +170,10 @@ public class Trace {
 				}
 			}
 			
+			if (element.canBeRemoved()) {
+				method.remove(element);
+			}
+			
 			if (element instanceof Method) {
 				removeUnnecessaryIfs((Method<?>)element);
 				if (((Method<?>)element).getChildren().isEmpty()) {

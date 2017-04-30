@@ -106,4 +106,8 @@ public abstract class MethodElement<T> {
 	public boolean isFiltered() {
 		return filtered;
 	}
+	
+	public boolean canBeRemoved() {// TODO revise this, seems unnecessary
+		return false;
+	}
 }
