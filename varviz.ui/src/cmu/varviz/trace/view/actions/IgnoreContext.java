@@ -9,7 +9,6 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.IStructuredSelection;
 
 import cmu.conditional.Conditional;
-import cmu.varviz.trace.Statement;
 import cmu.varviz.trace.view.VarvizView;
 import cmu.varviz.trace.view.editparts.EdgeEditPart;
 import cmu.varviz.trace.view.editparts.MethodEditPart;

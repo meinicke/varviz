@@ -22,6 +22,7 @@ package cmu.varviz.trace.view.editparts;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
 
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.geometry.Point;
@@ -31,6 +32,7 @@ import org.eclipse.gef.editparts.AbstractGraphicalEditPart;
 
 import cmu.varviz.trace.Method;
 import cmu.varviz.trace.MethodElement;
+import cmu.varviz.trace.Statement;
 import cmu.varviz.trace.view.figures.MethodFigure;
 import de.fosd.typechef.featureexpr.FeatureExpr;
 
@@ -80,14 +82,26 @@ public class MethodEditPart extends AbstractTraceEditPart {
 				if (previous != null) {
 					FeatureExpr prevctx = previous.getCTX();
 					if (!prevctx.equivalentTo(ctx)) {
-						if (prevctx.and(ctx).isSatisfiable()) {
+						if (ctx.isTautology()) {
+							// a -> True
+
+							// center
+							childEditPart.layout();
+							childEditPart.getFigure().translateToRelative(referencePoint);
+
+							childEditPart.getFigure().setLocation(new Point(-childEditPart.getFigure().getBounds().width / 2, h));
+							h = childEditPart.getFigure().getBounds().bottom() + BORDER_MARGIN * 4;
+							previous = model;
+							previousFigure = childEditPart;
+							continue;
+						} else if (prevctx.and(ctx).isSatisfiable()) {
 							// True -> a
 
 							// move to left
 							childEditPart.layout();
 							childEditPart.getFigure().translateToRelative(referencePoint);
 
-							childEditPart.getFigure().setLocation(new Point(-(childEditPart.getFigure().getBounds().width + BORDER_MARGIN), h));
+							childEditPart.getFigure().setLocation(new Point(previousFigure.getFigure().getBounds().getBottom().x -(childEditPart.getFigure().getBounds().width + BORDER_MARGIN), h));
 							h = childEditPart.getFigure().getBounds().bottom() + BORDER_MARGIN * 4;
 							previous = model;
 							previousFigure = childEditPart;
@@ -107,7 +121,12 @@ public class MethodEditPart extends AbstractTraceEditPart {
 						childEditPart.layout();
 						childEditPart.getFigure().translateToRelative(referencePoint);
 
-						childEditPart.getFigure().setLocation(new Point(previousFigure.getFigure().getBounds().getTop().x - childEditPart.getFigure().getBounds().width/2, h));
+						if (previousFigure.getFigure().getBounds().width < childEditPart.getFigure().getBounds().width) {
+							childEditPart.getFigure().setLocation(new Point(previousFigure.getFigure().getBounds().right() - childEditPart.getFigure().getBounds().width, h));
+							previousFigure.getFigure().setLocation(new Point(childEditPart.getFigure().getBounds().getTop().x - previousFigure.getFigure().getBounds().width/2, previousFigure.getFigure().getBounds().y));
+						} else {						
+							childEditPart.getFigure().setLocation(new Point(previousFigure.getFigure().getBounds().getTop().x - childEditPart.getFigure().getBounds().width/2, h));
+						}
 						h = childEditPart.getFigure().getBounds().bottom() + BORDER_MARGIN * 4;
 						previous = model;
 						previousFigure = childEditPart;
@@ -137,8 +156,9 @@ public class MethodEditPart extends AbstractTraceEditPart {
 
 		for (Object object : getChildren()) {
 			if (object instanceof AbstractGraphicalEditPart) {
-				Point location = ((AbstractGraphicalEditPart) object).getFigure().getBounds().getTopLeft();
-				((AbstractGraphicalEditPart) object).getFigure().setLocation(new Point(BORDER_MARGIN + location.x - minX, location.y));
+				final AbstractGraphicalEditPart abstractGraphicalEditPart = (AbstractGraphicalEditPart) object;
+				Point location = abstractGraphicalEditPart.getFigure().getBounds().getTopLeft();
+				abstractGraphicalEditPart.getFigure().setLocation(new Point(BORDER_MARGIN + location.x - minX, location.y));
 			}
 		}
 
@@ -174,6 +194,29 @@ public class MethodEditPart extends AbstractTraceEditPart {
 			}
 		}
 		super.performRequest(request);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public AbstractGraphicalEditPart getLastTrueStatement() {
+		ListIterator<Object> iterator = getChildren().listIterator(getChildren().size());
+		while (iterator.hasPrevious()) {
+			Object object = iterator.previous();
+			if (object instanceof AbstractGraphicalEditPart) {
+				final AbstractGraphicalEditPart abstractGraphicalEditPart = (AbstractGraphicalEditPart) object;
+				MethodElement<?> element = (MethodElement<?>)abstractGraphicalEditPart.getModel();
+				if (element.getCTX().isTautology()) {
+					if (element instanceof Statement) {
+						return abstractGraphicalEditPart;
+					} else if (object instanceof MethodEditPart){
+						AbstractGraphicalEditPart nextStatement = ((MethodEditPart) object).getLastTrueStatement();
+						if (nextStatement != null) {
+							return nextStatement;
+						}
+					}
+				}				
+			}
+		}
+		return null;
 	}
 
 }

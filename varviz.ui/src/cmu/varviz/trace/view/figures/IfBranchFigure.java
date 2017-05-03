@@ -11,7 +11,6 @@ import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
 
-import cmu.conditional.Conditional;
 import cmu.varviz.VarvizConstants;
 import cmu.varviz.trace.IFStatement;
 import cmu.varviz.trace.NodeColor;
