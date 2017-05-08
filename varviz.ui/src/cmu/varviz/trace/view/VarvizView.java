@@ -15,8 +15,6 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseWheelListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
@@ -56,6 +54,8 @@ import gov.nasa.jpf.JPF;
  */
 public class VarvizView extends ViewPart {
 
+	private static final String PROGRAMS_PATH = System.getProperty("user.home") + "/git/EvaluationPrograms/";
+
 	private PrintAction printAction;
 
 	private ScrollingGraphicalViewer viewer;
@@ -67,6 +67,52 @@ public class VarvizView extends ViewPart {
 
 	public static boolean showLables = false;
 
+	public static int projectID = 0;
+
+	public static int minDegree = 2;
+	
+	private LayoutManager lm = new LayoutManager();
+
+	public static Trace trace = null;
+
+	private enum projects {
+		FOOBAR, GAME_SCREEN, ELEVATOR, NANOXML
+	}
+	
+	private static projects SELECTED_PROJECT = projects.FOOBAR;
+	
+	private static String[] PROJECT_PRAMETERS;
+	
+	public static String PROJECT_NAME = "";
+	
+	public static final String PROJECT_Sources = "NanoXML";
+	public static final String PROJECT_Sources_Folder = "Sources/Java";
+	public static final String PROJECT_Sources_Test_Folder = "Test/Java";
+	
+	private String getPath() {
+		return PROGRAMS_PATH + PROJECT_NAME;
+	}
+	
+	private void setProject() {
+		switch (SELECTED_PROJECT) {
+		case ELEVATOR:
+			PROJECT_PRAMETERS = new String[]{"Elevator - Spec3", "Main", "elevator.dimacs"};
+			break;
+		case GAME_SCREEN:
+			PROJECT_PRAMETERS = new String[]{"GameScreen", "GameScreen"};
+			break;
+		case NANOXML:
+			PROJECT_PRAMETERS = new String[]{"nanoxml", "net.n3.nanoxml.Parser1_vw_v1"};
+			break;
+		case FOOBAR:
+			PROJECT_PRAMETERS = new String[]{"FooBar", "Main"};
+			break;
+		default:
+			throw new RuntimeException(SELECTED_PROJECT + " not covered");
+		}
+		PROJECT_NAME = PROJECT_PRAMETERS[0];
+	}
+	
 	@Override
 	public void createPartControl(Composite parent) {
 		viewer = new ScrollingGraphicalViewer();
@@ -104,7 +150,7 @@ public class VarvizView extends ViewPart {
 		exportGraphVizButton = new Action() {
 			public void run() {
 				FileDialog fileDialog = new FileDialog(parent.getShell(), SWT.SAVE);
-				fileDialog.setFilterPath(path);
+				fileDialog.setFilterPath(getPath());
 				fileDialog.setFileName(PROJECT_NAME);
 				final String[] extensions = new String[Format.values().length] ;
 				for (int i = 0; i < extensions.length; i++) {
@@ -125,17 +171,14 @@ public class VarvizView extends ViewPart {
 
 		exportGraphVizButton.setImageDescriptor(AbstractUIPlugin.imageDescriptorFromPlugin(PlatformUI.PLUGIN_ID, "icons/full/etool16/export_wiz.png"));
 
-		viewer.getControl().addMouseWheelListener(new MouseWheelListener() {
-			@Override
-			public void mouseScrolled(final MouseEvent ev) {
-				if ((ev.stateMask & SWT.CTRL) == 0) {
-					return;
-				}
-				if (ev.count > 0) {
-					((ScalableFreeformRootEditPart) viewer.getRootEditPart()).getZoomManager().zoomIn();
-				} else if (ev.count < 0) {
-					((ScalableFreeformRootEditPart) viewer.getRootEditPart()).getZoomManager().zoomOut();
-				}
+		viewer.getControl().addMouseWheelListener(ev -> {
+			if ((ev.stateMask & SWT.CTRL) == 0) {
+				return;
+			}
+			if (ev.count > 0) {
+				((ScalableFreeformRootEditPart) viewer.getRootEditPart()).getZoomManager().zoomIn();
+			} else if (ev.count < 0) {
+				((ScalableFreeformRootEditPart) viewer.getRootEditPart()).getZoomManager().zoomOut();
 			}
 		});
 
@@ -168,7 +211,6 @@ public class VarvizView extends ViewPart {
 					Action activateProjectAction = new Action(p.toString(), Action.AS_CHECK_BOX) {
 						public void run() {
 							SELECTED_PROJECT = p;
-							setProject();
 							runRefreshButton();
 						}
 
@@ -215,27 +257,12 @@ public class VarvizView extends ViewPart {
 
 	private void fillContextMenu(IMenuManager menuMgr) {
 		menuMgr.add(new HideAction("Hide Element", viewer, this));
-//		menuMgr.add(new RemoveAllMethodsAction("Remove All Method Calls", viewer, this));
-//		menuMgr.add(new RemoveClassAction("Remove Class", viewer, this));
-//		menuMgr.add(new RemovePathAction("Hide Path", viewer, this));
-//		menuMgr.add(new HighlightPathAction("Highlight Path", viewer, this));
-//		menuMgr.add(new IgnoreContext("Remove unnecessary options", viewer, this));
-
-//		MenuManager exportMenu = new MenuManager("Set Min Interaction Degree");
-//		for (int degree = 1; degree <= 6; degree++) {
-//			exportMenu.add(new SetDegreeAction(this, degree));
-//		}
-//		menuMgr.add(exportMenu);
 	}
 
 	@Override
 	public void setFocus() {
 
 	}
-
-	LayoutManager lm = new LayoutManager();
-
-	public static Trace trace = null;
 
 	public void refresh() {
 		trace = createTrace();
@@ -270,112 +297,17 @@ public class VarvizView extends ViewPart {
 			return false;
 		}
 	});
-	
-	enum projects { FOOBAR, GAME_SCREEN, ELEVATOR, NANOXML
-//		, , ELEVATOR_10, ELEVATOR_14, MINE, EMAIL
-		}
-	
-	private static projects SELECTED_PROJECT = projects.FOOBAR;
-	private static String[] PROJECT_PRAMETERS;
-	static {
-		setProject();
-	}
-
-	private static void setProject() {
-		switch (SELECTED_PROJECT) {
-		case ELEVATOR:
-			PROJECT_PRAMETERS = new String[]{"Elevator - Spec3", "Main", "elevator.dimacs"};
-			break;
-//		case ELEVATOR_10:
-//			PROJECT_PRAMETERS = new String[]{"Elevator - Spec10", "Main", "elevator.dimacs"};
-//			break;
-//		case ELEVATOR_14:
-//			PROJECT_PRAMETERS = new String[]{"Elevator - Spec14", "Main", "elevator.dimacs"};
-//			break;
-		case GAME_SCREEN:
-			PROJECT_PRAMETERS = new String[]{"GameScreen", "GameScreen"};
-			break;
-		case NANOXML:
-			PROJECT_PRAMETERS = new String[]{"nanoxml", "net.n3.nanoxml.Parser1_vw_v1"};
-			break;
-//		case HTTP:
-//			PROJECT_PRAMETERS = new String[]{"HTTP", "Http"};
-//			break;
-//		case NETPOLL:
-//			PROJECT_PRAMETERS = new String[]{"NetPoll", "Setup"};
-//			break;
-//		case MINE:
-//			PROJECT_PRAMETERS = new String[]{"Mine", "Main", "mine.dimacs"};
-//			break;
-//		case EMAIL:
-//			PROJECT_PRAMETERS = new String[]{"Email", "EmailSystem.Scenario", "email.dimacs"};
-//			break;
-//		case BANK_ACCOUNT:
-//			PROJECT_PRAMETERS = new String[]{"BankAccount", "Main"};
-//			break;
-		case FOOBAR:
-			PROJECT_PRAMETERS = new String[]{"FooBar", "Main"};
-			break;
-		default:
-			throw new RuntimeException(SELECTED_PROJECT + " not covered");
-		}
-		PROJECT_NAME = PROJECT_PRAMETERS[0];
-		path = "C:/Users/Jens/git/EvaluationPrograms/" + PROJECT_NAME;
-	}
-
-	public static String PROJECT_NAME;
-	static String path;
-	
-	// public static final String PROJECT_NAME = "MathBug";
-//	public static final String PROJECT_NAME = "SmallInteractionExamples";
-//	public static final String PROJECT_NAME = "Email";
-//	 public static final String PROJECT_NAME = "Mine";
-	// public static final String PROJECT_Sources = "MathSources";
-	// public static final String PROJECT_Sources_Folder = "Bug6/src/main/java";
-	// public static final String PROJECT_Sources_Test_Folder =
-	// "Bug6/src/test/java";
-//	public static final String PROJECT_Sources = "mathIssue280";
-
-	public static final String PROJECT_Sources = "NanoXML";
-	public static final String PROJECT_Sources_Folder = "Sources/Java";
-	public static final String PROJECT_Sources_Test_Folder = "Test/Java";
-//	public static final String PROJECT_Sources_Folder = "src/java";
-//	public static final String PROJECT_Sources_Test_Folder = "src/test";
-
-	public static int projectID = 0;
-
-	public static int minDegree = 2;
-
-//	final String path = "C:/Users/Jens Meinicke/git/VarexJ/" + PROJECT_NAME;
 
 	public Trace createTrace() {
+		setProject();
 		FeatureExprFactory.setDefault(FeatureExprFactory.bdd());
 		final String[] args = {
-				"+classpath=" + path + "/bin,${jpf-core}",
+				"+classpath=" + getPath() + "/bin,${jpf-core}",
 				"+choice=MapChoice",
 				"+stack=StackHandler",
 				 "+nhandler.delegateUnhandledNative", "+search.class=.search.RandomSearch",
-				 PROJECT_PRAMETERS.length == 3 ? "+featuremodel=" + path + "/" + PROJECT_PRAMETERS[2] : "",
-//				 "+invocation",
+				 PROJECT_PRAMETERS.length == 3 ? "+featuremodel=" + getPath() + "/" + PROJECT_PRAMETERS[2] : "",
 				 PROJECT_PRAMETERS[1]
-
-//				"+featuremodel=" + path + "/mine.dimacs",
-//				 "+featuremodel=" + path + "/email.dimacs",
-//				"+featuremodel=C:\\Users\\Jens Meinicke\\git\\VarexJ\\SmallInteractionExamples\\model.dimacs",
-//				 "linux.Example"
-//				 "Main"
-//				 "linux.Linux1"
-//				 "linux.Linux" + ((projectID++)%5 +1)
-				// "debugging.Tarantula"
-//				"jean.GameScreen"
-				// "jean.Http"
-				// "jean.Netpoll"
-
-				// "SmoothingPolynomialBicubicSplineInterpolatorTest"
-				// "Test"
-				// "SimplexOptimizerNelderMeadTestStarter"
-//				"EmailSystem.Scenario"
-				
 		};
 		JPF.vatrace = new Trace();
 		JPF.vatrace.filter = new Or(new And(basefilter, new InteractionFilter(minDegree)), new ExceptionFilter());
@@ -394,7 +326,7 @@ public class VarvizView extends ViewPart {
 		JPF.vatrace.finalizeGraph();
 		return JPF.vatrace;
 	}
-
+	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public Object getAdapter(Class adapter) {
