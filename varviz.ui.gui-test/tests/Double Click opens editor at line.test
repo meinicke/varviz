@@ -1,0 +1,33 @@
+--- RCPTT testcase ---
+Format-Version: 1.0
+Element-Name: Double Click opens editor at line
+Element-Type: testcase
+Element-Version: 3.0
+External-Reference: 
+Id: _Li6HsDZ-Eee5Mrdq45jKxw
+Runtime-Version: 2.1.0.201606221726
+Save-Time: 5/11/17 2:06 PM
+Testcase-Type: ecl
+Verifications: _aDGv0DaAEeeA0eZq7dNHaw
+
+------=_.content-0a7243a0-75d3-3d5f-9791-539de0e5b7ac
+Content-Type: text/ecl
+Entry-Name: .content
+
+with [get-view varviz | get-diagram | get-edit-part -className TraceEditPart | get-edit-part -text "Main#[main]()" 
+    | get-edit-part -text "Main#main()" | get-edit-part -text "Main#run()"] {
+    with [get-edit-part -text "int Main.foo ="] {
+        mouse-press 185 26 button1 -height 58 -width 295
+        mouse-double-click 185 26 button1 -height 58 -width 295
+        mouse-release 185 26 button1 524288 -height 58 -width 295
+    }
+}
+
+with [get-editor "Main.java"] {
+    click
+    with [get-text-viewer] {
+        key-type Right
+        type-text "// this line"
+    }
+}
+------=_.content-0a7243a0-75d3-3d5f-9791-539de0e5b7ac--
