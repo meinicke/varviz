@@ -9,6 +9,7 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.IStructuredSelection;
 
 import cmu.conditional.Conditional;
+import cmu.varviz.trace.generator.TraceGenerator;
 import cmu.varviz.trace.view.VarvizView;
 import cmu.varviz.trace.view.editparts.EdgeEditPart;
 import cmu.varviz.trace.view.editparts.MethodEditPart;
@@ -16,7 +17,6 @@ import cmu.varviz.trace.view.editparts.StatementEditPart;
 import de.fosd.typechef.featureexpr.FeatureExpr;
 import de.fosd.typechef.featureexpr.SingleFeatureExpr;
 import de.fosd.typechef.featureexpr.bdd.BDDFeatureExprFactory;
-import gov.nasa.jpf.JPF;
 import scala.collection.Iterator;
 
 /**
@@ -70,14 +70,15 @@ public class IgnoreContext extends Action {
 		// select the features of the exception
 		// check whether the other features can be (de)selected
 		
-		JPF.ignoredFeatures.clear();
-		FeatureExpr ctxcheck = Conditional.simplifyCondition(ctx);
+		final TraceGenerator generator = VarvizView.generator;
+		generator.clearIgnoredFeatures();
 		
-		for (Entry<String, SingleFeatureExpr> feature : Conditional.features.entrySet()) {
+		FeatureExpr ctxcheck = Conditional.simplifyCondition(ctx);
+		for (Entry<String, SingleFeatureExpr> feature : generator.getFeatures().entrySet()) {
 			if (!includedFeatures.contains(Conditional.getCTXString(feature.getValue()))) {
 				if (!Conditional.isContradiction(ctxcheck.and(feature.getValue())) &&
 					!Conditional.isContradiction(ctxcheck.andNot(feature.getValue()))) {
-					JPF.ignoredFeatures.put(feature.getValue(), false);
+					generator.getIgnoredFeatures().put(feature.getValue(), false);
 					ctxcheck = ctxcheck.andNot(feature.getValue());
 				}
 			}
@@ -90,9 +91,10 @@ public class IgnoreContext extends Action {
 	/**
 	 * Sets the additional constraint for VarexJ
 	 */
-	private static void createAdditioanlConstraint() {// TODO does that actually matter?
+	private static void createAdditioanlConstraint() {
+		// TODO does that actually matter?
 		FeatureExpr additionalConstraint = BDDFeatureExprFactory.True();
-		for (Entry<FeatureExpr, Boolean> feature : JPF.ignoredFeatures.entrySet()) {
+		for (Entry<FeatureExpr, Boolean> feature : VarvizView.generator.getIgnoredFeatures().entrySet()) {
 			if (feature.getValue() != null) {
 				final FeatureExpr f = feature.getKey();
 				if (feature.getValue()) {

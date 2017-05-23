@@ -1,7 +1,5 @@
 package cmu.varviz.trace.view;
 
-import java.io.File;
-
 import org.eclipse.draw2d.ConnectionLayer;
 import org.eclipse.gef.EditDomain;
 import org.eclipse.gef.GraphicalViewer;
@@ -28,26 +26,18 @@ import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
-import cmu.conditional.Conditional;
 import cmu.varviz.VarvizActivator;
 import cmu.varviz.io.graphviz.Format;
 import cmu.varviz.io.graphviz.GrapVizExport;
 import cmu.varviz.trace.Method;
 import cmu.varviz.trace.Statement;
 import cmu.varviz.trace.Trace;
-import cmu.varviz.trace.filters.And;
-import cmu.varviz.trace.filters.InteractionFilter;
 import cmu.varviz.trace.filters.Or;
 import cmu.varviz.trace.filters.StatementFilter;
+import cmu.varviz.trace.generator.TraceGenerator;
+import cmu.varviz.trace.generator.varexj.VarexJGenerator;
 import cmu.varviz.trace.view.actions.HideAction;
-import cmu.varviz.trace.view.actions.IgnoreContext;
 import cmu.varviz.trace.view.editparts.TraceEditPartFactory;
-import cmu.varviz.utils.FileUtils;
-import cmu.vatrace.ExceptionFilter;
-import de.fosd.typechef.featureexpr.FeatureExpr;
-import de.fosd.typechef.featureexpr.FeatureExprFactory;
-import de.fosd.typechef.featureexpr.bdd.BDDFeatureExprFactory;
-import gov.nasa.jpf.JPF;
 
 /**
  * The varviz view.
@@ -56,16 +46,8 @@ import gov.nasa.jpf.JPF;
  *
  */
 public class VarvizView extends ViewPart {
-	
-	static {
-		// create the site.properties in the .jpf folder 
-		File userHome = new File(System.getProperty("user.home"));
-		File jpfPath = new File(userHome.getPath() + "/.jpf");
-		if (!jpfPath.exists()) {
-			jpfPath.mkdir();
-		}
-		FileUtils.CopyFileFromVarvizJar("/res", "site.properties", jpfPath);
-	}
+
+	public static TraceGenerator generator = new VarexJGenerator();
 	
 	private static final String PROGRAMS_PATH = System.getProperty("user.home") + "/git/EvaluationPrograms/";
 
@@ -94,7 +76,7 @@ public class VarvizView extends ViewPart {
 	
 	private static projects SELECTED_PROJECT = projects.FOOBAR;
 	
-	private static String[] PROJECT_PRAMETERS;
+	public static String[] PROJECT_PRAMETERS;
 	
 	public static String PROJECT_NAME = "";
 	
@@ -102,7 +84,7 @@ public class VarvizView extends ViewPart {
 	public static final String PROJECT_Sources_Folder = "Sources/Java";
 	public static final String PROJECT_Sources_Test_Folder = "Test/Java";
 	
-	private String getPath() {
+	public static String getPath() {
 		return PROGRAMS_PATH + PROJECT_NAME;
 	}
 	
@@ -249,7 +231,6 @@ public class VarvizView extends ViewPart {
 		((ConnectionLayer) rootEditPart.getLayer(LayerConstants.CONNECTION_LAYER)).setAntialias(SWT.ON);
 		viewer.setRootEditPart(rootEditPart);
 		
-		JPF.ignoredFeatures.clear();
 		refresh();
 	}
 
@@ -292,7 +273,7 @@ public class VarvizView extends ViewPart {
 		});
 	}
 
-	private static StatementFilter basefilter = new Or(new StatementFilter() {
+	public static StatementFilter basefilter = new Or(new StatementFilter() {
 
 		@Override
 		public boolean filter(Statement<?> s) {
@@ -313,31 +294,7 @@ public class VarvizView extends ViewPart {
 
 	public Trace createTrace() {
 		setProject();
-		FeatureExprFactory.setDefault(FeatureExprFactory.bdd());
-		final String[] args = {
-				"+classpath=" + getPath() + "/bin,${jpf-core}",
-				"+choice=MapChoice",
-				"+stack=StackHandler",
-				 "+nhandler.delegateUnhandledNative", "+search.class=.search.RandomSearch",
-				 PROJECT_PRAMETERS.length == 3 ? "+featuremodel=" + getPath() + "/" + PROJECT_PRAMETERS[2] : "",
-				 PROJECT_PRAMETERS[1]
-		};
-		JPF.vatrace = new Trace();
-		JPF.vatrace.filter = new Or(new And(basefilter, new InteractionFilter(minDegree)), new ExceptionFilter());
-		FeatureExprFactory.setDefault(FeatureExprFactory.bdd());
-		JPF.main(args);
-		Conditional.additionalConstraint = BDDFeatureExprFactory.True();
-		
-		FeatureExpr exceptionContext = JPF.vatrace.getExceptionContext();
-		IgnoreContext.removeContext(exceptionContext);
-		if (!JPF.ignoredFeatures.isEmpty()) {
-			JPF.vatrace = new Trace();
-			JPF.vatrace.filter = new Or(new And(basefilter, new InteractionFilter(minDegree)), new ExceptionFilter());
-			JPF.main(args);
-			Conditional.additionalConstraint = BDDFeatureExprFactory.True();
-		}
-		JPF.vatrace.finalizeGraph();
-		return JPF.vatrace;
+		return generator.createTrace();
 	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
