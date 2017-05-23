@@ -1,5 +1,7 @@
 package cmu.varviz.trace.view;
 
+import java.io.File;
+
 import org.eclipse.draw2d.ConnectionLayer;
 import org.eclipse.gef.EditDomain;
 import org.eclipse.gef.GraphicalViewer;
@@ -40,6 +42,7 @@ import cmu.varviz.trace.filters.StatementFilter;
 import cmu.varviz.trace.view.actions.HideAction;
 import cmu.varviz.trace.view.actions.IgnoreContext;
 import cmu.varviz.trace.view.editparts.TraceEditPartFactory;
+import cmu.varviz.utils.FileUtils;
 import cmu.vatrace.ExceptionFilter;
 import de.fosd.typechef.featureexpr.FeatureExpr;
 import de.fosd.typechef.featureexpr.FeatureExprFactory;
@@ -53,7 +56,17 @@ import gov.nasa.jpf.JPF;
  *
  */
 public class VarvizView extends ViewPart {
-
+	
+	static {
+		// create the site.properties in the .jpf folder 
+		File userHome = new File(System.getProperty("user.home"));
+		File jpfPath = new File(userHome.getPath() + "/.jpf");
+		if (!jpfPath.exists()) {
+			jpfPath.mkdir();
+		}
+		FileUtils.CopyFileFromVarvizJar("/res", "site.properties", jpfPath);
+	}
+	
 	private static final String PROGRAMS_PATH = System.getProperty("user.home") + "/git/EvaluationPrograms/";
 
 	private PrintAction printAction;
