@@ -8,8 +8,6 @@ import org.eclipse.gef.editparts.ScalableFreeformRootEditPart;
 import org.eclipse.gef.ui.actions.PrintAction;
 import org.eclipse.gef.ui.parts.ScrollingGraphicalViewer;
 import org.eclipse.jface.action.Action;
-import org.eclipse.jface.action.ActionContributionItem;
-import org.eclipse.jface.action.IMenuCreator;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
@@ -49,14 +47,11 @@ public class VarvizView extends ViewPart {
 
 	public static TraceGenerator generator = new VarexJGenerator();
 	
-	private static final String PROGRAMS_PATH = System.getProperty("user.home") + "/git/EvaluationPrograms/";
-
 	private PrintAction printAction;
 
-	private ScrollingGraphicalViewer viewer;
+	private static ScrollingGraphicalViewer viewer;
 	private ScalableFreeformRootEditPart rootEditPart;
 
-	private Action refreshButton;
 	private Action showLablesButton;
 	private Action exportGraphVizButton;
 
@@ -66,47 +61,15 @@ public class VarvizView extends ViewPart {
 
 	public static int minDegree = 2;
 	
-	private LayoutManager lm = new LayoutManager();
+	private static LayoutManager lm = new LayoutManager();
 
-	public static Trace trace = null;
+	public static Trace TRACE = new Trace();
 
-	private enum projects {
-		FOOBAR, GAME_SCREEN, ELEVATOR, NANOXML
-	}
-	
-	private static projects SELECTED_PROJECT = projects.FOOBAR;
-	
-	public static String[] PROJECT_PRAMETERS;
-	
 	public static String PROJECT_NAME = "";
 	
 	public static final String PROJECT_Sources = "NanoXML";
 	public static final String PROJECT_Sources_Folder = "Sources/Java";
 	public static final String PROJECT_Sources_Test_Folder = "Test/Java";
-	
-	public static String getPath() {
-		return PROGRAMS_PATH + PROJECT_NAME;
-	}
-	
-	private void setProject() {
-		switch (SELECTED_PROJECT) {
-		case ELEVATOR:
-			PROJECT_PRAMETERS = new String[]{"Elevator - Spec3", "Main", "elevator.dimacs"};
-			break;
-		case GAME_SCREEN:
-			PROJECT_PRAMETERS = new String[]{"GameScreen", "GameScreen"};
-			break;
-		case NANOXML:
-			PROJECT_PRAMETERS = new String[]{"nanoxml", "net.n3.nanoxml.Parser1_vw_v1"};
-			break;
-		case FOOBAR:
-			PROJECT_PRAMETERS = new String[]{"FooBar", "Main"};
-			break;
-		default:
-			throw new RuntimeException(SELECTED_PROJECT + " not covered");
-		}
-		PROJECT_NAME = PROJECT_PRAMETERS[0];
-	}
 	
 	@Override
 	public void createPartControl(Composite parent) {
@@ -127,13 +90,11 @@ public class VarvizView extends ViewPart {
 
 		IToolBarManager toolbarManager = bars.getToolBarManager();
 
-		createRefreshButton(toolbarManager);
-		
 		showLablesButton = new Action() {
 			public void run() {
 				showLables = !showLables;
-				trace.createEdges();
-				trace.highlightException();
+				TRACE.createEdges();
+				TRACE.highlightException();
 				refreshVisuals();
 			}
 		};
@@ -145,7 +106,6 @@ public class VarvizView extends ViewPart {
 		exportGraphVizButton = new Action() {
 			public void run() {
 				FileDialog fileDialog = new FileDialog(parent.getShell(), SWT.SAVE);
-				fileDialog.setFilterPath(getPath());
 				fileDialog.setFileName(PROJECT_NAME);
 				final String[] extensions = new String[Format.values().length] ;
 				for (int i = 0; i < extensions.length; i++) {
@@ -155,7 +115,7 @@ public class VarvizView extends ViewPart {
 				fileDialog.setFilterExtensions(extensions);
 				String location = fileDialog.open();
 				if (location != null) {
-					GrapVizExport exporter = new GrapVizExport(location, trace);
+					GrapVizExport exporter = new GrapVizExport(location, TRACE);
 					exporter.write();
 				}
 			}
@@ -178,60 +138,6 @@ public class VarvizView extends ViewPart {
 		});
 
 		createContextMenu();
-	}
-
-	private void createRefreshButton(IToolBarManager toolbarManager) {
-		refreshButton = new Action("Build Variational Graph", Action.AS_DROP_DOWN_MENU) {
-			public void run() {
-				runRefreshButton();
-			}
-		};
-		toolbarManager.add(refreshButton);
-		refreshButton.setImageDescriptor(VarvizActivator.REFESH_TAB_IMAGE_DESCRIPTOR);
-		
-		refreshButton.setMenuCreator(new IMenuCreator() {
-
-			Menu fMenu = null;
-
-			@Override
-			public Menu getMenu(Menu parent) {
-				return fMenu;
-			}
-
-			@Override
-			public Menu getMenu(Control parent) {
-				fMenu = new Menu(parent);
-				
-				for (projects p : projects.values()) {
-					Action activateProjectAction = new Action(p.toString(), Action.AS_CHECK_BOX) {
-						public void run() {
-							SELECTED_PROJECT = p;
-							runRefreshButton();
-						}
-
-						
-					};
-					ActionContributionItem contributionItem = new ActionContributionItem(activateProjectAction);
-					contributionItem.fill(fMenu, -1);
-				}
-				
-				return fMenu;
-			}
-
-			@Override
-			public void dispose() {
-				fMenu = null;
-			}
-		});
-	}
-	
-	private void runRefreshButton() {
-		// resizes the view
-		rootEditPart = new ScalableFreeformRootEditPart();
-		((ConnectionLayer) rootEditPart.getLayer(LayerConstants.CONNECTION_LAYER)).setAntialias(SWT.ON);
-		viewer.setRootEditPart(rootEditPart);
-		
-		refresh();
 	}
 
 	public void createContextMenu() {
@@ -259,14 +165,13 @@ public class VarvizView extends ViewPart {
 	}
 
 	public void refresh() {
-		trace = createTrace();
 		refreshVisuals();
 	}
 
-	public void refreshVisuals() {
+	public static void refreshVisuals() {
 		Display.getDefault().syncExec(new Runnable() {
 			public void run() {
-				viewer.setContents(trace);
+				viewer.setContents(TRACE);
 				viewer.getContents().refresh();
 				lm.layout(viewer.getContents());
 			}
@@ -292,11 +197,6 @@ public class VarvizView extends ViewPart {
 		}
 	});
 
-	public Trace createTrace() {
-		setProject();
-		return generator.createTrace();
-	}
-	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public Object getAdapter(Class adapter) {

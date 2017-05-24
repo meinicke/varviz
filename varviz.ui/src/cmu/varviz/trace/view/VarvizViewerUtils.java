@@ -17,7 +17,7 @@ public interface VarvizViewerUtils {
 	 * 
 	 */
 	public static void refocusView(GraphicalViewerImpl viewer) {
-		MethodEditPart mainEditPart = (MethodEditPart) viewer.getEditPartRegistry().get(VarvizView.trace.getMain());
+		MethodEditPart mainEditPart = (MethodEditPart) viewer.getEditPartRegistry().get(VarvizView.TRACE.getMain());
 		if (mainEditPart != null) {
 			viewer.reveal(mainEditPart);
 		}

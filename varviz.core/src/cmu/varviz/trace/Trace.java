@@ -154,7 +154,7 @@ public class Trace {
 		}
 	}
 	
-	private static final void removeUnnecessaryIfs(Method<?> method) {
+	public static final void removeUnnecessaryIfs(Method<?> method) {
 		final Collection<MethodElement<?>> children = method.getChildren();
 		ArrayList<MethodElement<?>> reversed = new ArrayList<>();
 		reversed.addAll(children);

@@ -90,7 +90,7 @@ public class StatementEditPart extends AbstractTraceEditPart implements NodeEdit
 	protected List<Edge> getModelTargetConnections() {
 		if (connections == null) {
 			connections = new ArrayList<>();
-			for (Edge edge : VarvizView.trace.getEdges()) {
+			for (Edge edge : VarvizView.TRACE.getEdges()) {
 				if (edge.getTo() == getModel()) {
 					connections.add(edge);
 				}

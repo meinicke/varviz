@@ -70,8 +70,8 @@ public class RemovePathAction extends Action {
 				}
 			}
 			
-			VarvizView.trace.createEdges();
-			VarvizView.trace.highlightException();
+			VarvizView.TRACE.createEdges();
+			VarvizView.TRACE.highlightException();
 			varvizViewView.refreshVisuals();
 		}
 	}

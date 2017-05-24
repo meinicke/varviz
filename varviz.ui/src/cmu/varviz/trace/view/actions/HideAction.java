@@ -50,9 +50,9 @@ public class HideAction extends Action {
 			filterParents(element.getParent());
 			
 			// TODO revise update
-			VarvizView.trace.createEdges();
+			VarvizView.TRACE.createEdges();
 //			varvizViewView.trace.highlightNotTautology();
-			VarvizView.trace.highlightException();
+			VarvizView.TRACE.highlightException();
 			varvizViewView.refreshVisuals();
 			
 			VarvizViewerUtils.refocusView(viewer);

@@ -7,10 +7,16 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
+import de.fosd.typechef.featureexpr.FeatureExprFactory;
+
 /**
  * The activator class controls the plug-in life cycle
  */
 public class VarvizActivator extends AbstractUIPlugin {
+	
+	static {
+		FeatureExprFactory.setDefault(FeatureExprFactory.bdd());
+	}
 	
 	public static ImageDescriptor REFESH_TAB_IMAGE_DESCRIPTOR = getImageDescriptor("refresh_tab.gif");
 	public static ImageDescriptor LABEL_IMAGE_DESCRIPTOR = getImageDescriptor("label.gif");
