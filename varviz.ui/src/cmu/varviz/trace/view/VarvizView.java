@@ -35,6 +35,7 @@ import cmu.varviz.trace.filters.StatementFilter;
 import cmu.varviz.trace.generator.TraceGenerator;
 import cmu.varviz.trace.generator.varexj.VarexJGenerator;
 import cmu.varviz.trace.view.actions.HideAction;
+import cmu.varviz.trace.view.actions.RemovePathAction;
 import cmu.varviz.trace.view.editparts.TraceEditPartFactory;
 
 /**
@@ -157,6 +158,7 @@ public class VarvizView extends ViewPart {
 
 	private void fillContextMenu(IMenuManager menuMgr) {
 		menuMgr.add(new HideAction("Hide Element", viewer, this));
+		menuMgr.add(new RemovePathAction("Remove Path", viewer, this));
 	}
 
 	@Override
