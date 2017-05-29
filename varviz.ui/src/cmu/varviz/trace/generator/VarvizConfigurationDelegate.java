@@ -130,19 +130,21 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 			JPF.main(args);
 			Conditional.additionalConstraint = BDDFeatureExprFactory.True();
 
-			FeatureExpr exceptionContext = JPF.vatrace.getExceptionContext();
-			IgnoreContext.removeContext(exceptionContext);
-			if (!JPF.ignoredFeatures.isEmpty()) {
-				// second run for important features
-				myConsole = findAndCreateConsole("VarexJ: " + resource.getProject().getName() + ":" + runConfig.getClassToLaunch() + " (exception features only)");
-				myConsole.clearConsole();
-				PrintStream consoleStream = createOutputStream(originalOutputStream, myConsole.newMessageStream());
-				System.setOut(consoleStream);
-				JPF.vatrace = new Trace();
-				JPF.vatrace.filter = new Or(new And(VarvizView.basefilter, new InteractionFilter(VarvizView.minDegree)), new ExceptionFilter());
-				JPF.main(args);
-				Conditional.additionalConstraint = BDDFeatureExprFactory.True();
-				JPF.ignoredFeatures.clear();
+			if (VarvizView.reExecuteForExceptionFeatures) {
+				FeatureExpr exceptionContext = JPF.vatrace.getExceptionContext();
+				IgnoreContext.removeContext(exceptionContext);
+				if (!JPF.ignoredFeatures.isEmpty()) {
+					// second run for important features
+					myConsole = findAndCreateConsole("VarexJ: " + resource.getProject().getName() + ":" + runConfig.getClassToLaunch() + " (exception features only)");
+					myConsole.clearConsole();
+					PrintStream consoleStream = createOutputStream(originalOutputStream, myConsole.newMessageStream());
+					System.setOut(consoleStream);
+					JPF.vatrace = new Trace();
+					JPF.vatrace.filter = new Or(new And(VarvizView.basefilter, new InteractionFilter(VarvizView.minDegree)), new ExceptionFilter());
+					JPF.main(args);
+					Conditional.additionalConstraint = BDDFeatureExprFactory.True();
+					JPF.ignoredFeatures.clear();
+				}
 			}
 			JPF.vatrace.finalizeGraph();
 			VarvizView.TRACE = JPF.vatrace;

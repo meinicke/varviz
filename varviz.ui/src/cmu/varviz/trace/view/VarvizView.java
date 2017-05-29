@@ -55,6 +55,9 @@ public class VarvizView extends ViewPart {
 
 	private Action showLablesButton;
 	private Action exportGraphVizButton;
+	private Action exceptionButton;
+
+	public static boolean reExecuteForExceptionFeatures = true;
 
 	public static boolean showLables = false;
 
@@ -103,6 +106,16 @@ public class VarvizView extends ViewPart {
 		toolbarManager.add(showLablesButton);
 		showLablesButton.setChecked(showLables);
 		showLablesButton.setImageDescriptor(VarvizActivator.LABEL_IMAGE_DESCRIPTOR);
+		
+		exceptionButton = new Action() {
+			public void run() {
+				reExecuteForExceptionFeatures = !reExecuteForExceptionFeatures;
+			}
+		};
+		exceptionButton.setToolTipText("Show Trace for Exception Features Only");
+		toolbarManager.add(exceptionButton);
+		exceptionButton.setChecked(reExecuteForExceptionFeatures);
+		exceptionButton.setImageDescriptor(VarvizActivator.REFESH_EXCEPTION_IMAGE_DESCRIPTOR);
 
 		exportGraphVizButton = new Action() {
 			public void run() {
