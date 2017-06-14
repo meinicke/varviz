@@ -75,6 +75,11 @@ public class VarvizView extends ViewPart {
 	public static final String PROJECT_Sources_Folder = "Sources/Java";
 	public static final String PROJECT_Sources_Test_Folder = "Test/Java";
 	
+	private static final double[] ZOOM_LEVELS;
+	static {
+		ZOOM_LEVELS = new double[] { .2, .3, .4, .5, .6, .7, .8, .9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2 };
+	}
+
 	@Override
 	public void createPartControl(Composite parent) {
 		viewer = new ScrollingGraphicalViewer();
@@ -140,6 +145,7 @@ public class VarvizView extends ViewPart {
 
 		exportGraphVizButton.setImageDescriptor(AbstractUIPlugin.imageDescriptorFromPlugin(PlatformUI.PLUGIN_ID, "icons/full/etool16/export_wiz.png"));
 
+		((ScalableFreeformRootEditPart) viewer.getRootEditPart()).getZoomManager().setZoomLevels(ZOOM_LEVELS);
 		viewer.getControl().addMouseWheelListener(ev -> {
 			if ((ev.stateMask & SWT.CTRL) == 0) {
 				return;
