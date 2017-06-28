@@ -39,5 +39,11 @@ Bundle-ClassPath: .,
  lib/RunJPF.jar,
  lib/RunTest.jar,
  lib/scala-library-2.11.8.jar,
- lib/varviz.jar
+ lib/varviz.jar,
+ lib/poi-3.16.jar,
+ lib/poi-examples-3.16.jar,
+ lib/poi-excelant-3.16.jar,
+ lib/poi-ooxml-3.16.jar,
+ lib/poi-ooxml-schemas-3.16.jar,
+ lib/poi-scratchpad-3.16.jar
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
