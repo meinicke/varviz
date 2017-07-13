@@ -8,6 +8,10 @@ import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
+
+import cmu.varviz.io.xml.XMLWriter;
 import cmu.varviz.trace.Trace;
 import cmu.varviz.utils.CommandLineRunner;
 
@@ -26,18 +30,28 @@ public class GrapVizExport {
 	}
 
 	public void write() {
-		final File file = new File(fileName + ".gv");
-		System.out.print("create file: " + file.getAbsolutePath());
-		System.out.flush();
-		try (PrintWriter pw = new PrintWriter(file, StandardCharsets.UTF_8.name())) {
-			trace.printToGraphViz(pw);
-		} catch (FileNotFoundException | UnsupportedEncodingException e) {
-			e.printStackTrace();
+		if (Format.xml == extension) {
+			final File file = new File(fileName + "." + extension);
+			XMLWriter writer = new XMLWriter(trace);
+			try {
+				writer.writeToFile(file);
+			} catch (ParserConfigurationException | TransformerException e) {
+				e.printStackTrace();
+			}
+		} else {
+			final File file = new File(fileName + ".gv");
+			System.out.print("create file: " + file.getAbsolutePath());
+			System.out.flush();
+			try (PrintWriter pw = new PrintWriter(file, StandardCharsets.UTF_8.name())) {
+				trace.printToGraphViz(pw);
+			} catch (FileNotFoundException | UnsupportedEncodingException e) {
+				e.printStackTrace();
+			}
+	
+			System.out.print(" > " + fileName + "." + extension);
+			callGraphviz(file);
+			file.delete();
 		}
-
-		System.out.print(" > " + fileName + "." + extension);
-		callGraphviz(file);
-		file.delete();
 	}
 
 	private void callGraphviz(final File file) {
