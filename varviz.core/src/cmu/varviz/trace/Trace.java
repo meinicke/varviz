@@ -61,13 +61,10 @@ public class Trace {
 	}
 	
 	public void finalizeGraph() {
-		System.out.print("Number of nodes: " + main.size());
-		System.out.flush();
 		filterExecution();
 		removeUnnecessaryIfs(main);
 		createEdges();
 		highlightException();
-		System.out.println(" -> " + main.size());
 	}
 
 	public void printToGraphViz(PrintWriter pw) {// TODO move to graphviz

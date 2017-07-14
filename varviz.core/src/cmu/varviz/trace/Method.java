@@ -116,5 +116,12 @@ public class Method<U> extends MethodElement<U> {
 	public Collection<MethodElement<?>> getChildren() {
 		return Collections.unmodifiableCollection(execution);
 	}
+
+	@Override
+	protected void collectIFStatements(Collection<IFStatement<?>> ifStatements) {
+		for (MethodElement<?> methodElement : execution) {
+			methodElement.collectIFStatements(ifStatements);
+		}
+	}
 	
 }

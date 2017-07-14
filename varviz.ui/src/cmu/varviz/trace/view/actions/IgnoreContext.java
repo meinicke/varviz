@@ -1,5 +1,7 @@
 package cmu.varviz.trace.view.actions;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -7,20 +9,29 @@ import java.util.Set;
 import org.eclipse.gef.ui.parts.GraphicalViewerImpl;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.TreeItem;
 
 import cmu.conditional.Conditional;
+import cmu.varviz.trace.IFStatement;
+import cmu.varviz.trace.Slicer;
+import cmu.varviz.trace.Slicer.State;
+import cmu.varviz.trace.Trace;
 import cmu.varviz.trace.generator.TraceGenerator;
 import cmu.varviz.trace.view.VarvizView;
 import cmu.varviz.trace.view.editparts.EdgeEditPart;
 import cmu.varviz.trace.view.editparts.MethodEditPart;
 import cmu.varviz.trace.view.editparts.StatementEditPart;
 import de.fosd.typechef.featureexpr.FeatureExpr;
+import de.fosd.typechef.featureexpr.FeatureExprFactory;
 import de.fosd.typechef.featureexpr.SingleFeatureExpr;
 import de.fosd.typechef.featureexpr.bdd.BDDFeatureExprFactory;
+import gov.nasa.jpf.JPF;
 import scala.collection.Iterator;
 
 /**
- * Action to remove all features that are not contained in the context of the selected element.
+ * Action to remove all features that are not contained in the context of the
+ * selected element.
  * 
  * @author Jens Meinicke
  *
@@ -29,13 +40,13 @@ public class IgnoreContext extends Action {
 
 	private GraphicalViewerImpl viewer;
 	private static VarvizView varvizViewView;
-		
+
 	public IgnoreContext(String text, GraphicalViewerImpl viewer, VarvizView varvizViewView) {
 		super(text);
 		this.viewer = viewer;
 		this.varvizViewView = varvizViewView;
 	}
-	
+
 	@Override
 	public void run() {
 		IStructuredSelection selection = (IStructuredSelection) viewer.getSelection();
@@ -46,46 +57,94 @@ public class IgnoreContext extends Action {
 				ctx = ((MethodEditPart) selectedItem).getMethodModel().getCTX();
 			} else if (selectedItem instanceof StatementEditPart) {
 				ctx = ((StatementEditPart) selectedItem).getStatementModel().getCTX();
-			} else if (selectedItem instanceof EdgeEditPart){
+			} else if (selectedItem instanceof EdgeEditPart) {
 				ctx = ((EdgeEditPart) selectedItem).getEdgeModel().getCtx();
 			} else {
 				return;
 			}
-			
-			removeContext(ctx);
-			
+
+			removeContext(ctx, JPF.vatrace.getMain().collectIFStatements());
+
 			VarvizView.projectID--;
 			varvizViewView.refresh();
 		}
 	}
 
-	public static void removeContext(final FeatureExpr ctx) {
+	public static void removeContext(final FeatureExpr ctx, Collection<IFStatement<?>> ifStatements) {
 		Set<String> includedFeatures = new HashSet<>();
+		Collection<SingleFeatureExpr> includedFeatureExpressions = new ArrayList<>();
+		
+		SingleFeatureExpr slicefeature = null;
+		
 		scala.collection.immutable.Set<SingleFeatureExpr> distinctfeatureObjects = ctx.collectDistinctFeatureObjects();
 		Iterator<SingleFeatureExpr> iterator = distinctfeatureObjects.iterator();
 		while (iterator.hasNext()) {
-			includedFeatures.add(Conditional.getCTXString(iterator.next()));
+			SingleFeatureExpr next = iterator.next();
+			includedFeatures.add(Conditional.getCTXString(next));
+			includedFeatureExpressions.add(next);
 		}
 		
+		
+
 		// select the features of the exception
 		// check whether the other features can be (de)selected
-		
+
 		final TraceGenerator generator = VarvizView.generator;
 		generator.clearIgnoredFeatures();
-		
-		FeatureExpr ctxcheck = Conditional.simplifyCondition(ctx);
+
+		System.out.println("check " + Conditional.getCTXString(ctx));
+		FeatureExpr ctxcheck = FeatureExprFactory.True();
 		for (Entry<String, SingleFeatureExpr> feature : generator.getFeatures().entrySet()) {
 			if (!includedFeatures.contains(Conditional.getCTXString(feature.getValue()))) {
-				if (!Conditional.isContradiction(ctxcheck.and(feature.getValue())) &&
-					!Conditional.isContradiction(ctxcheck.andNot(feature.getValue()))) {
-					generator.getIgnoredFeatures().put(feature.getValue(), false);
-					ctxcheck = ctxcheck.andNot(feature.getValue());
+				final State selection = Slicer.slice(ifStatements, includedFeatureExpressions, feature.getValue());
+				switch (selection) {
+				case UNKNOWN:
+				case DESELECTED:
+					if (checkSetisfiable(ctxcheck, ctx, feature.getValue().not())) {
+						ctxcheck = ctxcheck.andNot(feature.getValue());
+						generator.getIgnoredFeatures().put(feature.getValue(), false);
+						
+					} else if (checkSetisfiable(ctxcheck, ctx, feature.getValue())) { 
+						ctxcheck = ctxcheck.and(feature.getValue());
+						generator.getIgnoredFeatures().put(feature.getValue(), true);
+					}
+					break;
+				case SELECTED:
+					if (checkSetisfiable(ctxcheck, ctx, feature.getValue())) {
+						ctxcheck = ctxcheck.and(feature.getValue());
+						generator.getIgnoredFeatures().put(feature.getValue(), true);
+					} else if (checkSetisfiable(ctxcheck, ctx, feature.getValue().not())) {
+						ctxcheck = ctxcheck.andNot(feature.getValue());
+						generator.getIgnoredFeatures().put(feature.getValue(), false);
+					}
+					break;
+				case CONDITIONAL:
+					break;
+				default:
+					throw new RuntimeException("implement case " + selection);
 				}
+				
+				
 			}
 		}
 		
-		createAdditioanlConstraint();
+//		for (Entry<String, SingleFeatureExpr> singleFeatureExpr : generator.getFeatures().entrySet()) {
+//			Boolean featureSelection = generator.getIgnoredFeatures().get(singleFeatureExpr.getValue());
+//			if (featureSelection != null) {
+//				System.out.println(singleFeatureExpr.getKey() + " -> " + featureSelection);	
+//			} else {
+//				System.out.println(singleFeatureExpr.getKey() + " -> Conditional");
+//			}
+//		}
+		
+//		System.out.println(ctxcheck);
+
+//		createAdditioanlConstraint();
+
+	}
 	
+	private static boolean checkSetisfiable(FeatureExpr ctxcheck, FeatureExpr ctx, FeatureExpr B) {
+		return Conditional.isSatisfiable(ctxcheck.and(B).and(ctx)) && Conditional.isSatisfiable(ctxcheck.and(B).andNot(ctx));
 	}
 
 	/**
@@ -106,6 +165,5 @@ public class IgnoreContext extends Action {
 		}
 		Conditional.additionalConstraint = additionalConstraint;
 	}
-	
-	
+
 }

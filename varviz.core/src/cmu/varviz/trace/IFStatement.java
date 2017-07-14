@@ -1,5 +1,7 @@
 package cmu.varviz.trace;
 
+import java.util.Collection;
+
 import cmu.conditional.Conditional;
 import de.fosd.typechef.featureexpr.FeatureExpr;
 
@@ -38,5 +40,9 @@ public class IFStatement<T> extends Statement<T> {
 	public boolean isInteraction(int degree) {
 		return true;
 	}
-		
+	
+	@Override
+	protected void collectIFStatements(Collection<IFStatement<?>> ifStatements) {
+		ifStatements.add(this);
+	}
 }

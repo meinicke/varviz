@@ -3,6 +3,8 @@ package cmu.varviz.trace.generator;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
@@ -22,6 +24,7 @@ import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
 
 import cmu.conditional.Conditional;
+import cmu.varviz.trace.IFStatement;
 import cmu.varviz.trace.Trace;
 import cmu.varviz.trace.filters.And;
 import cmu.varviz.trace.filters.InteractionFilter;
@@ -31,8 +34,11 @@ import cmu.varviz.trace.view.actions.IgnoreContext;
 import cmu.vatrace.ExceptionFilter;
 import de.fosd.typechef.featureexpr.FeatureExpr;
 import de.fosd.typechef.featureexpr.FeatureExprFactory;
+import de.fosd.typechef.featureexpr.SingleFeatureExpr;
 import de.fosd.typechef.featureexpr.bdd.BDDFeatureExprFactory;
 import gov.nasa.jpf.JPF;
+import gov.nasa.jpf.report.Statistics;
+import gov.nasa.jpf.vm.ThreadInfo;
 
 /**
  * Runs the Java Application to generate the {@link Trace}.
@@ -125,29 +131,46 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 			final String[] args = { "+classpath=" + cp, "+choice=MapChoice", "+stack=HybridStackHandler", "+nhandler.delegateUnhandledNative", "+search.class=.search.RandomSearch",
 					featureModelPath != null ? "+ featuremodel=" + featureModelPath : "", runConfig.getClassToLaunch() };
 			JPF.vatrace = new Trace();
-			JPF.vatrace.filter = new Or(new And(VarvizView.basefilter, new InteractionFilter(VarvizView.minDegree)), new ExceptionFilter());
+			JPF.vatrace.filter = new Or(new And(new InteractionFilter(VarvizView.minDegree)), new ExceptionFilter());
 			FeatureExprFactory.setDefault(FeatureExprFactory.bdd());
 			JPF.main(args);
+			
+			final Collection<IFStatement<?>> collectIFStatements = JPF.vatrace.getMain().collectIFStatements();
+			createAllTraces(originalOutputStream, args);
+			
 			Conditional.additionalConstraint = BDDFeatureExprFactory.True();
 
 			if (VarvizView.reExecuteForExceptionFeatures) {
 				FeatureExpr exceptionContext = JPF.vatrace.getExceptionContext();
-				IgnoreContext.removeContext(exceptionContext);
-				if (!JPF.ignoredFeatures.isEmpty()) {
-					// second run for important features
-					myConsole = findAndCreateConsole("VarexJ: " + resource.getProject().getName() + ":" + runConfig.getClassToLaunch() + " (exception features only)");
-					myConsole.clearConsole();
-					PrintStream consoleStream = createOutputStream(originalOutputStream, myConsole.newMessageStream());
-					System.setOut(consoleStream);
-					JPF.vatrace = new Trace();
-					JPF.vatrace.filter = new Or(new And(VarvizView.basefilter, new InteractionFilter(VarvizView.minDegree)), new ExceptionFilter());
-					JPF.main(args);
-					Conditional.additionalConstraint = BDDFeatureExprFactory.True();
-					JPF.ignoredFeatures.clear();
+				if (Conditional.isSatisfiable(exceptionContext)) {
+					IgnoreContext.removeContext(exceptionContext, collectIFStatements);
+					if (!JPF.ignoredFeatures.isEmpty()) {
+						// second run for important features
+						myConsole = findAndCreateConsole("VarexJ: " + resource.getProject().getName() + ":" + runConfig.getClassToLaunch() + " (exception features only)");
+						myConsole.clearConsole();
+						PrintStream consoleStream = createOutputStream(originalOutputStream, myConsole.newMessageStream());
+						System.setOut(consoleStream);
+						JPF.vatrace = new Trace();
+						JPF.vatrace.filter = new Or(new And(new InteractionFilter(VarvizView.minDegree)), new ExceptionFilter());
+						JPF.main(args);
+						Conditional.additionalConstraint = BDDFeatureExprFactory.True();
+						JPF.ignoredFeatures.clear();
+					}
 				}
 			}
+			JPF.vatrace.filter = new Or(new And(VarvizView.basefilter, new InteractionFilter(VarvizView.minDegree)), new And(VarvizView.basefilter, new ExceptionFilter()));
 			JPF.vatrace.finalizeGraph();
+			
 			VarvizView.TRACE = JPF.vatrace;
+			
+//			int edges = VarvizView.TRACE.getEdges().size();
+//			int nodes = VarvizView.TRACE.getMain().size() + 2;
+			
+//			System.out.println("Edges: " + edges);
+//			System.out.println("Nodes: " + nodes);
+			
+//			int MCCabe = edges - nodes + 2;
+//			System.out.println("Cyclomatic Complexity: " + MCCabe);
 			VarvizView.refreshVisuals();
 
 			// check for cancellation
@@ -157,6 +180,59 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 		} finally {
 			monitor.done();
 			System.setOut(originalOutputStream);
+		}
+	}
+
+	private void createAllTraces(PrintStream originalOutputStream, String[] args) {
+		Collection<IFStatement<?>> ifStatement = JPF.vatrace.getMain().collectIFStatements();
+		
+		ArrayList<SingleFeatureExpr> features = new ArrayList<>(Conditional.features.values());
+		for (SingleFeatureExpr singleFeatureExpr : features) {
+			if (Conditional.isTautology(singleFeatureExpr)) {
+				continue;
+			}
+
+//			ThreadInfo.maxInstruction = 10_000;
+			while (true) {
+//				ThreadInfo.maxInstruction += 10_000;
+				Conditional.additionalConstraint = BDDFeatureExprFactory.True();
+				IgnoreContext.removeContext(singleFeatureExpr, ifStatement);
+				
+				System.setOut(originalOutputStream);
+				JPF.vatrace = new Trace();
+				JPF.vatrace.filter = new Or(new And(new InteractionFilter(VarvizView.minDegree)), new ExceptionFilter());
+				JPF.main(args);
+				Conditional.additionalConstraint = BDDFeatureExprFactory.True();
+				JPF.ignoredFeatures.clear();
+				
+				MessageConsole myConsole = findAndCreateConsole("create all traces");
+				PrintStream consoleStream = createOutputStream(originalOutputStream, myConsole.newMessageStream());
+				System.setOut(consoleStream);
+	
+				JPF.vatrace.filter = new Or(new And(VarvizView.basefilter, new InteractionFilter(VarvizView.minDegree)), new And(VarvizView.basefilter, new ExceptionFilter()));
+				JPF.vatrace.finalizeGraph();
+				System.out.println("Instructions: " + Statistics.insns);
+				int edges = JPF.vatrace.getEdges().size();
+				int nodes = JPF.vatrace.getMain().size() + 2;
+				
+				
+				System.out.println("Edges: " + edges);
+				System.out.println("Nodes: " + nodes);
+				
+				int MCCabe = edges - nodes + 2;
+				System.out.println("Cyclomatic Complexity: " + MCCabe);
+				
+				System.out.println("-------------------------------");
+				
+				if (nodes > 10) {
+					return;
+				}
+					
+					
+				if (Statistics.insns < ThreadInfo.maxInstruction) {
+					break;
+				}
+			}
 		}
 	}
 

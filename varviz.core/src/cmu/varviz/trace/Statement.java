@@ -1,6 +1,7 @@
 package cmu.varviz.trace;
 
 import java.io.PrintWriter;
+import java.util.Collection;
 
 import cmu.conditional.Conditional;
 import cmu.conditional.One;
@@ -118,5 +119,9 @@ public class Statement<T> extends MethodElement<T> {
 
 	public Shape getShape() {
 		return shape;
+	}
+	@Override
+	protected void collectIFStatements(Collection<IFStatement<?>> ifStatements) {
+		// nothing here
 	}
 }

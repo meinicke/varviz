@@ -77,7 +77,7 @@ public class VarvizView extends ViewPart {
 	
 	private static final double[] ZOOM_LEVELS;
 	static {
-		ZOOM_LEVELS = new double[] { .2, .3, .4, .5, .6, .7, .8, .9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2 };
+		ZOOM_LEVELS = new double[] { .1, .2, .3, .4, .5, .6, .7, .8, .9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2 };
 	}
 
 	@Override
@@ -199,20 +199,21 @@ public class VarvizView extends ViewPart {
 		});
 	}
 
-	public static StatementFilter basefilter = new Or(new StatementFilter() {
+	public static final StatementFilter basefilter = new Or(new StatementFilter() {
 
 		@Override
 		public boolean filter(Statement<?> s) {
-			return !(hasParent(s.getParent(), "java.", "<init>") || hasParent(s.getParent(), "java.", "<clinit>"));
+			return !hasParent(s.getParent(), "java.") && !hasParent(s.getParent(), "apache") && !hasParent(s.getParent(), "antlr")  && !hasParent(s.getParent(), "createObject") 
+					&& !hasParent(s.getParent(), "doMakeObject") && !hasParent(s.getParent(), "lambdaParameters");
 		}
 
-		private boolean hasParent(Method<?> parent, String filter, String filter2) {
+		private boolean hasParent(Method<?> parent, String filter) {
 			if (parent.toString().contains(filter)) {
 				return true;
 			}
 			parent = parent.getParent();
 			if (parent != null) {
-				return hasParent(parent, filter, filter2);
+				return hasParent(parent, filter);
 			}
 			return false;
 		}

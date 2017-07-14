@@ -1,6 +1,8 @@
 package cmu.varviz.trace;
 
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Collection;
 
 import cmu.varviz.trace.filters.StatementFilter;
 import de.fosd.typechef.featureexpr.FeatureExpr;
@@ -110,4 +112,12 @@ public abstract class MethodElement<T> {
 	public boolean canBeRemoved() {// TODO revise this, seems unnecessary
 		return false;
 	}
+	
+	public Collection<IFStatement<?>> collectIFStatements() {
+		final ArrayList<IFStatement<?>> ifStatements = new ArrayList<>();
+		collectIFStatements(ifStatements);
+		return ifStatements;
+	}
+	
+	protected abstract void collectIFStatements(Collection<IFStatement<?>> ifStatements);
 }
