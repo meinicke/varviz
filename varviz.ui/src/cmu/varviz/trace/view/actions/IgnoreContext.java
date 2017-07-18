@@ -9,14 +9,11 @@ import java.util.Set;
 import org.eclipse.gef.ui.parts.GraphicalViewerImpl;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.TreeItem;
 
 import cmu.conditional.Conditional;
 import cmu.varviz.trace.IFStatement;
 import cmu.varviz.trace.Slicer;
 import cmu.varviz.trace.Slicer.State;
-import cmu.varviz.trace.Trace;
 import cmu.varviz.trace.generator.TraceGenerator;
 import cmu.varviz.trace.view.VarvizView;
 import cmu.varviz.trace.view.editparts.EdgeEditPart;
@@ -25,7 +22,6 @@ import cmu.varviz.trace.view.editparts.StatementEditPart;
 import de.fosd.typechef.featureexpr.FeatureExpr;
 import de.fosd.typechef.featureexpr.FeatureExprFactory;
 import de.fosd.typechef.featureexpr.SingleFeatureExpr;
-import de.fosd.typechef.featureexpr.bdd.BDDFeatureExprFactory;
 import gov.nasa.jpf.JPF;
 import scala.collection.Iterator;
 
@@ -39,7 +35,7 @@ import scala.collection.Iterator;
 public class IgnoreContext extends Action {
 
 	private GraphicalViewerImpl viewer;
-	private static VarvizView varvizViewView;
+	private VarvizView varvizViewView;
 
 	public IgnoreContext(String text, GraphicalViewerImpl viewer, VarvizView varvizViewView) {
 		super(text);
@@ -71,49 +67,57 @@ public class IgnoreContext extends Action {
 	}
 
 	public static void removeContext(final FeatureExpr ctx, Collection<IFStatement<?>> ifStatements) {
-		Set<String> includedFeatures = new HashSet<>();
-		Collection<SingleFeatureExpr> includedFeatureExpressions = new ArrayList<>();
+		scala.collection.immutable.Set<SingleFeatureExpr> featuresObjects = ctx.collectDistinctFeatureObjects();
+		Iterator<SingleFeatureExpr> iterator = featuresObjects.iterator();
 		
-		SingleFeatureExpr slicefeature = null;
-		
-		scala.collection.immutable.Set<SingleFeatureExpr> distinctfeatureObjects = ctx.collectDistinctFeatureObjects();
-		Iterator<SingleFeatureExpr> iterator = distinctfeatureObjects.iterator();
+		SingleFeatureExpr[] features = new SingleFeatureExpr[featuresObjects.size()];
+		int i = 0;
 		while (iterator.hasNext()) {
-			SingleFeatureExpr next = iterator.next();
-			includedFeatures.add(Conditional.getCTXString(next));
-			includedFeatureExpressions.add(next);
+			features[i++] = iterator.next();
+		}
+		removeContext(features, ifStatements);
+	}
+	
+	public static void removeContext(final Collection<SingleFeatureExpr> featureCollection, Collection<IFStatement<?>> ifStatements) {
+		SingleFeatureExpr[] features = new SingleFeatureExpr[featureCollection.size()];
+		int i = 0;
+		for (SingleFeatureExpr singleFeatureExpr : featureCollection) {
+			features[i++] = singleFeatureExpr;
+		}
+		removeContext(features, ifStatements);
+	}
+		
+	public static void removeContext(final SingleFeatureExpr[] features, Collection<IFStatement<?>> ifStatements) {
+		Set<String> includedFeatures = new HashSet<>();
+		Collection<SingleFeatureExpr> clicingCriterion = new ArrayList<>();
+		for (SingleFeatureExpr singleFeatureExpr : features) {
+			clicingCriterion.add(singleFeatureExpr);
+			includedFeatures.add(Conditional.getCTXString(singleFeatureExpr));
 		}
 		
-		
-
-		// select the features of the exception
-		// check whether the other features can be (de)selected
-
 		final TraceGenerator generator = VarvizView.generator;
 		generator.clearIgnoredFeatures();
-
-		System.out.println("check " + Conditional.getCTXString(ctx));
 		FeatureExpr ctxcheck = FeatureExprFactory.True();
 		for (Entry<String, SingleFeatureExpr> feature : generator.getFeatures().entrySet()) {
 			if (!includedFeatures.contains(Conditional.getCTXString(feature.getValue()))) {
-				final State selection = Slicer.slice(ifStatements, includedFeatureExpressions, feature.getValue());
+				final State selection = Slicer.slice(ifStatements, clicingCriterion, feature.getValue());
 				switch (selection) {
 				case UNKNOWN:
 				case DESELECTED:
-					if (checkSetisfiable(ctxcheck, ctx, feature.getValue().not())) {
+					if (checkSetisfiable(ctxcheck, feature.getValue().not(), features)) {
 						ctxcheck = ctxcheck.andNot(feature.getValue());
 						generator.getIgnoredFeatures().put(feature.getValue(), false);
 						
-					} else if (checkSetisfiable(ctxcheck, ctx, feature.getValue())) { 
+					} else if (checkSetisfiable(ctxcheck, feature.getValue(), features)) { 
 						ctxcheck = ctxcheck.and(feature.getValue());
 						generator.getIgnoredFeatures().put(feature.getValue(), true);
 					}
 					break;
 				case SELECTED:
-					if (checkSetisfiable(ctxcheck, ctx, feature.getValue())) {
+					if (checkSetisfiable(ctxcheck, feature.getValue(), features)) {
 						ctxcheck = ctxcheck.and(feature.getValue());
 						generator.getIgnoredFeatures().put(feature.getValue(), true);
-					} else if (checkSetisfiable(ctxcheck, ctx, feature.getValue().not())) {
+					} else if (checkSetisfiable(ctxcheck, feature.getValue().not(), features)) {
 						ctxcheck = ctxcheck.andNot(feature.getValue());
 						generator.getIgnoredFeatures().put(feature.getValue(), false);
 					}
@@ -123,47 +127,24 @@ public class IgnoreContext extends Action {
 				default:
 					throw new RuntimeException("implement case " + selection);
 				}
-				
-				
 			}
 		}
-		
-//		for (Entry<String, SingleFeatureExpr> singleFeatureExpr : generator.getFeatures().entrySet()) {
-//			Boolean featureSelection = generator.getIgnoredFeatures().get(singleFeatureExpr.getValue());
-//			if (featureSelection != null) {
-//				System.out.println(singleFeatureExpr.getKey() + " -> " + featureSelection);	
-//			} else {
-//				System.out.println(singleFeatureExpr.getKey() + " -> Conditional");
-//			}
-//		}
-		
-//		System.out.println(ctxcheck);
-
-//		createAdditioanlConstraint();
-
 	}
 	
-	private static boolean checkSetisfiable(FeatureExpr ctxcheck, FeatureExpr ctx, FeatureExpr B) {
-		return Conditional.isSatisfiable(ctxcheck.and(B).and(ctx)) && Conditional.isSatisfiable(ctxcheck.and(B).andNot(ctx));
+	private static boolean checkSetisfiable(FeatureExpr ctxcheck, FeatureExpr B, FeatureExpr... features) {
+		return checkSetisfiable(ctxcheck.and(B), features);
 	}
-
-	/**
-	 * Sets the additional constraint for VarexJ
-	 */
-	private static void createAdditioanlConstraint() {
-		// TODO does that actually matter?
-		FeatureExpr additionalConstraint = BDDFeatureExprFactory.True();
-		for (Entry<FeatureExpr, Boolean> feature : VarvizView.generator.getIgnoredFeatures().entrySet()) {
-			if (feature.getValue() != null) {
-				final FeatureExpr f = feature.getKey();
-				if (feature.getValue()) {
-					additionalConstraint = additionalConstraint.and(f);
-				} else {
-					additionalConstraint = additionalConstraint.and(f.not());
-				}
-			}
+	
+	private static boolean checkSetisfiable(FeatureExpr ctxcheck, FeatureExpr... features) {
+		if (features.length == 0) {
+			return Conditional.isSatisfiable(ctxcheck);
 		}
-		Conditional.additionalConstraint = additionalConstraint;
+		FeatureExpr andF = ctxcheck.and(features[0]);
+		FeatureExpr andNotF = ctxcheck.and(features[0]);
+		
+		FeatureExpr[] subFeatures = new FeatureExpr[features.length - 1];
+		System.arraycopy(features, 1, subFeatures, 0, subFeatures.length);
+		return checkSetisfiable(andF, subFeatures) && checkSetisfiable(andNotF, subFeatures); 
 	}
-
+	
 }

@@ -1,8 +1,12 @@
 package cmu.varviz.trace.generator;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
@@ -49,7 +53,8 @@ import gov.nasa.jpf.vm.ThreadInfo;
 public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfigurationDelegate {
 
 	@Override
-	public void launch(ILaunchConfiguration configuration, String mode, ILaunch launch, IProgressMonitor monitor) throws CoreException {
+	public void launch(ILaunchConfiguration configuration, String mode, ILaunch launch, IProgressMonitor monitor)
+			throws CoreException {
 		if (monitor == null) {
 			monitor = new NullProgressMonitor();
 		}
@@ -110,7 +115,8 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 
 			final IResource resource = configuration.getWorkingCopy().getMappedResources()[0];
 
-			MessageConsole myConsole = findAndCreateConsole("VarexJ: " + resource.getProject().getName() + ":" + runConfig.getClassToLaunch());
+			MessageConsole myConsole = findAndCreateConsole(
+					"VarexJ: " + resource.getProject().getName() + ":" + runConfig.getClassToLaunch());
 			myConsole.clearConsole();
 			PrintStream myPrintStream = createOutputStream(originalOutputStream, myConsole.newMessageStream());
 			System.setOut(myPrintStream);
@@ -125,52 +131,49 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 					}
 				}
 			}
-			
+
 			// TODO move this to VarexJ Generator Class
 			FeatureExprFactory.setDefault(FeatureExprFactory.bdd());
-			final String[] args = { "+classpath=" + cp, "+choice=MapChoice", "+stack=HybridStackHandler", "+nhandler.delegateUnhandledNative", "+search.class=.search.RandomSearch",
-					featureModelPath != null ? "+ featuremodel=" + featureModelPath : "", runConfig.getClassToLaunch() };
+			final String[] args = { "+classpath=" + cp, "+choice=MapChoice", "+stack=HybridStackHandler",
+					"+nhandler.delegateUnhandledNative", "+search.class=.search.RandomSearch",
+					featureModelPath != null ? "+ featuremodel=" + featureModelPath : "",
+					runConfig.getClassToLaunch() };
 			JPF.vatrace = new Trace();
 			JPF.vatrace.filter = new Or(new And(new InteractionFilter(VarvizView.minDegree)), new ExceptionFilter());
 			FeatureExprFactory.setDefault(FeatureExprFactory.bdd());
 			JPF.main(args);
-			
+
 			final Collection<IFStatement<?>> collectIFStatements = JPF.vatrace.getMain().collectIFStatements();
+
+			final FeatureExpr exceptionContext = JPF.vatrace.getExceptionContext();
+			
 			createAllTraces(originalOutputStream, args);
 			
-			Conditional.additionalConstraint = BDDFeatureExprFactory.True();
-
 			if (VarvizView.reExecuteForExceptionFeatures) {
-				FeatureExpr exceptionContext = JPF.vatrace.getExceptionContext();
 				if (Conditional.isSatisfiable(exceptionContext)) {
 					IgnoreContext.removeContext(exceptionContext, collectIFStatements);
 					if (!JPF.ignoredFeatures.isEmpty()) {
-						// second run for important features
-						myConsole = findAndCreateConsole("VarexJ: " + resource.getProject().getName() + ":" + runConfig.getClassToLaunch() + " (exception features only)");
+						// slice for exception features
+						myConsole = findAndCreateConsole("VarexJ: " + resource.getProject().getName() + ":"
+								+ runConfig.getClassToLaunch() + " (exception features only)");
 						myConsole.clearConsole();
-						PrintStream consoleStream = createOutputStream(originalOutputStream, myConsole.newMessageStream());
+						PrintStream consoleStream = createOutputStream(originalOutputStream,
+								myConsole.newMessageStream());
 						System.setOut(consoleStream);
 						JPF.vatrace = new Trace();
-						JPF.vatrace.filter = new Or(new And(new InteractionFilter(VarvizView.minDegree)), new ExceptionFilter());
+						JPF.vatrace.filter = new Or(new And(new InteractionFilter(VarvizView.minDegree)),
+								new ExceptionFilter());
 						JPF.main(args);
 						Conditional.additionalConstraint = BDDFeatureExprFactory.True();
 						JPF.ignoredFeatures.clear();
 					}
 				}
 			}
-			JPF.vatrace.filter = new Or(new And(VarvizView.basefilter, new InteractionFilter(VarvizView.minDegree)), new And(VarvizView.basefilter, new ExceptionFilter()));
+			JPF.vatrace.filter = new Or(new And(VarvizView.basefilter, new InteractionFilter(VarvizView.minDegree)),
+					new And(VarvizView.basefilter, new ExceptionFilter()));
 			JPF.vatrace.finalizeGraph();
-			
+
 			VarvizView.TRACE = JPF.vatrace;
-			
-//			int edges = VarvizView.TRACE.getEdges().size();
-//			int nodes = VarvizView.TRACE.getMain().size() + 2;
-			
-//			System.out.println("Edges: " + edges);
-//			System.out.println("Nodes: " + nodes);
-			
-//			int MCCabe = edges - nodes + 2;
-//			System.out.println("Cyclomatic Complexity: " + MCCabe);
 			VarvizView.refreshVisuals();
 
 			// check for cancellation
@@ -183,57 +186,128 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 		}
 	}
 
-	private void createAllTraces(PrintStream originalOutputStream, String[] args) {
-		Collection<IFStatement<?>> ifStatement = JPF.vatrace.getMain().collectIFStatements();
+	private static final int STEP_SIZE = 10_000;
+	private static final String SEPARATOR = ",";
+	private static final int maxDegree = 3;
+
+	private void createAllTraces(final PrintStream originalOutputStream, final String[] args) {
+		for (int degree = 1; degree <= maxDegree; degree++) {
+			createAllTraces(originalOutputStream, args, degree);
+		}
+	}
+	
+	private void createAllTraces(PrintStream originalOutputStream, String[] args, int degree) {
+		final File folder = new File(VarvizView.PROJECT_NAME);
+		if (!folder.exists()) {
+			folder.mkdirs();
+		}
 		
-		ArrayList<SingleFeatureExpr> features = new ArrayList<>(Conditional.features.values());
-		for (SingleFeatureExpr singleFeatureExpr : features) {
-			if (Conditional.isTautology(singleFeatureExpr)) {
-				continue;
+		File mccabe = new File(folder.getName() + File.separator + VarvizView.PROJECT_NAME + "_" + degree + "_mccabe.csv");
+		File nodes = new File(folder.getName() + File.separator + VarvizView.PROJECT_NAME + "_" + degree + "_nodes.csv");
+		Collection<IFStatement<?>> ifStatement = JPF.vatrace.getMain().collectIFStatements();
+		MessageConsole myConsole = findAndCreateConsole("create all traces");
+		PrintStream consoleStream = createOutputStream(originalOutputStream, myConsole.newMessageStream());
+		
+		consoleStream.println("create file: " + mccabe.getAbsolutePath());
+		consoleStream.println("create file: " + nodes.getAbsolutePath());
+		try (PrintWriter pwMccabe = new PrintWriter(mccabe, StandardCharsets.UTF_8.name()); 
+				PrintWriter pwNodes = new PrintWriter(nodes, StandardCharsets.UTF_8.name())) {
+
+			pwMccabe.print("Feature");
+			pwNodes.print("Feature");
+			for (int i = 0; i <= Statistics.insns; i += STEP_SIZE) {
+				pwMccabe.print(SEPARATOR);
+				pwMccabe.print(i);
+				pwNodes.print(SEPARATOR);
+				pwNodes.print(i);
 			}
 
-//			ThreadInfo.maxInstruction = 10_000;
-			while (true) {
-//				ThreadInfo.maxInstruction += 10_000;
-				Conditional.additionalConstraint = BDDFeatureExprFactory.True();
-				IgnoreContext.removeContext(singleFeatureExpr, ifStatement);
-				
-				System.setOut(originalOutputStream);
-				JPF.vatrace = new Trace();
-				JPF.vatrace.filter = new Or(new And(new InteractionFilter(VarvizView.minDegree)), new ExceptionFilter());
-				JPF.main(args);
-				Conditional.additionalConstraint = BDDFeatureExprFactory.True();
-				JPF.ignoredFeatures.clear();
-				
-				MessageConsole myConsole = findAndCreateConsole("create all traces");
-				PrintStream consoleStream = createOutputStream(originalOutputStream, myConsole.newMessageStream());
-				System.setOut(consoleStream);
-	
-				JPF.vatrace.filter = new Or(new And(VarvizView.basefilter, new InteractionFilter(VarvizView.minDegree)), new And(VarvizView.basefilter, new ExceptionFilter()));
-				JPF.vatrace.finalizeGraph();
-				System.out.println("Instructions: " + Statistics.insns);
-				int edges = JPF.vatrace.getEdges().size();
-				int nodes = JPF.vatrace.getMain().size() + 2;
-				
-				
-				System.out.println("Edges: " + edges);
-				System.out.println("Nodes: " + nodes);
-				
-				int MCCabe = edges - nodes + 2;
-				System.out.println("Cyclomatic Complexity: " + MCCabe);
-				
-				System.out.println("-------------------------------");
-				
-				if (nodes > 10) {
-					return;
-				}
-					
-					
-				if (Statistics.insns < ThreadInfo.maxInstruction) {
-					break;
+			runs = 0;
+			int numberOfOptionalFeatures = 0;
+			for (SingleFeatureExpr f : Conditional.features.values()) {
+				if (!Conditional.isTautology(f)) {
+					numberOfOptionalFeatures++;
 				}
 			}
+			
+			maxRuns = numberOfOptionalFeatures;
+			for (int i = 2; i <= degree; i++) {
+				maxRuns = (maxRuns * (numberOfOptionalFeatures - i + 1)) / i;
+			}
+			
+			SingleFeatureExpr[] features = new SingleFeatureExpr[numberOfOptionalFeatures];
+			int index = 0;
+			for (SingleFeatureExpr f : Conditional.features.values()) {
+				if (!Conditional.isTautology(f)) {
+					features[index++] = f;
+				}
+			}
+			runSlicedProgram(features, 0, consoleStream, args, ifStatement, degree, new ArrayList<>(degree), pwMccabe, pwNodes);
+		} catch (FileNotFoundException | UnsupportedEncodingException e) {
+			e.printStackTrace();
 		}
+	}
+	
+	private float runs = 0;
+	private float maxRuns = 0;
+
+	private void runSlicedProgram(SingleFeatureExpr[] features, int pointer, PrintStream consoleStream, String[] args,
+			Collection<IFStatement<?>> ifStatement, int numberOfFeatures,
+			Collection<SingleFeatureExpr> sliceFeatures, PrintWriter... printWriters) {
+		if (numberOfFeatures == 0) {
+			runSlicedProgram(consoleStream, args, ifStatement, sliceFeatures, printWriters);
+			return;
+		}
+		for (;pointer < features.length; pointer++) {
+			final SingleFeatureExpr singleFeatureExpr = features[pointer];
+			sliceFeatures.add(singleFeatureExpr);
+			runSlicedProgram(features, pointer + 1, consoleStream, args, ifStatement, numberOfFeatures - 1, sliceFeatures, printWriters);
+			sliceFeatures.remove(singleFeatureExpr);
+		}
+	}
+
+	private void runSlicedProgram(PrintStream consoleStream, String[] args,
+			Collection<IFStatement<?>> ifStatements, Collection<SingleFeatureExpr> sliceFeatures, PrintWriter... printWriters) {
+		
+		runs++;
+		consoleStream.println((runs / maxRuns) * 100 + "% finished of " + maxRuns);
+		for (PrintWriter pw : printWriters) {
+			pw.println();
+			for (SingleFeatureExpr singleFeatureExpr : sliceFeatures) {
+				pw.print(Conditional.getCTXString(singleFeatureExpr));
+				pw.print(" ");
+			}
+		}
+		ThreadInfo.maxInstruction = 0;
+		Conditional.additionalConstraint = BDDFeatureExprFactory.True();
+		JPF.ignoredFeatures.clear();
+		IgnoreContext.removeContext(sliceFeatures, ifStatements);
+		while (true) {
+			ThreadInfo.maxInstruction += STEP_SIZE;
+			JPF.vatrace = new Trace();
+			JPF.vatrace.filter = new Or(new And(new InteractionFilter(VarvizView.minDegree)), new ExceptionFilter());
+			JPF.main(args);
+
+			JPF.vatrace.filter = new Or(new And(VarvizView.basefilter, new InteractionFilter(VarvizView.minDegree)),
+					new And(VarvizView.basefilter, new ExceptionFilter()));
+			JPF.vatrace.finalizeGraph();
+			int edges = JPF.vatrace.getEdges().size();
+			int nodes = JPF.vatrace.getMain().size() + 2;
+			final int MCCabe = edges - nodes + 2;
+			for (PrintWriter pw : printWriters) {
+				pw.print(SEPARATOR);
+			}
+			printWriters[0].print(MCCabe);
+			printWriters[1].print(nodes);
+
+			consoleStream.print(".");
+			consoleStream.flush();
+
+			if (Statistics.insns < ThreadInfo.maxInstruction) {
+				break;
+			}
+		}
+		consoleStream.println();
 	}
 
 	private PrintStream createOutputStream(PrintStream originalOut, final MessageConsoleStream consoleStream) {
