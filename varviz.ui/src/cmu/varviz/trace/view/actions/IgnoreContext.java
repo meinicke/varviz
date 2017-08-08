@@ -22,6 +22,7 @@ import cmu.varviz.trace.view.editparts.StatementEditPart;
 import de.fosd.typechef.featureexpr.FeatureExpr;
 import de.fosd.typechef.featureexpr.FeatureExprFactory;
 import de.fosd.typechef.featureexpr.SingleFeatureExpr;
+import de.fosd.typechef.featureexpr.bdd.BDDFeatureModel;
 import gov.nasa.jpf.JPF;
 import scala.collection.Iterator;
 
@@ -89,25 +90,25 @@ public class IgnoreContext extends Action {
 		
 	public static void removeContext(final SingleFeatureExpr[] features, Collection<IFStatement<?>> ifStatements) {
 		Set<String> includedFeatures = new HashSet<>();
-		Collection<SingleFeatureExpr> clicingCriterion = new ArrayList<>();
+		Collection<SingleFeatureExpr> slicingCriterion = new ArrayList<>();
 		for (SingleFeatureExpr singleFeatureExpr : features) {
-			clicingCriterion.add(singleFeatureExpr);
+			slicingCriterion.add(singleFeatureExpr);
 			includedFeatures.add(Conditional.getCTXString(singleFeatureExpr));
 		}
 		
 		final TraceGenerator generator = VarvizView.generator;
 		generator.clearIgnoredFeatures();
 		FeatureExpr ctxcheck = FeatureExprFactory.True();
+		
 		for (Entry<String, SingleFeatureExpr> feature : generator.getFeatures().entrySet()) {
 			if (!includedFeatures.contains(Conditional.getCTXString(feature.getValue()))) {
-				final State selection = Slicer.slice(ifStatements, clicingCriterion, feature.getValue());
+				final State selection = Slicer.slice(ifStatements, slicingCriterion, feature.getValue());
 				switch (selection) {
 				case UNKNOWN:
 				case DESELECTED:
 					if (checkSetisfiable(ctxcheck, feature.getValue().not(), features)) {
 						ctxcheck = ctxcheck.andNot(feature.getValue());
 						generator.getIgnoredFeatures().put(feature.getValue(), false);
-						
 					} else if (checkSetisfiable(ctxcheck, feature.getValue(), features)) { 
 						ctxcheck = ctxcheck.and(feature.getValue());
 						generator.getIgnoredFeatures().put(feature.getValue(), true);
@@ -132,19 +133,19 @@ public class IgnoreContext extends Action {
 	}
 	
 	private static boolean checkSetisfiable(FeatureExpr ctxcheck, FeatureExpr B, FeatureExpr... features) {
-		return checkSetisfiable(ctxcheck.and(B), features);
-	}
-	
-	private static boolean checkSetisfiable(FeatureExpr ctxcheck, FeatureExpr... features) {
 		if (features.length == 0) {
-			return Conditional.isSatisfiable(ctxcheck);
+			if (Conditional.isSatisfiable(ctxcheck)) {
+				return Conditional.isSatisfiable(ctxcheck.and(B));
+			} else {
+				return true;
+			}
 		}
 		FeatureExpr andF = ctxcheck.and(features[0]);
-		FeatureExpr andNotF = ctxcheck.and(features[0]);
+		FeatureExpr andNotF = ctxcheck.andNot(features[0]);
 		
 		FeatureExpr[] subFeatures = new FeatureExpr[features.length - 1];
 		System.arraycopy(features, 1, subFeatures, 0, subFeatures.length);
-		return checkSetisfiable(andF, subFeatures) && checkSetisfiable(andNotF, subFeatures); 
+		return checkSetisfiable(andF, B, subFeatures) && checkSetisfiable(andNotF, B, subFeatures); 
 	}
 	
 }

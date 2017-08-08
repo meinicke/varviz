@@ -12,6 +12,10 @@ public class Slicer {
 		UNKNOWN, SELECTED, DESELECTED, CONDITIONAL
 	}
 
+	public enum TYPE {
+		AGGRESSIVE, PASSIVE
+	}
+
 	/**
 	 * Slice for feature A Checks the selection of feature B
 	 */
@@ -26,7 +30,7 @@ public class Slicer {
 			final SingleFeatureExpr FB) {
 		State fbSelection = State.UNKNOWN;
 		for (SingleFeatureExpr FA : sliceCondition) {
-			fbSelection = slice(IFStatements, FA, FB, fbSelection);
+			fbSelection = slice(IFStatements, FA, FB, fbSelection, TYPE.AGGRESSIVE);
 		}
 		return fbSelection;
 	}
@@ -35,14 +39,14 @@ public class Slicer {
 	 * Slice for feature A Checks the selection of feature B
 	 */
 	public static State slice(Collection<IFStatement<?>> IFStatements, SingleFeatureExpr FA, SingleFeatureExpr FB) {
-		return slice(IFStatements, FA, FB, State.UNKNOWN);
+		return slice(IFStatements, FA, FB, State.UNKNOWN, TYPE.AGGRESSIVE);
 	}
 
 	/**
 	 * Slice for feature A Checks the selection of feature B
 	 */
 	public static State slice(Collection<IFStatement<?>> IFStatements, SingleFeatureExpr FA, SingleFeatureExpr FB,
-			State fbSelection) {
+			State fbSelection, TYPE type) {
 		if (fbSelection == State.CONDITIONAL) {
 			return State.CONDITIONAL;
 		}
@@ -72,11 +76,11 @@ public class Slicer {
 						}
 					}
 					continue;
-				} else {
+				} else if (type == TYPE.AGGRESSIVE) {
 					// if depends NOT on FB
 					FeatureExpr ctx = ifStatement.getCTX();
-					if (Conditional.isContradiction(ctx.unique(FA))) {
-						// ctx does not depend on A
+					if (Conditional.isSatisfiable(ctx.unique(FB))) {
+						// ctx does depends on FB
 						if (Conditional.isSatisfiable(ctx.andNot(FB))) {
 							// set B to false
 							if (fbSelection == State.UNKNOWN) {
@@ -94,6 +98,16 @@ public class Slicer {
 								break;
 							}
 						}
+						continue;
+					}
+
+				} else if (type == TYPE.PASSIVE) {
+					// if depends NOT on FB
+					FeatureExpr ctx = ifStatement.getCTX();
+					if (Conditional.isContradiction(ctx.unique(FB))) {
+						// ctx depends on FB
+						fbSelection = State.CONDITIONAL;
+						break;
 					}
 				}
 			}

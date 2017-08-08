@@ -1,3 +1,5 @@
+package cmu.varviz.trace;
+
 import static cmu.varviz.trace.Slicer.slice;
 import static org.junit.Assert.assertEquals;
 
@@ -113,7 +115,7 @@ public class ContextSlicingTest {
 	@Test
 	public void testSlicing() throws Exception {
 		Trace trace = createTrace(new IFConditions(TRUE, FA), new IFConditions(FA.not(), FA.not().and(FB)));
-		assertEquals(State.DESELECTED, slice(trace, FA, FB));
+		assertEquals(State.UNKNOWN, slice(trace, FA, FB));
 		assertEquals(State.DESELECTED, slice(trace, FB, FA));
 	}
 
@@ -122,21 +124,21 @@ public class ContextSlicingTest {
 		Trace trace = createTrace(new IFConditions(TRUE, FB), new IFConditions(FB, FB.and(FA)),
 				new IFConditions(FB.not(), FB.not().and(FA)));
 		assertEquals(State.CONDITIONAL, slice(trace, FA, FB));
-		assertEquals(State.DESELECTED, slice(trace, FB, FA));
+		assertEquals(State.UNKNOWN, slice(trace, FB, FA));
 	}
 
 	@Test
 	public void testSlicing3() throws Exception {
 		Trace trace = createTrace(new IFConditions(TRUE, FB), new IFConditions(FB, FB.and(FA)));
 		assertEquals(State.SELECTED, slice(trace, FA, FB));
-		assertEquals(State.DESELECTED, slice(trace, FB, FA));
+		assertEquals(State.UNKNOWN, slice(trace, FB, FA));
 	}
 
 	@Test
 	public void testSlicing4() throws Exception {
 		Trace trace = createTrace(new IFConditions(TRUE, FA), new IFConditions(TRUE, FB));
-		assertEquals(State.DESELECTED, slice(trace, FA, FB));
-		assertEquals(State.DESELECTED, slice(trace, FB, FA));
+		assertEquals(State.UNKNOWN, slice(trace, FA, FB));
+		assertEquals(State.UNKNOWN, slice(trace, FB, FA));
 	}
 
 	@Test
@@ -158,6 +160,12 @@ public class ContextSlicingTest {
 		Trace trace = createTrace(new IFConditions(TRUE, FA.andNot(FB)));
 		assertEquals(State.DESELECTED, slice(trace, FA, FB));
 		assertEquals(State.SELECTED, slice(trace, FB, FA));
+	}
+	
+	@Test
+	public void testSlicing8() throws Exception {
+		Trace trace = createTrace(new IFConditions(TRUE, FB), new IFConditions(FB, FA.and(FB)), new IFConditions(TRUE, FA));
+		assertEquals(State.SELECTED, slice(trace, FA, FB));
 	}
 
 	public static Trace createTrace(IFConditions... conditions) {

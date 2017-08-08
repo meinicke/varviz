@@ -9,6 +9,9 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
@@ -73,6 +76,14 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 
 			// Program & VM arguments
 			String pgmArgs = getProgramArguments(configuration);
+			
+			try {
+				STEP_SIZE = Integer.parseInt(pgmArgs);
+			} catch (NumberFormatException e) {
+				STEP_SIZE = Integer.MAX_VALUE;
+			}
+			System.out.println("Set step size to " + STEP_SIZE);
+			
 			String vmArgs = getVMArguments(configuration);
 			ExecutionArguments execArgs = new ExecutionArguments(vmArgs, pgmArgs);
 
@@ -142,9 +153,9 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 			JPF.vatrace.filter = new Or(new And(new InteractionFilter(VarvizView.minDegree)), new ExceptionFilter());
 			FeatureExprFactory.setDefault(FeatureExprFactory.bdd());
 			JPF.main(args);
-
+			JPF.vatrace.finalizeGraph();
+			
 			final Collection<IFStatement<?>> collectIFStatements = JPF.vatrace.getMain().collectIFStatements();
-
 			final FeatureExpr exceptionContext = JPF.vatrace.getExceptionContext();
 			
 			createAllTraces(originalOutputStream, args);
@@ -185,23 +196,112 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 			System.setOut(originalOutputStream);
 		}
 	}
+	
+	private File folder;
+	private File mccabeMax;
+	private File nodesMax;
 
-	private static final int STEP_SIZE = 10_000;
+	private int STEP_SIZE = Integer.MAX_VALUE;
 	private static final String SEPARATOR = ",";
 	private static final int maxDegree = 3;
+	
+	List<Integer> nodesMaxValues = new ArrayList<>();
+	List<Integer> MCCabeMaxValues = new ArrayList<>();
+	
+	private Map<Integer, List<Integer>> resultsMCCabe = new HashMap<>();
+	private Map<Integer, List<Integer>> resultsNodes = new HashMap<>();
 
 	private void createAllTraces(final PrintStream originalOutputStream, final String[] args) {
-		for (int degree = 1; degree <= maxDegree; degree++) {
-			createAllTraces(originalOutputStream, args, degree);
-		}
-	}
-	
-	private void createAllTraces(PrintStream originalOutputStream, String[] args, int degree) {
-		final File folder = new File(VarvizView.PROJECT_NAME);
+		folder = new File(VarvizView.PROJECT_NAME);
 		if (!folder.exists()) {
 			folder.mkdirs();
 		}
+		mccabeMax = new File(folder.getName() + File.separator + VarvizView.PROJECT_NAME + "mccabe.csv");
+		nodesMax = new File(folder.getName() + File.separator + VarvizView.PROJECT_NAME + "nodes.csv");
+		try (PrintWriter pwMccabeMax = new PrintWriter(mccabeMax, StandardCharsets.UTF_8.name());
+			PrintWriter pwNodesMax = new PrintWriter(nodesMax, StandardCharsets.UTF_8.name())) {
+  			PrintWriter[] pws = new PrintWriter[] {pwMccabeMax, pwNodesMax};
+  			for (PrintWriter pw : pws) {
+  				pw.println("Degree");
+  				pw.print("All");
+  				pw.print(SEPARATOR);
+			}
+  			
+  			int edges = JPF.vatrace.getEdges().size();
+			int nodes = JPF.vatrace.getMain().size() + 2;
+			final int MCCabe = edges - nodes + 2;
+			pwMccabeMax.println(MCCabe);
+			pwNodesMax.println(nodes);
+			
+			for (int degree = 1; degree <= maxDegree; degree++) {
+				for (PrintWriter pw : pws) {
+					pw.print(degree);
+					pw.print(SEPARATOR);
+				}
+				
+				createAllTraces(originalOutputStream, args, degree);
+				
+				Collections.sort(nodesMaxValues, (a, b) -> Integer.compare(b, a));
+				Collections.sort(MCCabeMaxValues, (a, b) -> Integer.compare(b, a));
+				
+				for (Integer v : MCCabeMaxValues) {
+					pwMccabeMax.print(v);
+					pwMccabeMax.print(SEPARATOR);
+				}
+				
+				for (Integer v : nodesMaxValues) {
+					pwNodesMax.print(v);
+					pwNodesMax.print(SEPARATOR);
+				}
+				
+				resultsMCCabe.put(degree, MCCabeMaxValues);
+				resultsMCCabe.put(degree, nodesMaxValues);
+				
+				nodesMaxValues = new ArrayList<>();
+				MCCabeMaxValues = new ArrayList<>();
+				
+				for (PrintWriter pw : pws) {
+					pw.println();
+				}
+			}
+		} catch (FileNotFoundException | UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
 		
+		int[][] results = new int[resultsMCCabe.get(maxDegree).size()][maxDegree];
+		for (int d = 1; d <= maxDegree; d++) {
+			int i = 0;
+			for (int value : resultsMCCabe.get(d)) {
+				results[i++][d - 1] = value; 
+			}
+		}
+		
+		StringBuilder sb = new StringBuilder();
+		for (int degree = 1; degree <= maxDegree;degree++) {
+			sb.append(degree).append(',');
+		}
+		sb.setCharAt(sb.length() - 1, '\r');
+		sb.append('\n');
+		
+		for (int[] row : results) {
+			for (int i : row) {
+				if (i > 0) {
+					sb.append(i);
+				}
+				sb.append(',');
+			}
+			sb.setCharAt(sb.length() - 1, '\r');
+			sb.append('\n');
+		}
+		File mccabe = new File(folder.getName() + File.separator + VarvizView.PROJECT_NAME + "_mccabe_R.csv");
+		try (PrintWriter pwMccabe = new PrintWriter(mccabe, StandardCharsets.UTF_8.name())) {
+			pwMccabe.print(sb.toString());
+		} catch (FileNotFoundException | UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+	}
+		
+	private void createAllTraces(PrintStream originalOutputStream, String[] args, int degree) {
 		File mccabe = new File(folder.getName() + File.separator + VarvizView.PROJECT_NAME + "_" + degree + "_mccabe.csv");
 		File nodes = new File(folder.getName() + File.separator + VarvizView.PROJECT_NAME + "_" + degree + "_nodes.csv");
 		Collection<IFStatement<?>> ifStatement = JPF.vatrace.getMain().collectIFStatements();
@@ -278,12 +378,17 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 				pw.print(" ");
 			}
 		}
-		ThreadInfo.maxInstruction = 0;
+		ThreadInfo.maxInstruction = Integer.MAX_VALUE;
 		Conditional.additionalConstraint = BDDFeatureExprFactory.True();
 		JPF.ignoredFeatures.clear();
+		
 		IgnoreContext.removeContext(sliceFeatures, ifStatements);
+		
+		consoleStream.print(VarvizView.generator.getIgnoredFeatures().size() + " ignored for ");
+		sliceFeatures.forEach(f -> consoleStream.print(Conditional.getCTXString(f) + " - "));
+		consoleStream.println();
 		while (true) {
-			ThreadInfo.maxInstruction += STEP_SIZE;
+//			ThreadInfo.maxInstruction += STEP_SIZE;
 			JPF.vatrace = new Trace();
 			JPF.vatrace.filter = new Or(new And(new InteractionFilter(VarvizView.minDegree)), new ExceptionFilter());
 			JPF.main(args);
@@ -304,6 +409,8 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 			consoleStream.flush();
 
 			if (Statistics.insns < ThreadInfo.maxInstruction) {
+				nodesMaxValues.add(nodes);
+				MCCabeMaxValues.add(MCCabe);
 				break;
 			}
 		}
