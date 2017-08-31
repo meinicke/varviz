@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
@@ -149,18 +150,22 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 					"+nhandler.delegateUnhandledNative", "+search.class=.search.RandomSearch",
 					featureModelPath != null ? "+ featuremodel=" + featureModelPath : "",
 					runConfig.getClassToLaunch() };
+
 			JPF.vatrace = new Trace();
 			JPF.vatrace.filter = new Or(new And(new InteractionFilter(VarvizView.minDegree)), new ExceptionFilter());
 			FeatureExprFactory.setDefault(FeatureExprFactory.bdd());
+			
+			JPF.ignoredFeatures.clear();
+			
 			JPF.main(args);
 			JPF.vatrace.finalizeGraph();
 			
-			final Collection<IFStatement<?>> collectIFStatements = JPF.vatrace.getMain().collectIFStatements();
+			final Collection<IFStatement<?>> collectIFStatements = Collections.unmodifiableCollection(JPF.vatrace.getMain().collectIFStatements());
 			final FeatureExpr exceptionContext = JPF.vatrace.getExceptionContext();
 			
-			createAllTraces(originalOutputStream, args);
+//			createAllTraces(originalOutputStream, args);
 			
-			if (VarvizView.reExecuteForExceptionFeatures) {
+			if (false && VarvizView.reExecuteForExceptionFeatures) {
 				if (Conditional.isSatisfiable(exceptionContext)) {
 					IgnoreContext.removeContext(exceptionContext, collectIFStatements);
 					if (!JPF.ignoredFeatures.isEmpty()) {
@@ -203,13 +208,17 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 
 	private int STEP_SIZE = Integer.MAX_VALUE;
 	private static final String SEPARATOR = ",";
-	private static final int maxDegree = 3;
+	private static final int maxDegree = 1;
 	
 	List<Integer> nodesMaxValues = new ArrayList<>();
 	List<Integer> MCCabeMaxValues = new ArrayList<>();
+	List<Integer> descissionsMaxValues = new ArrayList<>();
+	List<Integer> statementsMaxValues = new ArrayList<>();
 	
 	private Map<Integer, List<Integer>> resultsMCCabe = new HashMap<>();
 	private Map<Integer, List<Integer>> resultsNodes = new HashMap<>();
+	private Map<Integer, List<Integer>> resultsDecissions = new HashMap<>();
+	private Map<Integer, List<Integer>> resultsStatements = new HashMap<>();
 
 	private void createAllTraces(final PrintStream originalOutputStream, final String[] args) {
 		folder = new File(VarvizView.PROJECT_NAME);
@@ -218,6 +227,12 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 		}
 		mccabeMax = new File(folder.getName() + File.separator + VarvizView.PROJECT_NAME + "mccabe.csv");
 		nodesMax = new File(folder.getName() + File.separator + VarvizView.PROJECT_NAME + "nodes.csv");
+
+		final int edges = JPF.vatrace.getEdges().size();
+		final int nodes = JPF.vatrace.getMain().size();
+		final int numberOfDecsissions = JPF.vatrace.getMain().accumulate((s, v) -> s instanceof IFStatement ? v + 1 : v, 0);
+		final int numberOfStatements = nodes - numberOfDecsissions;
+
 		try (PrintWriter pwMccabeMax = new PrintWriter(mccabeMax, StandardCharsets.UTF_8.name());
 			PrintWriter pwNodesMax = new PrintWriter(nodesMax, StandardCharsets.UTF_8.name())) {
   			PrintWriter[] pws = new PrintWriter[] {pwMccabeMax, pwNodesMax};
@@ -227,8 +242,7 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
   				pw.print(SEPARATOR);
 			}
   			
-  			int edges = JPF.vatrace.getEdges().size();
-			int nodes = JPF.vatrace.getMain().size() + 2;
+			
 			final int MCCabe = edges - nodes + 2;
 			pwMccabeMax.println(MCCabe);
 			pwNodesMax.println(nodes);
@@ -243,6 +257,8 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 				
 				Collections.sort(nodesMaxValues, (a, b) -> Integer.compare(b, a));
 				Collections.sort(MCCabeMaxValues, (a, b) -> Integer.compare(b, a));
+				Collections.sort(statementsMaxValues, (a, b) -> Integer.compare(b, a));
+				Collections.sort(descissionsMaxValues, (a, b) -> Integer.compare(b, a));
 				
 				for (Integer v : MCCabeMaxValues) {
 					pwMccabeMax.print(v);
@@ -255,10 +271,14 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 				}
 				
 				resultsMCCabe.put(degree, MCCabeMaxValues);
-				resultsMCCabe.put(degree, nodesMaxValues);
+				resultsNodes.put(degree, nodesMaxValues);
+				resultsDecissions.put(degree, descissionsMaxValues);
+				resultsStatements.put(degree, statementsMaxValues);
 				
 				nodesMaxValues = new ArrayList<>();
 				MCCabeMaxValues = new ArrayList<>();
+				statementsMaxValues = new ArrayList<>();
+				descissionsMaxValues = new ArrayList<>();
 				
 				for (PrintWriter pw : pws) {
 					pw.println();
@@ -268,22 +288,36 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 			e.printStackTrace();
 		}
 		
-		int[][] results = new int[resultsMCCabe.get(maxDegree).size()][maxDegree];
+//		writeRFile(resultsMCCabe, "MCCabe");
+		writeRFile(resultsDecissions, "Decissions", numberOfDecsissions);
+		writeRFile(resultsStatements, "Statements", numberOfStatements);
+//		writeRFile(resultsNodes, "Nodes");
+	}
+
+	private void writeRFile(Map<Integer, List<Integer>> results, String name, int maxValue) {
+		if (maxDegree == 0) {
+			System.out.println(name + ": " + maxValue);
+			return;
+		}
+		int[][] res = new int[results.get(maxDegree).size()][maxDegree];
 		for (int d = 1; d <= maxDegree; d++) {
 			int i = 0;
-			for (int value : resultsMCCabe.get(d)) {
-				results[i++][d - 1] = value; 
+			for (int value : results.get(d)) {
+				res[i++][d - 1] = value; 
 			}
 		}
 		
 		StringBuilder sb = new StringBuilder();
+		sb.append("all: " + maxValue);
+		sb.append("\r\n");
+		
 		for (int degree = 1; degree <= maxDegree;degree++) {
 			sb.append(degree).append(',');
 		}
 		sb.setCharAt(sb.length() - 1, '\r');
 		sb.append('\n');
 		
-		for (int[] row : results) {
+		for (int[] row : res) {
 			for (int i : row) {
 				if (i > 0) {
 					sb.append(i);
@@ -293,7 +327,7 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 			sb.setCharAt(sb.length() - 1, '\r');
 			sb.append('\n');
 		}
-		File mccabe = new File(folder.getName() + File.separator + VarvizView.PROJECT_NAME + "_mccabe_R.csv");
+		File mccabe = new File(folder.getName() + File.separator + VarvizView.PROJECT_NAME + "_" + name+ "_R.csv");
 		try (PrintWriter pwMccabe = new PrintWriter(mccabe, StandardCharsets.UTF_8.name())) {
 			pwMccabe.print(sb.toString());
 		} catch (FileNotFoundException | UnsupportedEncodingException e) {
@@ -368,7 +402,6 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 
 	private void runSlicedProgram(PrintStream consoleStream, String[] args,
 			Collection<IFStatement<?>> ifStatements, Collection<SingleFeatureExpr> sliceFeatures, PrintWriter... printWriters) {
-		
 		runs++;
 		consoleStream.println((runs / maxRuns) * 100 + "% finished of " + maxRuns);
 		for (PrintWriter pw : printWriters) {
@@ -378,7 +411,7 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 				pw.print(" ");
 			}
 		}
-		ThreadInfo.maxInstruction = Integer.MAX_VALUE;
+//		ThreadInfo.maxInstruction = Integer.MAX_VALUE;
 		Conditional.additionalConstraint = BDDFeatureExprFactory.True();
 		JPF.ignoredFeatures.clear();
 		
@@ -387,17 +420,36 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 		consoleStream.print(VarvizView.generator.getIgnoredFeatures().size() + " ignored for ");
 		sliceFeatures.forEach(f -> consoleStream.print(Conditional.getCTXString(f) + " - "));
 		consoleStream.println();
+		
+		
+		
+		for (Entry<FeatureExpr, Boolean> f : VarvizView.generator.getIgnoredFeatures().entrySet()) {
+			System.out.println(f);
+		}
+		
 		while (true) {
 //			ThreadInfo.maxInstruction += STEP_SIZE;
-			JPF.vatrace = new Trace();
-			JPF.vatrace.filter = new Or(new And(new InteractionFilter(VarvizView.minDegree)), new ExceptionFilter());
-			JPF.main(args);
+			int round = 0; 
+			while (round++ < 10) {
+				JPF.vatrace = new Trace();
+				JPF.vatrace.filter = new Or(new And(new InteractionFilter(VarvizView.minDegree)), new ExceptionFilter());
+				try {
+					JPF.main(args);
+					break;
+				} catch (Exception e) {
+					e.printStackTrace();
+					System.err.println("restart: " + round);
+				}
+			}
 
 			JPF.vatrace.filter = new Or(new And(VarvizView.basefilter, new InteractionFilter(VarvizView.minDegree)),
 					new And(VarvizView.basefilter, new ExceptionFilter()));
 			JPF.vatrace.finalizeGraph();
 			int edges = JPF.vatrace.getEdges().size();
-			int nodes = JPF.vatrace.getMain().size() + 2;
+			
+			int numberOfDecsissions = JPF.vatrace.getMain().accumulate((s, v) -> s instanceof IFStatement ? v + 1 : v, 0);
+			int nodes = JPF.vatrace.getMain().size();
+
 			final int MCCabe = edges - nodes + 2;
 			for (PrintWriter pw : printWriters) {
 				pw.print(SEPARATOR);
@@ -411,10 +463,14 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 			if (Statistics.insns < ThreadInfo.maxInstruction) {
 				nodesMaxValues.add(nodes);
 				MCCabeMaxValues.add(MCCabe);
+				statementsMaxValues.add(nodes - numberOfDecsissions);
+				descissionsMaxValues.add(numberOfDecsissions);
 				break;
 			}
 		}
 		consoleStream.println();
+		
+		JPF.ignoredFeatures.clear();
 	}
 
 	private PrintStream createOutputStream(PrintStream originalOut, final MessageConsoleStream consoleStream) {
