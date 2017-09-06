@@ -90,8 +90,8 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 			// stop in main
 			prepareStopInMain(configuration);
 
-			// set the default source locator if required
-			setDefaultSourceLocator(launch, configuration);
+			// set the default source locator if required 
+			//setDefaultSourceLocator(launch, configuration); TODO
 
 			// Launch the configuration - 1 unit of work
 			monitor.subTask("Run application with VarexJ");

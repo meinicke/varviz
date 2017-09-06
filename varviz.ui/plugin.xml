@@ -34,6 +34,44 @@
       id="com.example.ExampleTabGroup"
       type="cmu.varviz"
       class="cmu.varviz.trace.generator.VarvizConfigurationTabGroup">
+      
   </launchConfigurationTabGroup>
  </extension>
+ 
+ <extension
+        point="org.eclipse.debug.ui.launchConfigurationTypeImages">
+    <launchConfigurationTypeImage
+            id="com.example.ui.launch.launchconfigurationtypeimage"
+            configTypeID="cmu.varviz"
+            icon="images/varviz_app2.png">
+    </launchConfigurationTypeImage>
+</extension>
+ 
+ <extension
+     point="org.eclipse.debug.ui.launchShortcuts">
+
+  <shortcut
+        class="cmu.varviz.trace.generator.VarvizLaunchShortcut"
+        icon="images/varviz_app2.png"
+        id="cmu.varviz.VarvizLaunchShortcut"
+        label="Calc"
+        modes="run">
+    <contextualLaunch>
+         <contextLabel mode="run" label="Run With VarexJ" />
+         <enablement >
+           <with variable="selection">
+           <count value="1"/>
+          <iterate>
+            <adapt type="org.eclipse.core.resources.IResource">
+                <and>
+                <test property="org.eclipse.core.resources.name" value="*.java"/>
+            </and>
+        </adapt>
+          </iterate>
+           </with>
+       </enablement>
+     </contextualLaunch>
+  </shortcut>
+  </extension>
+  
 </plugin>
