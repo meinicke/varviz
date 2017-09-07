@@ -42,14 +42,18 @@ public class Trace {
 	}
 	
 	public void filterExecution() {
-		filterExecution(main);
+		filterExecution(main, true);
 	}
 	
 	public void filterExecution(Method<?> m) {
+		filterExecution(m, false);
+	}
+	
+	public void filterExecution(Method<?> m, boolean deep) {
 		if (m == null || m.size() == 0) {
 			return;
 		}
-		m.filterExecution(filter);
+		m.filterExecution(filter, deep);
 	}
 	
 	public void createEdges() {
@@ -64,7 +68,7 @@ public class Trace {
 		System.out.print("Number of nodes: " + main.size());
 		System.out.flush();
 		filterExecution();
-		removeUnnecessaryIfs(main);
+		removeUnnecessaryIfs(main, true);
 		createEdges();
 		highlightException();
 		System.out.println(" -> " + main.size());
@@ -155,27 +159,36 @@ public class Trace {
 	}
 	
 	public static final void removeUnnecessaryIfs(Method<?> method) {
+		removeUnnecessaryIfs(method, false);
+	}
+	
+	public static final void removeUnnecessaryIfs(Method<?> method, boolean deep) {
 		final Collection<MethodElement<?>> children = method.getChildren();
 		ArrayList<MethodElement<?>> reversed = new ArrayList<>();
 		reversed.addAll(children);
 		Collections.reverse(reversed);
 		
+		int line = Integer.MIN_VALUE;
 		for (MethodElement<?> element : reversed) {
 			if (element instanceof Statement && ((Statement<?>)element).getShape() == Shape.Mdiamond) {
 				Statement<?> ifStatement = (Statement<?>)element;
 				
 				boolean hasDecission = checkForDecision(ifStatement, children);
-				if (!hasDecission) {
+				if (hasDecission) {
+					line = ifStatement.lineNumber;
+				} else {
 					method.remove(ifStatement);
+					line = Integer.MIN_VALUE;
 				}
+				continue;
 			}
 			
-			if (element.canBeRemoved()) {
+			if (element.canBeRemoved(line)) {
 				method.remove(element);
 			}
 			
-			if (element instanceof Method) {
-				removeUnnecessaryIfs((Method<?>)element);
+			if (deep && element instanceof Method) {
+				removeUnnecessaryIfs((Method<?>)element, deep);
 				if (((Method<?>)element).getChildren().isEmpty()) {
 					method.remove(element);
 				}

@@ -56,7 +56,27 @@ public class Method<U> extends MethodElement<U> {
 	}
 	
 	public boolean filterExecution(StatementFilter filter) {
-		execution.removeIf(e -> !e.filterExecution(filter));
+		return filterExecution(filter, false);
+	}
+	
+	public boolean filterExecution(StatementFilter filter, boolean deep) {
+		if (deep) {
+			execution.removeIf(e -> {
+				if (e instanceof Method) {
+					return !((Method<?>) e).filterExecution(filter, deep);
+				} else {
+					return !e.filterExecution(filter);
+				}
+			});
+		} else {
+			execution.removeIf(e -> {
+				if (e instanceof Method) {
+					return ((Method<?>) e).execution.isEmpty();
+				} else {
+					return !e.filterExecution(filter);
+				}
+			});
+		}
 		return !execution.isEmpty();
 	}
 	
