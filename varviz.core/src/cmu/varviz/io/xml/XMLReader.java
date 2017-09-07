@@ -27,7 +27,6 @@ import cmu.varviz.trace.Statement;
 import cmu.varviz.trace.Trace;
 import cmu.varviz.utils.ContextParser;
 import de.fosd.typechef.featureexpr.FeatureExpr;
-import de.fosd.typechef.featureexpr.FeatureExprFactory;
 import de.fosd.typechef.featureexpr.bdd.BDDFeatureExprFactory;
 
 public class XMLReader implements XMLvarviz {
