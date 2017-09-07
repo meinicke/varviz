@@ -133,8 +133,8 @@ public class Method<U> extends MethodElement<U> {
 		return value;
 	}
 	
-	public Collection<MethodElement<?>> getChildren() {
-		return Collections.unmodifiableCollection(execution);
+	public List<MethodElement<?>> getChildren() {
+		return Collections.unmodifiableList(execution);
 	}
 	
 }
