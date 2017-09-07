@@ -5,7 +5,11 @@ import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationType;
@@ -40,13 +44,26 @@ public class VarvizLaunchShortcut extends JavaApplicationLaunchShortcut {
 				config = createConfiguration(type);
 			}
 			if (config != null) {
+				runVarexJ(mode, config);
+			}
+		}
+	}
+
+	private void runVarexJ(final String mode, final ILaunchConfiguration config) {
+		Job job = new Job("Run with VarexJ") {
+			
+			@Override
+			protected IStatus run(IProgressMonitor monitor) {
 				try {
 					new VarvizConfigurationDelegate().launch(config, mode, null, new NullProgressMonitor());
 				} catch (CoreException e) {
 					e.printStackTrace();
 				}
+				return Status.OK_STATUS;
 			}
-		}
+		};
+		job.setPriority(Job.LONG);
+		job.schedule();
 	}
 
 	@Override
