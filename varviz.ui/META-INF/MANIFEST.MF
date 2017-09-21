@@ -39,5 +39,6 @@ Bundle-ClassPath: .,
  lib/RunJPF.jar,
  lib/RunTest.jar,
  lib/scala-library-2.11.8.jar,
- lib/varviz.jar
+ lib/varviz.jar,
+ lib/sampleJ.jar
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

@@ -22,6 +22,7 @@ import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
 
 import cmu.conditional.Conditional;
+import cmu.samplej.Collector;
 import cmu.varviz.trace.Trace;
 import cmu.varviz.trace.filters.And;
 import cmu.varviz.trace.filters.InteractionFilter;
@@ -40,7 +41,7 @@ import gov.nasa.jpf.JPF;
  * @author Jens Meinicke
  *
  */
-public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfigurationDelegate {
+public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfigurationDelegate {// TODO JavaLaunchDelegate?
 
 	@Override
 	public void launch(ILaunchConfiguration configuration, String mode, ILaunch launch, IProgressMonitor monitor) throws CoreException {
@@ -120,34 +121,46 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 				}
 			}
 			
-			// TODO move this to VarexJ Generator Class
-			FeatureExprFactory.setDefault(FeatureExprFactory.bdd());
-			final String[] args = { "+classpath=" + cp, "+choice=MapChoice", "+stack=HybridStackHandler", "+nhandler.delegateUnhandledNative", "+search.class=.search.RandomSearch",
-					featureModelPath != null ? "+ featuremodel=" + featureModelPath : "", runConfig.getClassToLaunch() };
-			JPF.vatrace = new Trace();
-			JPF.vatrace.filter = new Or(new And(VarvizView.basefilter, new InteractionFilter(VarvizView.minDegree)), new ExceptionFilter());
-			FeatureExprFactory.setDefault(FeatureExprFactory.bdd());
-			JPF.main(args);
-			Conditional.additionalConstraint = BDDFeatureExprFactory.True();
-
-			if (VarvizView.reExecuteForExceptionFeatures) {
-				FeatureExpr exceptionContext = JPF.vatrace.getExceptionContext();
-				IgnoreContext.removeContext(exceptionContext);
-				if (!JPF.ignoredFeatures.isEmpty()) {
-					// second run for important features
-					myConsole = findAndCreateConsole("VarexJ: " + resource.getProject().getName() + ":" + runConfig.getClassToLaunch() + " (exception features only)");
-					myConsole.clearConsole();
-					PrintStream consoleStream = createOutputStream(originalOutputStream, myConsole.newMessageStream());
-					System.setOut(consoleStream);
-					JPF.vatrace = new Trace();
-					JPF.vatrace.filter = new Or(new And(VarvizView.basefilter, new InteractionFilter(VarvizView.minDegree)), new ExceptionFilter());
-					JPF.main(args);
-					Conditional.additionalConstraint = BDDFeatureExprFactory.True();
-					JPF.ignoredFeatures.clear();
+			if (VarvizView.useVarexJ) {
+				// TODO move this to VarexJ Generator Class
+				FeatureExprFactory.setDefault(FeatureExprFactory.bdd());
+				final String[] args = { "+classpath=" + cp, "+choice=MapChoice", "+stack=HybridStackHandler", "+nhandler.delegateUnhandledNative", "+search.class=.search.RandomSearch",
+						featureModelPath != null ? "+ featuremodel=" + featureModelPath : "", runConfig.getClassToLaunch() };
+				JPF.vatrace = new Trace();
+				JPF.vatrace.filter = new Or(new And(VarvizView.basefilter, new InteractionFilter(VarvizView.minDegree)), new ExceptionFilter());
+				FeatureExprFactory.setDefault(FeatureExprFactory.bdd());
+				JPF.main(args);
+				Conditional.additionalConstraint = BDDFeatureExprFactory.True();
+	
+				if (VarvizView.reExecuteForExceptionFeatures) {
+					FeatureExpr exceptionContext = JPF.vatrace.getExceptionContext();
+					IgnoreContext.removeContext(exceptionContext);
+					if (!JPF.ignoredFeatures.isEmpty()) {
+						// second run for important features
+						myConsole = findAndCreateConsole("VarexJ: " + resource.getProject().getName() + ":" + runConfig.getClassToLaunch() + " (exception features only)");
+						myConsole.clearConsole();
+						PrintStream consoleStream = createOutputStream(originalOutputStream, myConsole.newMessageStream());
+						System.setOut(consoleStream);
+						JPF.vatrace = new Trace();
+						JPF.vatrace.filter = new Or(new And(VarvizView.basefilter, new InteractionFilter(VarvizView.minDegree)), new ExceptionFilter());
+						JPF.main(args);
+						Conditional.additionalConstraint = BDDFeatureExprFactory.True();
+						JPF.ignoredFeatures.clear();
+					}
 				}
+				JPF.vatrace.finalizeGraph();
+				VarvizView.TRACE = JPF.vatrace;
+			} else {
+				// TODO move this to SampleJ Generator Class
+				long start = System.currentTimeMillis();
+				Collector collector = new Collector("1", "2", "3", "4", "5", "6");// TODO get features
+				String path = resource.getProject().getLocation().toOSString();
+				
+				// TODO use default launch? this.run()
+				VarvizView.TRACE = collector.createTrace(runConfig.getClassToLaunch(), path);
+				long end = System.currentTimeMillis();
+				System.out.println("generated trace in " + (end - start) + "ms");
 			}
-			JPF.vatrace.finalizeGraph();
-			VarvizView.TRACE = JPF.vatrace;
 			VarvizView.refreshVisuals();
 
 			// check for cancellation

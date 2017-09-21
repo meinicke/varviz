@@ -53,14 +53,15 @@ public class VarvizView extends ViewPart {
 	private static ScrollingGraphicalViewer viewer;
 	private ScalableFreeformRootEditPart rootEditPart;
 
-	private Action showLablesButton;
+	private Action showLablesButton,generatorButton;
 	private Action exportGraphVizButton;
 	private Action exceptionButton;
 
 	public static boolean reExecuteForExceptionFeatures = true;
 
 	public static boolean showLables = false;
-
+	public static boolean useVarexJ = false;
+	
 	public static int projectID = 0;
 
 	public static int minDegree = 2;
@@ -98,6 +99,17 @@ public class VarvizView extends ViewPart {
 		bars.setGlobalActionHandler(ActionFactory.PRINT.getId(), printAction);
 
 		IToolBarManager toolbarManager = bars.getToolBarManager();
+		
+		generatorButton = new Action() {
+			public void run() {
+				useVarexJ = !useVarexJ;
+			}
+		};
+		generatorButton.setToolTipText("use VarexJ");
+		toolbarManager.add(generatorButton);
+		generatorButton.setChecked(showLables);
+		generatorButton.setImageDescriptor(VarvizActivator.LABEL_IMAGE_DESCRIPTOR);
+		
 
 		showLablesButton = new Action() {
 			public void run() {
