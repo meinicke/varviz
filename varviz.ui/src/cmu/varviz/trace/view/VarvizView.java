@@ -108,8 +108,7 @@ public class VarvizView extends ViewPart {
 		generatorButton.setToolTipText("use VarexJ");
 		toolbarManager.add(generatorButton);
 		generatorButton.setChecked(showLables);
-		generatorButton.setImageDescriptor(VarvizActivator.LABEL_IMAGE_DESCRIPTOR);
-		
+		generatorButton.setImageDescriptor(VarvizActivator.GENERATOR_IMAGE_DESCRIPTOR);
 
 		showLablesButton = new Action() {
 			public void run() {

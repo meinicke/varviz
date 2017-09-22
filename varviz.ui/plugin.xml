@@ -23,7 +23,7 @@
         delegateName="Example Application Launch Tooling"
         id="cmu.varviz"
         modes="run,debug"
-        name="Run With VarexJ"
+        name="Run With Varviz"
         public="true"
         sourceLocatorId="org.eclipse.jdt.launching.sourceLocator.JavaSourceLookupDirector"
         sourcePathComputerId="org.eclipse.jdt.launching.sourceLookup.javaSourcePathComputer">
@@ -57,7 +57,7 @@
         label="Calc"
         modes="run">
     <contextualLaunch>
-         <contextLabel mode="run" label="VarexJ Application" />
+         <contextLabel mode="run" label="Varviz Application" />
          <enablement >
            <with variable="selection">
            <count value="1"/>

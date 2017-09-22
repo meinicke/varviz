@@ -11,7 +11,7 @@ public abstract class MethodElement<T> {
 	protected final int id = ID++;
 	protected boolean filtered = false;
 	
-	protected final FeatureExpr ctx;
+	protected FeatureExpr ctx;
 
 	protected final T content;
 	
@@ -55,6 +55,10 @@ public abstract class MethodElement<T> {
 	
 	public FeatureExpr getCTX() {
 		return ctx;
+	}
+	
+	public void setCtx(FeatureExpr ctx) {
+		this.ctx = ctx;
 	}
 	
 	public abstract void printLabel(PrintWriter pw);

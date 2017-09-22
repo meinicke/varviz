@@ -109,7 +109,7 @@ public class StatementFigure extends RoundedRectangle {
 
 	private String createText(Conditional<?> value) {
 		if (value.isOne()) {
-			return value.getValue().toString();
+			return value.getValue() == null ? "null" : value.getValue().toString();
 		} else {
 			final Collection<?> entries = value.toMap().keySet();
 			int maxLength = 0;

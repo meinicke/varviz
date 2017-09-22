@@ -153,7 +153,8 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 			} else {
 				// TODO move this to SampleJ Generator Class
 				long start = System.currentTimeMillis();
-				Collector collector = new Collector("1", "2", "3", "4", "5", "6");// TODO get features
+				Collector collector = new Collector("XXX");
+//				Collector collector = new Collector("executivefloor", "overloaded", "empty");// TODO get features
 				String path = resource.getProject().getLocation().toOSString();
 				
 				// TODO use default launch? this.run()
