@@ -2,7 +2,11 @@ package cmu.varviz.trace.generator;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.LineNumberReader;
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
@@ -153,8 +157,13 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 			} else {
 				// TODO move this to SampleJ Generator Class
 				long start = System.currentTimeMillis();
-				Collector collector = new Collector("XXX");
+
+				String featureModel = getFeatureModel(resource);
+				Conditional.setFM(featureModel);
+				
+				Collector collector = new Collector(getOptions(resource));
 //				Collector collector = new Collector("executivefloor", "overloaded", "empty");// TODO get features
+//				Collector collector = new Collector("key", "crypt", "verify", "addressbook", "autoresponder", "forward");// TODO get features
 				String path = resource.getProject().getLocation().toOSString();
 				
 				// TODO use default launch? this.run()
@@ -172,6 +181,37 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 			monitor.done();
 			System.setOut(originalOutputStream);
 		}
+	}
+
+	private String getFeatureModel(IResource resource) {
+		try {
+			for (IResource child : resource.getProject().members()) {
+				if ("dimacs".equals(child.getFileExtension())) {
+					return child.getLocation().toOSString();
+				}
+			}
+		} catch (CoreException e) {
+			e.printStackTrace();
+		}
+		return "";
+	}
+
+	private String[] getOptions(IResource resource) {
+		IFile optionsFile = resource.getProject().getFile("options.txt");
+		List<String> options = new ArrayList<>();
+		
+		try (LineNumberReader reader = new LineNumberReader(new InputStreamReader(optionsFile.getContents(true), optionsFile.getCharset()))) {
+			String line; 
+			while ((line = reader.readLine()) != null) {
+				System.out.println(line);
+				options.add(line.trim());
+			}
+		} catch (IOException | CoreException e) {
+			e.printStackTrace();
+		}
+		final String[] optionsArr = new String[options.size()];
+		options.toArray(optionsArr);
+		return optionsArr;
 	}
 
 	private PrintStream createOutputStream(PrintStream originalOut, final MessageConsoleStream consoleStream) {
