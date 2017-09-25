@@ -162,8 +162,6 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 				Conditional.setFM(featureModel);
 				
 				Collector collector = new Collector(getOptions(resource));
-//				Collector collector = new Collector("executivefloor", "overloaded", "empty");// TODO get features
-//				Collector collector = new Collector("key", "crypt", "verify", "addressbook", "autoresponder", "forward");// TODO get features
 				String path = resource.getProject().getLocation().toOSString();
 				
 				// TODO use default launch? this.run()
