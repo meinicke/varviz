@@ -10,7 +10,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -27,6 +29,7 @@ import org.eclipse.ui.console.MessageConsoleStream;
 
 import cmu.conditional.Conditional;
 import cmu.samplej.Collector;
+import cmu.samplej.Instrumenter;
 import cmu.varviz.trace.Trace;
 import cmu.varviz.trace.filters.And;
 import cmu.varviz.trace.filters.InteractionFilter;
@@ -49,7 +52,7 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 
 	@Override
 	public void launch(ILaunchConfiguration configuration, String mode, ILaunch launch, IProgressMonitor monitor) throws CoreException {
-		if (monitor == null) {
+	if (monitor == null) {
 			monitor = new NullProgressMonitor();
 		}
 
@@ -109,15 +112,16 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 
 			final IResource resource = configuration.getWorkingCopy().getMappedResources()[0];
 
-			MessageConsole myConsole = findAndCreateConsole("VarexJ: " + resource.getProject().getName() + ":" + runConfig.getClassToLaunch());
+			IProject project = resource.getProject();
+			MessageConsole myConsole = findAndCreateConsole("VarexJ: " + project.getName() + ":" + runConfig.getClassToLaunch());
 			myConsole.clearConsole();
 			PrintStream myPrintStream = createOutputStream(originalOutputStream, myConsole.newMessageStream());
 			System.setOut(myPrintStream);
 
-			VarvizView.PROJECT_NAME = resource.getProject().getName();
+			VarvizView.PROJECT_NAME = project.getName();
 
 			String featureModelPath = null;
-			for (IResource child : resource.getProject().members()) {
+			for (IResource child : project.members()) {
 				if (child instanceof IFile) {
 					if ("dimacs".equals(child.getFileExtension())) {
 						featureModelPath = child.getRawLocation().toOSString();
@@ -141,7 +145,7 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 					IgnoreContext.removeContext(exceptionContext);
 					if (!JPF.ignoredFeatures.isEmpty()) {
 						// second run for important features
-						myConsole = findAndCreateConsole("VarexJ: " + resource.getProject().getName() + ":" + runConfig.getClassToLaunch() + " (exception features only)");
+						myConsole = findAndCreateConsole("VarexJ: " + project.getName() + ":" + runConfig.getClassToLaunch() + " (exception features only)");
 						myConsole.clearConsole();
 						PrintStream consoleStream = createOutputStream(originalOutputStream, myConsole.newMessageStream());
 						System.setOut(consoleStream);
@@ -155,20 +159,21 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 				JPF.vatrace.finalizeGraph();
 				VarvizView.TRACE = JPF.vatrace;
 			} else {
-				// TODO move this to SampleJ Generator Class
-				long start = System.currentTimeMillis();
-
-				String featureModel = getFeatureModel(resource);
-				Conditional.setFM(featureModel);
+				// TODO move to SampleJ builder
+				project.build(IncrementalProjectBuilder.FULL_BUILD, monitor);
 				
+				String binPath = project.getFolder("bin").getLocation().toOSString();
+				new Instrumenter(binPath).run();
+				
+				Conditional.setFM(getFeatureModel(resource));
 				Collector collector = new Collector(getOptions(resource));
-				String path = resource.getProject().getLocation().toOSString();
 				
-				// TODO use default launch? this.run()
-				VarvizView.TRACE = collector.createTrace(runConfig.getClassToLaunch(), path);
-				long end = System.currentTimeMillis();
-				System.out.println("generated trace in " + (end - start) + "ms");
+				String projectPath = project.getLocation().toOSString();
+				VarvizView.TRACE = collector.createTrace(runConfig.getClassToLaunch(), projectPath);
+				
+				project.build(IncrementalProjectBuilder.FULL_BUILD, monitor);
 			}
+			
 			VarvizView.refreshVisuals();
 
 			// check for cancellation
