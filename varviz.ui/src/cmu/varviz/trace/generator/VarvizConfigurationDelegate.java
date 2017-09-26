@@ -15,7 +15,6 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.jdt.launching.AbstractJavaLaunchConfigurationDelegate;
@@ -30,6 +29,7 @@ import org.eclipse.ui.console.MessageConsoleStream;
 import cmu.conditional.Conditional;
 import cmu.samplej.Collector;
 import cmu.samplej.Instrumenter;
+import cmu.samplej.SampleJMonitor;
 import cmu.varviz.trace.Trace;
 import cmu.varviz.trace.filters.And;
 import cmu.varviz.trace.filters.InteractionFilter;
@@ -52,10 +52,6 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 
 	@Override
 	public void launch(ILaunchConfiguration configuration, String mode, ILaunch launch, IProgressMonitor monitor) throws CoreException {
-	if (monitor == null) {
-			monitor = new NullProgressMonitor();
-		}
-
 		final PrintStream originalOutputStream = System.out;
 		try {
 			final String mainTypeName = verifyMainTypeName(configuration);
@@ -162,14 +158,26 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 				// TODO move to SampleJ builder
 				project.build(IncrementalProjectBuilder.FULL_BUILD, monitor);
 				
+				// instrument
 				String binPath = project.getFolder("bin").getLocation().toOSString();
 				new Instrumenter(binPath).run();
 				
+				// run SampleJ
+				final SampleJMonitor samplejMonitor = new SampleJMonitor() {
+					@Override
+					public void beginTask(String name, int totalWork) {
+						monitor.beginTask(name, totalWork);
+					}
+					
+					@Override
+					public void worked(int work) {
+						monitor.worked(work);
+					}
+				};
 				Conditional.setFM(getFeatureModel(resource));
 				Collector collector = new Collector(getOptions(resource));
-				
 				String projectPath = project.getLocation().toOSString();
-				VarvizView.TRACE = collector.createTrace(runConfig.getClassToLaunch(), projectPath);
+				VarvizView.TRACE = collector.createTrace(runConfig.getClassToLaunch(), projectPath, samplejMonitor);
 				
 				project.build(IncrementalProjectBuilder.FULL_BUILD, monitor);
 			}

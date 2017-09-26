@@ -7,7 +7,6 @@ import java.util.List;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.debug.core.DebugPlugin;
@@ -55,7 +54,7 @@ public class VarvizLaunchShortcut extends JavaApplicationLaunchShortcut {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				try {
-					new VarvizConfigurationDelegate().launch(config, mode, null, new NullProgressMonitor());
+					new VarvizConfigurationDelegate().launch(config, mode, null, monitor);
 				} catch (CoreException e) {
 					e.printStackTrace();
 				}
