@@ -79,26 +79,39 @@ public class Method<U> extends MethodElement<U> {
 		return !execution.isEmpty();
 	}
 	
+	public void remove(int index) {
+		execution.remove(index);
+	}
+	
 	public boolean remove(MethodElement<?> element) {
-		boolean success = execution.remove(element);
-		if (!success) {
-			Method<?> lastMethod = null;
-			for (MethodElement<?> methodElement : execution) {
-				if (methodElement instanceof Method) {
-					success = ((Method<?>) methodElement).remove(element);
-					if (success) {
-						lastMethod = (Method<?>) methodElement;
-						break;
+		return remove(element, false);
+	}
+	
+	public boolean remove(MethodElement<?> element, boolean deep) {
+		System.err.println("use remove(int) instead");
+		new Exception().printStackTrace();
+		if (deep) {
+			boolean success = execution.remove(element);
+			if (!success) {
+				Method<?> lastMethod = null;
+				for (MethodElement<?> methodElement : execution) {
+					if (methodElement instanceof Method) {
+						success = ((Method<?>) methodElement).remove(element, true);
+						if (success) {
+							lastMethod = (Method<?>) methodElement;
+							break;
+						}
+					}
+				}
+				if (success) {
+					if (lastMethod.getChildren().isEmpty()) {
+						remove(lastMethod, true);
 					}
 				}
 			}
-			if (success) {
-				if (lastMethod.getChildren().isEmpty()) {
-					remove(lastMethod);
-				}
-			}
+			return success;
 		}
-		return success;
+		return execution.remove(element);
 	}
 	
 	public void printLabel(PrintWriter pw) {

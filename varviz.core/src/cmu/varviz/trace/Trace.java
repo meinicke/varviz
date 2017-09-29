@@ -2,9 +2,7 @@ package cmu.varviz.trace;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.ListIterator;
 
 import cmu.conditional.ChoiceFactory;
 import cmu.conditional.Conditional;
@@ -164,57 +162,49 @@ public class Trace {
 	
 	public static final void removeUnnecessaryIfs(Method<?> method, boolean deep) {
 		final List<MethodElement<?>> children = method.getChildren();
-		final ListIterator<MethodElement<?>> li = children.listIterator(children.size());
 		int line = Integer.MIN_VALUE;
-		final List<MethodElement<?>> removeThese = new ArrayList<>();
-		while (li.hasPrevious()) {
-			final MethodElement<?> element = li.previous();
+		
+		for (int i = children.size() - 1; i >= 0; i--) {
+			final MethodElement<?> element = children.get(i);
 			if (element instanceof Statement && ((Statement<?>) element).getShape() == Shape.Mdiamond) {
 				Statement<?> ifStatement = (Statement<?>) element;
-
-				boolean hasDecission = checkForDecision(ifStatement, children);
+				boolean hasDecission = checkForDecision(ifStatement, children, i);
 				if (hasDecission) {
 					line = ifStatement.lineNumber;
 				} else {
-					removeThese.add(element);
+					method.remove(i);
 					line = Integer.MIN_VALUE;
 				}
 				continue;
 			}
 
 			if (element.canBeRemoved(line)) {
-				removeThese.add(element);
+				method.remove(i);
 			}
 
 			if (deep && element instanceof Method) {
 				removeUnnecessaryIfs((Method<?>) element, deep);
 				if (((Method<?>) element).getChildren().isEmpty()) {
-					removeThese.add(element);
+					method.remove(i);
 				}
 			}
-		}
-		for (MethodElement<?> element : removeThese) {
-			method.remove(element);
 		}
 	}
 	
-	private static boolean checkForDecision(Statement<?> ifStatement, Collection<MethodElement<?>> children) {
-		boolean found = false;
+	private static boolean checkForDecision(Statement<?> ifStatement, List<MethodElement<?>>  children, int index) {
+		if (index + 1 >= children.size()) {
+			return false;
+		}
 		final FeatureExpr context = ifStatement.getCTX();
-		for (MethodElement<?> methodElement : children) {
-			if (methodElement == ifStatement) {
-				found = true;
-				continue;
+		MethodElement<?> methodElement = children.get(index + 1);
+		if (!Conditional.isContradiction(Conditional.and(context, methodElement.getCTX()))) {
+			if (Conditional.equivalentTo(context, methodElement.getCTX())) {
+				return false;
 			}
-			if (found && context.and(methodElement.getCTX()).isSatisfiable()) {
-				if (context.equivalentTo(methodElement.getCTX())) {
-					return false;
-				} else if (methodElement.getCTX().andNot(context).isSatisfiable()) {
-					return false;
-				} else {
-					return true;
-				}
+			if (methodElement.getCTX().andNot(context).isSatisfiable()) {
+				return false;
 			}
+			return true;
 		}
 		return false;
 	}
