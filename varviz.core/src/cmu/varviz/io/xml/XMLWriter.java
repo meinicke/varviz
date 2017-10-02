@@ -113,6 +113,7 @@ public class XMLWriter implements XMLvarviz {
 		}
 	}
 	
+	@SuppressWarnings("unused")
 	private String createString(Conditional<?> value) {
 		if (value.isOne()) {
 			return value.getValue().toString();

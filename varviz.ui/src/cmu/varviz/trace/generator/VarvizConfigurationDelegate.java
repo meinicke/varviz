@@ -28,7 +28,6 @@ import org.eclipse.ui.console.MessageConsoleStream;
 
 import cmu.conditional.Conditional;
 import cmu.samplej.Collector;
-import cmu.samplej.Instrumenter;
 import cmu.samplej.SampleJMonitor;
 import cmu.varviz.trace.Trace;
 import cmu.varviz.trace.filters.And;
@@ -156,12 +155,6 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 				VarvizView.TRACE = JPF.vatrace;
 			} else {
 				// TODO move to SampleJ builder
-				project.build(IncrementalProjectBuilder.FULL_BUILD, monitor);
-				
-				// instrument
-				String binPath = project.getFolder("bin").getLocation().toOSString();
-				new Instrumenter(binPath).run();
-				
 				// run SampleJ
 				final SampleJMonitor samplejMonitor = new SampleJMonitor() {
 					@Override
@@ -174,10 +167,12 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 						monitor.worked(work);
 					}
 				};
+				
 				Conditional.setFM(getFeatureModel(resource));
 				Collector collector = new Collector(getOptions(resource));
 				String projectPath = project.getLocation().toOSString();
-				VarvizView.TRACE = collector.createTrace(runConfig.getClassToLaunch(), projectPath, samplejMonitor);
+				
+				VarvizView.TRACE = collector.createTrace(runConfig.getClassToLaunch(), projectPath, runConfig.getClassPath(), samplejMonitor);
 				
 				project.build(IncrementalProjectBuilder.FULL_BUILD, monitor);
 			}
