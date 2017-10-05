@@ -30,6 +30,7 @@ import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.gef.Request;
 import org.eclipse.gef.editparts.AbstractGraphicalEditPart;
 
+import cmu.conditional.Conditional;
 import cmu.varviz.trace.Method;
 import cmu.varviz.trace.MethodElement;
 import cmu.varviz.trace.Statement;
@@ -82,7 +83,7 @@ public class MethodEditPart extends AbstractTraceEditPart {
 				if (previous != null) {
 					FeatureExpr prevctx = previous.getCTX();
 					if (!prevctx.equivalentTo(ctx)) {
-						if (ctx.isTautology()) {
+						if (Conditional.isTautology(ctx)) {
 							// a -> True
 
 							// center
@@ -94,7 +95,7 @@ public class MethodEditPart extends AbstractTraceEditPart {
 							previous = model;
 							previousFigure = childEditPart;
 							continue;
-						} else if (prevctx.and(ctx).isSatisfiable()) {
+						} else if (Conditional.isSatisfiable(prevctx.and(ctx))) {
 							// True -> a
 
 							// move to left
