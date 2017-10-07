@@ -12,8 +12,11 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
 
 import cmu.varviz.VarvizConstants;
+import cmu.varviz.trace.IFStatement;
 import cmu.varviz.trace.NodeColor;
 import cmu.varviz.trace.Statement;
+import cmu.varviz.trace.view.VarvizView;
+import cmu.varviz.trace.view.editparts.EditPartUtils;
 
 /**
  * TODO description
@@ -39,8 +42,11 @@ public class IfBranchFigure extends Shape {
 		super();
 		this.statement = statement;
 		this.setLayoutManager(new FreeformLayout());
-//		setName("if (" + EditPartUtils.getContext(((IFStatement<?>)statement).getTargetContext()) + ')');
-		setName("if");
+		if (VarvizView.useVarexJ) {
+			setName(EditPartUtils.getContext(((IFStatement<?>)statement).getTargetContext()));
+		} else {
+			setName("if");
+		}
 		NodeColor color = statement.getColor();
 		setBackgroundColor(VarvizConstants.getColor(color));
 		
