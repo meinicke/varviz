@@ -23,12 +23,10 @@ import de.fosd.typechef.featureexpr.FeatureExpr;
 public class RemovePathAction extends Action {
 
 	private GraphicalViewerImpl viewer;
-	private VarvizView varvizViewView;
 
-	public RemovePathAction(String text, GraphicalViewerImpl viewer, VarvizView varvizViewView) {
+	public RemovePathAction(String text, GraphicalViewerImpl viewer) {
 		super(text);
 		this.viewer = viewer;
-		this.varvizViewView = varvizViewView;
 	}
 
 	@Override
@@ -57,7 +55,6 @@ public class RemovePathAction extends Action {
 					final Method<?> parent = currentStatement.getParent();
 					if (parent != null) {
 						parent.filterExecution(e -> e != currentStatement);
-						// filterParents(parent);
 					}
 					if (currentStatement.to == null) {
 						continue;

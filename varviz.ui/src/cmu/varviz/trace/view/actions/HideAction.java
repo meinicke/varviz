@@ -7,7 +7,6 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import cmu.varviz.trace.Method;
 import cmu.varviz.trace.MethodElement;
 import cmu.varviz.trace.view.VarvizView;
-import cmu.varviz.trace.view.VarvizViewerUtils;
 import cmu.varviz.trace.view.editparts.MethodEditPart;
 import cmu.varviz.trace.view.editparts.StatementEditPart;
 
@@ -20,14 +19,12 @@ import cmu.varviz.trace.view.editparts.StatementEditPart;
 public class HideAction extends Action {
 
 	private GraphicalViewerImpl viewer;
-	private VarvizView varvizViewView;
 
-	public HideAction(String text, GraphicalViewerImpl viewer, VarvizView varvizViewView) {
+	public HideAction(String text, GraphicalViewerImpl viewer) {
 		super(text);
 		this.viewer = viewer;
-		this.varvizViewView = varvizViewView;
 	}
-	
+
 	@Override
 	public void run() {
 		IStructuredSelection selection = (IStructuredSelection) viewer.getSelection();
@@ -41,33 +38,14 @@ public class HideAction extends Action {
 			} else {
 				return;
 			}
-			
+
 			element.filterExecution(e -> false);
 			Method<?> parent = element.getParent();
 			if (parent != null) {
 				parent.filterExecution(e -> e != element);
 			}
-			filterParents(element.getParent());
-			
-			// TODO revise update
-			VarvizView.TRACE.createEdges();
-//			varvizViewView.trace.highlightNotTautology();
-			VarvizView.TRACE.highlightException();
-			varvizViewView.refreshVisuals();
-			
-			VarvizViewerUtils.refocusView(viewer);
-		}
-	}
-
-	private void filterParents(Method<?> element) {
-		if (element != null) {
-			if (element.getChildren().isEmpty()) {
-				Method<?> parent = element.getParent();
-				if (parent != null) {
-					parent.remove(element);
-					filterParents(parent);
-				}
-			}
+			VarvizView.TRACE.finalizeGraph();
+			VarvizView.refreshVisuals();
 		}
 	}
 }

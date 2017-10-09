@@ -93,8 +93,8 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 			// stop in main
 			prepareStopInMain(configuration);
 
-			// set the default source locator if required 
-			//setDefaultSourceLocator(launch, configuration); TODO
+			// set the default source locator if required
+			// setDefaultSourceLocator(launch, configuration); TODO
 
 			// Launch the configuration - 1 unit of work
 			monitor.subTask("Run application with VarexJ");
@@ -123,7 +123,7 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 					}
 				}
 			}
-			
+
 			if (VarvizView.useVarexJ) {
 				// TODO move this to VarexJ Generator Class
 				FeatureExprFactory.setDefault(FeatureExprFactory.bdd());
@@ -134,7 +134,7 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 				FeatureExprFactory.setDefault(FeatureExprFactory.bdd());
 				JPF.main(args);
 				Conditional.additionalConstraint = BDDFeatureExprFactory.True();
-	
+
 				if (VarvizView.reExecuteForExceptionFeatures) {
 					FeatureExpr exceptionContext = JPF.vatrace.getExceptionContext();
 					IgnoreContext.removeContext(exceptionContext);
@@ -157,19 +157,19 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 				// TODO move to SampleJ builder
 				// run SampleJ
 				project.build(IncrementalProjectBuilder.FULL_BUILD, monitor);
-				
+
 				final SampleJMonitor samplejMonitor = new SampleJMonitor() {
 					@Override
 					public void beginTask(String name, int totalWork) {
 						monitor.beginTask(name, totalWork);
 					}
-					
+
 					@Override
 					public void worked(int work) {
 						monitor.worked(work);
 					}
 				};
-				
+
 				Conditional.setFM(getFeatureModel(resource));
 				Collector collector = new Collector(getOptions(resource));
 				String projectPath = project.getLocation().toOSString();
@@ -179,7 +179,7 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 					project.build(IncrementalProjectBuilder.FULL_BUILD, monitor);
 				}
 			}
-			
+
 			VarvizView.refreshVisuals();
 
 			// check for cancellation
@@ -208,9 +208,9 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 	private String[] getOptions(IResource resource) {
 		IFile optionsFile = resource.getProject().getFile("options.txt");
 		List<String> options = new ArrayList<>();
-		
+
 		try (LineNumberReader reader = new LineNumberReader(new InputStreamReader(optionsFile.getContents(true), optionsFile.getCharset()))) {
-			String line; 
+			String line;
 			while ((line = reader.readLine()) != null) {
 				System.out.println(line);
 				options.add(line.trim());

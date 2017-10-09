@@ -51,7 +51,7 @@ import cmu.varviz.trace.view.editparts.TraceEditPartFactory;
  *
  */
 public class VarvizView extends ViewPart {
-	
+
 	public static final IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
 	public static final QualifiedName SHOW_LABELS_QN = new QualifiedName(VarvizView.class.getName() + "#showLables", "showLables");
 	public static final QualifiedName USE_VAREXJ_QN = new QualifiedName(VarvizView.class.getName() + "#useVarexJ", "useVarexJ");
@@ -59,7 +59,7 @@ public class VarvizView extends ViewPart {
 
 	public static TraceGenerator generator = new VarexJGenerator();
 
-	private static ScrollingGraphicalViewer viewer;
+	public static ScrollingGraphicalViewer viewer;
 	private ScalableFreeformRootEditPart rootEditPart;
 
 	private PrintAction printAction;
@@ -71,23 +71,23 @@ public class VarvizView extends ViewPart {
 	public static boolean reExecuteForExceptionFeatures = Boolean.parseBoolean(getProperty(REEXECUTE_QN));
 	public static boolean showLables = Boolean.parseBoolean(getProperty(SHOW_LABELS_QN));
 	public static boolean useVarexJ = Boolean.parseBoolean(getProperty(USE_VAREXJ_QN));;
-	
+
 	public static int projectID = 0;
 	public static int minDegree = 2;
-	
+
 	private static LayoutManager lm = new LayoutManager();
 
 	public static Trace TRACE = new Trace();
 	public static String PROJECT_NAME = "";
-	
+
 	// TODO remove
 	public static final String PROJECT_Sources = "NanoXML";
 	public static final String PROJECT_Sources_Folder = "Sources/Java";
 	public static final String PROJECT_Sources_Test_Folder = "Test/Java";
-	
+
 	private static final double[] ZOOM_LEVELS;
 	static {
-		ZOOM_LEVELS = new double[] { .1, .15, .2, .3, .4, .5, .6, .7, .8, .9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2};
+		ZOOM_LEVELS = new double[] { .1, .15, .2, .3, .4, .5, .6, .7, .8, .9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2 };
 	}
 
 	@Override
@@ -108,7 +108,7 @@ public class VarvizView extends ViewPart {
 		bars.setGlobalActionHandler(ActionFactory.PRINT.getId(), printAction);
 
 		IToolBarManager toolbarManager = bars.getToolBarManager();
-		
+
 		showLablesButton = new Action() {
 			public void run() {
 				showLables = !showLables;
@@ -122,7 +122,7 @@ public class VarvizView extends ViewPart {
 		showLablesButton.setToolTipText("Show edge context");
 		toolbarManager.add(showLablesButton);
 		showLablesButton.setImageDescriptor(VarvizActivator.LABEL_IMAGE_DESCRIPTOR);
-		
+
 		exceptionButton = new Action() {
 			public void run() {
 				reExecuteForExceptionFeatures = !reExecuteForExceptionFeatures;
@@ -138,11 +138,11 @@ public class VarvizView extends ViewPart {
 			public void run() {
 				FileDialog fileDialog = new FileDialog(parent.getShell(), SWT.SAVE);
 				fileDialog.setFileName(PROJECT_NAME);
-				final String[] extensions = new String[Format.values().length] ;
+				final String[] extensions = new String[Format.values().length];
 				for (int i = 0; i < extensions.length; i++) {
 					extensions[i] = "*." + Format.values()[i];
 				}
-				
+
 				fileDialog.setFilterExtensions(extensions);
 				String location = fileDialog.open();
 				if (location != null) {
@@ -194,14 +194,14 @@ public class VarvizView extends ViewPart {
 				exportXMLContributionItem.fill(fMenu, -1);
 				return fMenu;
 			}
-			
+
 			@Override
-			public void dispose() {}
+			public void dispose() {
+			}
 
 		});
 		toolbarManager.add(exportAsToolbarIcon);
-		
-		
+
 		((ScalableFreeformRootEditPart) viewer.getRootEditPart()).getZoomManager().setZoomLevels(ZOOM_LEVELS);
 		viewer.getControl().addMouseWheelListener(ev -> {
 			if ((ev.stateMask & SWT.CTRL) == 0) {
@@ -216,7 +216,7 @@ public class VarvizView extends ViewPart {
 
 		createContextMenu();
 	}
-	
+
 	private static String getProperty(QualifiedName qn) {
 		try {
 			return workspaceRoot.getPersistentProperty(qn);
@@ -225,8 +225,8 @@ public class VarvizView extends ViewPart {
 		}
 		return "";
 	}
-	
-	private static  void setProperty(QualifiedName qn, String value) {
+
+	private static void setProperty(QualifiedName qn, String value) {
 		try {
 			workspaceRoot.setPersistentProperty(qn, value);
 		} catch (CoreException e) {
@@ -250,8 +250,8 @@ public class VarvizView extends ViewPart {
 	}
 
 	private void fillContextMenu(IMenuManager menuMgr) {
-		menuMgr.add(new HideAction("Hide Element", viewer, this));
-		menuMgr.add(new RemovePathAction("Remove Path", viewer, this));
+		menuMgr.add(new HideAction("Hide Element", viewer));
+		menuMgr.add(new RemovePathAction("Remove Path", viewer));
 	}
 
 	@Override
@@ -269,6 +269,8 @@ public class VarvizView extends ViewPart {
 				viewer.setContents(TRACE);
 				viewer.getContents().refresh();
 				lm.layout(viewer.getContents());
+
+				VarvizViewerUtils.refocusView(viewer);
 			}
 		});
 	}
