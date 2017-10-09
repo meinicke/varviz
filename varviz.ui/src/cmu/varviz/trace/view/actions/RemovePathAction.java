@@ -30,7 +30,7 @@ public class RemovePathAction extends Action {
 		this.viewer = viewer;
 		this.varvizViewView = varvizViewView;
 	}
-	
+
 	@Override
 	public void run() {
 		IStructuredSelection selection = (IStructuredSelection) viewer.getSelection();
@@ -57,7 +57,7 @@ public class RemovePathAction extends Action {
 					final Method<?> parent = currentStatement.getParent();
 					if (parent != null) {
 						parent.filterExecution(e -> e != currentStatement);
-						filterParents(parent);
+						// filterParents(parent);
 					}
 					if (currentStatement.to == null) {
 						continue;
@@ -69,22 +69,9 @@ public class RemovePathAction extends Action {
 					}
 				}
 			}
-			
-			VarvizView.TRACE.createEdges();
-			VarvizView.TRACE.highlightException();
-			varvizViewView.refreshVisuals();
-		}
-	}
-	
-	private void filterParents(Method<?> element) {
-		if (element != null) {
-			if (element.getChildren().isEmpty()) {
-				Method<?> parent = element.getParent();
-				if (parent != null) {
-					parent.remove(element);
-					filterParents(parent);
-				}
-			}
+
+			VarvizView.TRACE.finalizeGraph();
+			VarvizView.refreshVisuals();
 		}
 	}
 }
