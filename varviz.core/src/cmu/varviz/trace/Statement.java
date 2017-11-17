@@ -12,13 +12,14 @@ public class Statement<T> extends MethodElement<T> {
 
 	private Conditional<?> oldValue;
 	private Conditional<?> value;
-	
+
 	public Conditional<Statement<T>> from = (Conditional<Statement<T>>) One.NULL;
 	public Conditional<Statement<T>> to = (Conditional<Statement<T>>) One.NULL;
-	
+
 	public Conditional<Statement<T>> getFrom() {
 		return from;
 	}
+
 	public Conditional<Statement<T>> getTo() {
 		return to;
 	}
@@ -94,7 +95,7 @@ public class Statement<T> extends MethodElement<T> {
 	public Conditional<?> getOldValue() {
 		return oldValue;
 	}
-	
+
 	public void setOldValue(Conditional<?> oldValue) {
 		this.oldValue = oldValue;
 	}
@@ -105,7 +106,7 @@ public class Statement<T> extends MethodElement<T> {
 	public Conditional<?> getValue() {
 		return value;
 	}
-	
+
 	public void setValue(Conditional<?> value) {
 		this.value = value;
 	}
@@ -118,5 +119,9 @@ public class Statement<T> extends MethodElement<T> {
 
 	public Shape getShape() {
 		return shape;
+	}
+
+	public boolean isModificationStatement() {
+		return false;
 	}
 }
