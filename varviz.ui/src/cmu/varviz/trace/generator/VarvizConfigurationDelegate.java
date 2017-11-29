@@ -124,6 +124,7 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 				}
 			}
 
+			project.build(IncrementalProjectBuilder.FULL_BUILD, monitor);
 			if (VarvizView.useVarexJ) {
 				// TODO move this to VarexJ Generator Class
 				FeatureExprFactory.setDefault(FeatureExprFactory.bdd());
@@ -156,8 +157,6 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 			} else {
 				// TODO move to SampleJ builder
 				// run SampleJ
-				project.build(IncrementalProjectBuilder.FULL_BUILD, monitor);
-
 				final SampleJMonitor samplejMonitor = new SampleJMonitor() {
 					@Override
 					public void beginTask(String name, int totalWork) {
@@ -174,9 +173,12 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 				Collector collector = new Collector(getOptions(resource));
 				String projectPath = project.getLocation().toOSString();
 				try {
-					VarvizView.TRACE = collector.createTrace(runConfig.getClassToLaunch(), projectPath, runConfig.getClassPath(), samplejMonitor);
+					Collector.FILTER = new Or(new And(VarvizView.basefilter, new InteractionFilter(VarvizView.minDegree)),
+							new ExceptionFilter());
+					VarvizView.TRACE = collector.createTrace(runConfig.getClassToLaunch(), projectPath, runConfig.getClassPath(),
+							samplejMonitor);
 				} finally {
-					project.build(IncrementalProjectBuilder.FULL_BUILD, monitor);
+//					project.build(IncrementalProjectBuilder.FULL_BUILD, monitor);
 				}
 			}
 

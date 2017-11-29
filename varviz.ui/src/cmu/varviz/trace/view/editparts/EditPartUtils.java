@@ -10,16 +10,17 @@ import de.fosd.typechef.featureexpr.FeatureExpr;
  *
  */
 public class EditPartUtils {
-	
-	private static final char LOGICAL_OR = (char)0x2228;
-	private static final char LOGICAL_AND = (char)0x2227;
 
-	private EditPartUtils() {}
+	private static final char LOGICAL_OR = (char) 0x2228;
+	private static final char LOGICAL_AND = (char) 0x2227;
+
+	private EditPartUtils() {
+	}
 
 	public static String getContext(FeatureExpr ctx) {
-		final String originalContext = Conditional.getCTXString(ctx); 
+		final String originalContext = Conditional.getCTXString(ctx);
 		final String[] split = originalContext.split("&");
-		
+
 		for (int i = 0; i < split.length; i++) {
 			String current = split[i];
 			if (current.contains("|")) {
@@ -35,7 +36,7 @@ public class EditPartUtils {
 		for (int i = 0; i < split.length; i++) {
 			contextWithParenthesis.append(split[i]).append(LOGICAL_AND);
 		}
-		
+
 		contextWithParenthesis.deleteCharAt(contextWithParenthesis.length() - 1);
 		return contextWithParenthesis.toString();
 	}

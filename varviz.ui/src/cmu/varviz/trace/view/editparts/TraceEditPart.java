@@ -58,8 +58,7 @@ public class TraceEditPart extends AbstractTraceEditPart {
 		fig.setOpaque(true);
 		return fig;
 	}
-	
-	
+
 	@Override
 	protected List<?> getModelChildren() {
 		Trace t = getRoleModel();
@@ -71,7 +70,7 @@ public class TraceEditPart extends AbstractTraceEditPart {
 		list.add(t.getEND());
 		return list;
 	}
-	
+
 	private final static int BORDER_MARGIN = 10;
 
 	/**
@@ -82,6 +81,7 @@ public class TraceEditPart extends AbstractTraceEditPart {
 		final IFigure methodFigure = getFigure();
 		Rectangle bounds = methodFigure.getBounds();
 		int h = 0;
+		@SuppressWarnings("unchecked")
 		final List<Object> children = getChildren();
 		for (Object object : children) {
 			if (object instanceof AbstractTraceEditPart) {
@@ -93,7 +93,7 @@ public class TraceEditPart extends AbstractTraceEditPart {
 				h += BORDER_MARGIN * 2;
 			}
 		}
-		
+
 		// center elements
 		int maxwidth = 0;
 		for (Object object : children) {
@@ -102,20 +102,20 @@ public class TraceEditPart extends AbstractTraceEditPart {
 				maxwidth = Math.max(childEditPart.getFigure().getBounds().width, maxwidth);
 			}
 		}
-		
+
 		for (Object object : children) {
 			if (object instanceof AbstractTraceEditPart) {
 				AbstractTraceEditPart childEditPart = (AbstractTraceEditPart) object;
 				Rectangle childBounds = childEditPart.getFigure().getBounds();
-				
+
 				int newX = maxwidth / 2 - childBounds.width / 2;
 				childEditPart.getFigure().setLocation(new Point(newX, childBounds.y));
 			}
 		}
-		
+
 		Object endNode = children.get(children.size() - 1);
 		AbstractTraceEditPart childEditPart = (AbstractTraceEditPart) endNode;
-		
+
 		AbstractGraphicalEditPart statement = null;
 		for (Object object : children) {
 			if (object instanceof AbstractTraceEditPart) {
@@ -124,10 +124,11 @@ public class TraceEditPart extends AbstractTraceEditPart {
 				}
 			}
 		}
-		
+
 		if (statement != null) {
-			childEditPart.getFigure().setLocation(new Point(statement.getFigure().getBounds().getCenter().x - childEditPart.getFigure().getBounds().width/2, childEditPart.getFigure().getBounds().y));
+			childEditPart.getFigure().setLocation(new Point(statement.getFigure().getBounds().getCenter().x - childEditPart
+					.getFigure().getBounds().width / 2, childEditPart.getFigure().getBounds().y));
 		}
 	}
-	
+
 }

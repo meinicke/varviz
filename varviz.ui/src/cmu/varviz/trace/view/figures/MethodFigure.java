@@ -12,6 +12,7 @@ import org.eclipse.swt.graphics.Font;
 
 import cmu.varviz.VarvizConstants;
 import cmu.varviz.trace.Method;
+import cmu.varviz.trace.view.editparts.EditPartUtils;
 
 /**
  * TODO description
@@ -20,48 +21,48 @@ import cmu.varviz.trace.Method;
  *
  */
 public class MethodFigure extends Figure {
-	
+
 	private static final String FONT_NAME = "Consolas";
 	private static final Font TEXT_FONT = new Font(null, FONT_NAME, 12, SWT.NORMAL);
 
 	private Method<?> method;
 	private final Label label = new Label();
 	private int height = 20;
-	
+
 	public MethodFigure(Method<?> method) {
 		super();
 		this.method = method;
 		this.setLayoutManager(new FreeformLayout());
 		this.setName(method.toString());
 		setBackgroundColor(VarvizConstants.WHITE);
-		setBorder(new LineBorder(VarvizConstants.BLACK , 1));
+		setBorder(new LineBorder(VarvizConstants.BLACK, 1));
 		this.add(label);
 		this.setOpaque(false);
 		Label tooltip = new Label();
 		tooltip.setText(method.toString());
 		setToolTip(tooltip);
 	}
-	
+
 	public int getMinWidth() {
 		return label.getPreferredSize().width + 10;
 	}
 
-	private void setName(String name){
+	private void setName(String name) {
 		label.setText(name);
 		label.setFont(TEXT_FONT);
 		Dimension labelSize = label.getPreferredSize();
-		label.setLocation(new Point(10,10));
+		label.setLocation(new Point(10, 10));
 		if (labelSize.width < 100)
 			labelSize.width = 100;
-		
+
 		if (labelSize.equals(label.getSize()))
 			return;
-		
+
 		label.setSize(labelSize);
 
 		Rectangle bounds = getBounds();
 		int w = 20;
-		
+
 		bounds.setSize(labelSize.expand(w, height));
 
 		Dimension oldSize = getSize();
@@ -71,5 +72,5 @@ public class MethodFigure extends Figure {
 		}
 		setBounds(bounds);
 	}
-	
+
 }

@@ -13,22 +13,22 @@ import de.fosd.typechef.featureexpr.FeatureExpr;
 
 public class Method<U> extends MethodElement<U> {
 
-	private final List<MethodElement<?>> execution = new ArrayList<>();
-	
+	protected final List<MethodElement<?>> execution = new ArrayList<>();
+
 	private String file = null;
-	
+
 	public void setFile(String file) {
 		this.file = file;
 	}
-	
+
 	public String getFile() {
 		return file;
 	}
-		
+
 	public Method(U mi, FeatureExpr ctx) {
 		this(mi, null, ctx);
 	}
-	
+
 	public Method(U mi, Method<?> parent, FeatureExpr ctx) {
 		this(mi, parent, -1, ctx);
 	}
@@ -36,16 +36,15 @@ public class Method<U> extends MethodElement<U> {
 	public Method(U mi, int line, FeatureExpr ctx) {
 		this(mi, null, line, ctx);
 	}
-	
+
 	public Method(U mi, Method<?> parent, int line, FeatureExpr ctx) {
 		super(mi, parent, line, ctx);
 	}
-	
-		
+
 	public void addMethodElement(MethodElement<?> e) {
 		execution.add(e);
 	}
-	
+
 	/**
 	 * Keeps elements that fulfill any of the filters and<br>
 	 * removes all elements that fulfill none.
@@ -53,11 +52,11 @@ public class Method<U> extends MethodElement<U> {
 	public boolean filterExecution(StatementFilter... filter) {
 		return filterExecution(new Or(filter));
 	}
-	
+
 	public boolean filterExecution(StatementFilter filter) {
 		return filterExecution(filter, false);
 	}
-	
+
 	public boolean filterExecution(StatementFilter filter, boolean deep) {
 		if (deep) {
 			execution.removeIf(e -> {
@@ -78,15 +77,15 @@ public class Method<U> extends MethodElement<U> {
 		}
 		return !execution.isEmpty();
 	}
-	
+
 	public void remove(int index) {
 		execution.remove(index);
 	}
-	
+
 	public boolean remove(MethodElement<?> element) {
 		return remove(element, false);
 	}
-	
+
 	public boolean remove(MethodElement<?> element, boolean deep) {
 		System.err.println("use remove(int) instead");
 		new Exception().printStackTrace();
@@ -113,7 +112,7 @@ public class Method<U> extends MethodElement<U> {
 		}
 		return execution.remove(element);
 	}
-	
+
 	public void printLabel(PrintWriter pw) {
 		pw.println("subgraph \"cluster_" + TraceUtils.toShortID(id) + "\" {");
 		pw.println("label = \"" + toString() + "\";");
@@ -124,14 +123,14 @@ public class Method<U> extends MethodElement<U> {
 	public void addStatements(Trace trace) {
 		execution.forEach(e -> e.addStatements(trace));
 	}
-	
+
 	@Override
 	public int size() {
 		return accumulate(i -> i + 1, 0);
 	}
-	
+
 	public <T> T accumulate(Function<T, T> accumulator, T value) {
-		return accumulate((__, v) -> accumulator.apply(v), value); 
+		return accumulate((__, v) -> accumulator.apply(v), value);
 	}
 
 	public <T> T accumulate(BiFunction<Statement<?>, T, T> accumulator, T value) {
@@ -139,14 +138,14 @@ public class Method<U> extends MethodElement<U> {
 			if (methodElement instanceof Statement) {
 				value = accumulator.apply((Statement<?>) methodElement, value);
 			} else {
-				value = ((Method<?>)methodElement).accumulate(accumulator, value);
+				value = ((Method<?>) methodElement).accumulate(accumulator, value);
 			}
 		}
 		return value;
 	}
-	
+
 	public List<MethodElement<?>> getChildren() {
 		return Collections.unmodifiableList(execution);
 	}
-	
+
 }

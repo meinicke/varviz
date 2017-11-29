@@ -28,14 +28,14 @@ import scala.collection.Iterator;
 public class IgnoreContext extends Action {
 
 	private GraphicalViewerImpl viewer;
-	private static VarvizView varvizViewView;
-		
+	private VarvizView varvizViewView;
+
 	public IgnoreContext(String text, GraphicalViewerImpl viewer, VarvizView varvizViewView) {
 		super(text);
 		this.viewer = viewer;
 		this.varvizViewView = varvizViewView;
 	}
-	
+
 	@Override
 	public void run() {
 		IStructuredSelection selection = (IStructuredSelection) viewer.getSelection();
@@ -46,14 +46,14 @@ public class IgnoreContext extends Action {
 				ctx = ((MethodEditPart) selectedItem).getMethodModel().getCTX();
 			} else if (selectedItem instanceof StatementEditPart) {
 				ctx = ((StatementEditPart) selectedItem).getStatementModel().getCTX();
-			} else if (selectedItem instanceof EdgeEditPart){
+			} else if (selectedItem instanceof EdgeEditPart) {
 				ctx = ((EdgeEditPart) selectedItem).getEdgeModel().getCtx();
 			} else {
 				return;
 			}
-			
+
 			removeContext(ctx);
-			
+
 			VarvizView.projectID--;
 			varvizViewView.refresh();
 		}
@@ -66,26 +66,25 @@ public class IgnoreContext extends Action {
 		while (iterator.hasNext()) {
 			includedFeatures.add(Conditional.getCTXString(iterator.next()));
 		}
-		
+
 		// select the features of the exception
 		// check whether the other features can be (de)selected
-		
+
 		final TraceGenerator generator = VarvizView.generator;
 		generator.clearIgnoredFeatures();
-		
+
 		FeatureExpr ctxcheck = Conditional.simplifyCondition(ctx);
 		for (Entry<String, SingleFeatureExpr> feature : generator.getFeatures().entrySet()) {
 			if (!includedFeatures.contains(Conditional.getCTXString(feature.getValue()))) {
-				if (!Conditional.isContradiction(ctxcheck.and(feature.getValue())) &&
-					!Conditional.isContradiction(ctxcheck.andNot(feature.getValue()))) {
+				if (!Conditional.isContradiction(ctxcheck.and(feature.getValue())) && !Conditional.isContradiction(ctxcheck.andNot(feature.getValue()))) {
 					generator.getIgnoredFeatures().put(feature.getValue(), false);
 					ctxcheck = ctxcheck.andNot(feature.getValue());
 				}
 			}
 		}
-		
+
 		createAdditioanlConstraint();
-	
+
 	}
 
 	/**
@@ -106,6 +105,5 @@ public class IgnoreContext extends Action {
 		}
 		Conditional.additionalConstraint = additionalConstraint;
 	}
-	
-	
+
 }

@@ -53,7 +53,8 @@ import cmu.varviz.trace.view.editparts.TraceEditPartFactory;
 public class VarvizView extends ViewPart {
 
 	public static final IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
-	public static final QualifiedName SHOW_LABELS_QN = new QualifiedName(VarvizView.class.getName() + "#showLables", "showLables");
+	public static final QualifiedName SHOW_LABELS_QN = new QualifiedName(VarvizView.class.getName() + "#showLables",
+			"showLables");
 	public static final QualifiedName USE_VAREXJ_QN = new QualifiedName(VarvizView.class.getName() + "#useVarexJ", "useVarexJ");
 	public static final QualifiedName REEXECUTE_QN = new QualifiedName(VarvizView.class.getName() + "#REEXECUTE", "REEXECUTE");
 
@@ -87,7 +88,8 @@ public class VarvizView extends ViewPart {
 
 	private static final double[] ZOOM_LEVELS;
 	static {
-		ZOOM_LEVELS = new double[] { .1, .15, .2, .3, .4, .5, .6, .7, .8, .9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2 };
+		ZOOM_LEVELS = new double[] { .1, .15, .2, .3, .4, .5, .6, .7, .8, .9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9,
+				2 };
 	}
 
 	@Override
@@ -153,7 +155,8 @@ public class VarvizView extends ViewPart {
 		};
 		exportGraphVizButton.setToolTipText("Export with GraphViz");
 		toolbarManager.add(exportGraphVizButton);
-		exportGraphVizButton.setImageDescriptor(AbstractUIPlugin.imageDescriptorFromPlugin(PlatformUI.PLUGIN_ID, "icons/full/etool16/export_wiz.png"));
+		exportGraphVizButton.setImageDescriptor(AbstractUIPlugin.imageDescriptorFromPlugin(PlatformUI.PLUGIN_ID,
+				"icons/full/etool16/export_wiz.png"));
 
 		exportAsToolbarIcon = new Action(useVarexJ ? "VarexJ" : "SampleJ", Action.AS_DROP_DOWN_MENU) {
 			@Override
@@ -279,7 +282,7 @@ public class VarvizView extends ViewPart {
 
 		@Override
 		public boolean filter(Statement<?> s) {
-			return !(hasParent(s.getParent(), "java.", "<init>") || hasParent(s.getParent(), "java.", "<clinit>"));
+			return !(hasParent(s.getParent(), "java", "<init>") || hasParent(s.getParent(), "java", "<clinit>"));
 		}
 
 		private boolean hasParent(Method<?> parent, String filter, String filter2) {
