@@ -78,6 +78,12 @@ public class StatementEditPart extends AbstractTraceEditPart implements NodeEdit
 			sourceAnchor = boxFigure.getSourceAnchor();
 			targetAnchor = boxFigure.getTargetAnchor();
 			return boxFigure;
+		case Mcircle:
+			boxFigure = new SquareFigure(model);
+			boxFigure.setAntialias(SWT.ON);
+			sourceAnchor = boxFigure.getSourceAnchor();
+			targetAnchor = boxFigure.getTargetAnchor();
+			return boxFigure;
 		default:
 			throw new RuntimeException("shape not supported: " + shape);
 		}

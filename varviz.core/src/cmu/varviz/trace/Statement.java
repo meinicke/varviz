@@ -3,7 +3,6 @@ package cmu.varviz.trace;
 import java.io.PrintWriter;
 
 import cmu.conditional.Conditional;
-import cmu.conditional.One;
 import cmu.varviz.trace.filters.StatementFilter;
 import de.fosd.typechef.featureexpr.FeatureExpr;
 
@@ -12,17 +11,6 @@ public class Statement<T> extends MethodElement<T> {
 
 	private Conditional<?> oldValue;
 	private Conditional<?> value;
-
-	public Conditional<Statement<T>> from = (Conditional<Statement<T>>) One.NULL;
-	public Conditional<Statement<T>> to = (Conditional<Statement<T>>) One.NULL;
-
-	public Conditional<Statement<T>> getFrom() {
-		return from;
-	}
-
-	public Conditional<Statement<T>> getTo() {
-		return to;
-	}
 
 	public Statement(T operation, Method<?> method, int line, FeatureExpr ctx) {
 		super(operation, method, line, ctx);

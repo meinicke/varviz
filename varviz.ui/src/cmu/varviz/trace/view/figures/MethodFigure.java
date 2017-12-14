@@ -12,7 +12,6 @@ import org.eclipse.swt.graphics.Font;
 
 import cmu.varviz.VarvizConstants;
 import cmu.varviz.trace.Method;
-import cmu.varviz.trace.view.editparts.EditPartUtils;
 
 /**
  * TODO description
@@ -24,6 +23,9 @@ public class MethodFigure extends Figure {
 
 	private static final String FONT_NAME = "Consolas";
 	private static final Font TEXT_FONT = new Font(null, FONT_NAME, 12, SWT.NORMAL);
+
+	private SourceAnchor sourceAnchor;
+	private TargetAnchor targetAnchor;
 
 	private Method<?> method;
 	private final Label label = new Label();
@@ -41,6 +43,9 @@ public class MethodFigure extends Figure {
 		Label tooltip = new Label();
 		tooltip.setText(method.toString());
 		setToolTip(tooltip);
+
+		sourceAnchor = new SourceAnchor(this, method);
+		targetAnchor = new TargetAnchor(this, method);
 	}
 
 	public int getMinWidth() {
@@ -73,4 +78,11 @@ public class MethodFigure extends Figure {
 		setBounds(bounds);
 	}
 
+	public SourceAnchor getSourceAnchor() {
+		return sourceAnchor;
+	}
+
+	public TargetAnchor getTargetAnchor() {
+		return targetAnchor;
+	}
 }

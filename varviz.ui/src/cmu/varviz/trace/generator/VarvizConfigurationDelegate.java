@@ -6,8 +6,11 @@ import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -29,6 +32,7 @@ import org.eclipse.ui.console.MessageConsoleStream;
 import cmu.conditional.Conditional;
 import cmu.samplej.Collector;
 import cmu.samplej.SampleJMonitor;
+import cmu.varviz.trace.Method;
 import cmu.varviz.trace.Trace;
 import cmu.varviz.trace.filters.And;
 import cmu.varviz.trace.filters.InteractionFilter;
@@ -108,7 +112,8 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 			final IResource resource = configuration.getWorkingCopy().getMappedResources()[0];
 
 			IProject project = resource.getProject();
-			MessageConsole myConsole = findAndCreateConsole("VarexJ: " + project.getName() + ":" + runConfig.getClassToLaunch());
+			MessageConsole myConsole = findAndCreateConsole("VarexJ: " + project.getName() + ":" + runConfig.getClassToLaunch()
+					+ ":" + Arrays.toString(execArgs.getProgramArgumentsArray()));
 			myConsole.clearConsole();
 			PrintStream myPrintStream = createOutputStream(originalOutputStream, myConsole.newMessageStream());
 			System.setOut(myPrintStream);
@@ -170,19 +175,42 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 				};
 
 				Conditional.setFM(getFeatureModel(resource));
-				Collector collector = new Collector(getOptions(resource));
+				Collector collector = new Collector(getOptions(resource, runConfig.getClassToLaunch()));
+				Collector.whys = new HashSet<>();
 				String projectPath = project.getLocation().toOSString();
 				try {
 					Collector.FILTER = new Or(new And(VarvizView.basefilter, new InteractionFilter(VarvizView.minDegree)),
 							new ExceptionFilter());
-					VarvizView.TRACE = collector.createTrace(runConfig.getClassToLaunch(), projectPath, runConfig.getClassPath(),
-							samplejMonitor);
+
+					if (VarvizView.reExecuteForExceptionFeatures) {
+						Trace.REMOVE_EMPTY_METHODS = false;
+						VarvizView.TRACE = collector.createTrace(runConfig.getClassToLaunch(), projectPath, runConfig
+								.getClassPath(), samplejMonitor);
+
+						project.build(IncrementalProjectBuilder.FULL_BUILD, monitor);
+
+						Set<String> methods = collectMethods(new HashSet<String>(), VarvizView.TRACE.getMain());
+						Collector.whys = methods;
+
+						Trace.REMOVE_EMPTY_METHODS = true;
+						VarvizView.TRACE = collector.createTrace(runConfig.getClassToLaunch(), projectPath, runConfig
+								.getClassPath(), samplejMonitor);
+					} else {
+						Collector.instrumentAll = true;
+						Trace.REMOVE_EMPTY_METHODS = true;
+						VarvizView.TRACE = collector.createTrace(runConfig.getClassToLaunch(), projectPath, runConfig
+								.getClassPath(), samplejMonitor);
+						Collector.instrumentAll = false;
+					}
 				} finally {
+					Trace.REMOVE_EMPTY_METHODS = true;
 //					project.build(IncrementalProjectBuilder.FULL_BUILD, monitor);
 				}
 			}
 
-			VarvizView.refreshVisuals();
+			if (VarvizView.TRACE.getMain().size() < 5_000) {
+				VarvizView.refreshVisuals();
+			}
 
 			// check for cancellation
 			if (monitor.isCanceled()) {
@@ -192,6 +220,16 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 			monitor.done();
 			System.setOut(originalOutputStream);
 		}
+	}
+
+	private Set<String> collectMethods(HashSet<String> set, Method method) {
+		set.add(method.toString());
+		for (Object child : method.getChildren()) {
+			if (child instanceof Method) {
+				collectMethods(set, (Method) child);
+			}
+		}
+		return set;
 	}
 
 	private String getFeatureModel(IResource resource) {
@@ -207,8 +245,13 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 		return "";
 	}
 
-	private String[] getOptions(IResource resource) {
+	private String[] getOptions(IResource resource, String classToLaunch) {
 		IFile optionsFile = resource.getProject().getFile("options.txt");
+		if (!optionsFile.exists()) {
+			String optionsFileName = classToLaunch.substring(classToLaunch.lastIndexOf('.') + 1);
+			optionsFile = resource.getProject().getFile(optionsFileName + ".txt");
+		}
+
 		List<String> options = new ArrayList<>();
 
 		try (LineNumberReader reader = new LineNumberReader(new InputStreamReader(optionsFile.getContents(true), optionsFile.getCharset()))) {

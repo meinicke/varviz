@@ -40,7 +40,7 @@ public class StatementFigure extends RoundedRectangle {
 	private SourceAnchor sourceAnchor;
 	private TargetAnchor targetAnchor;
 	private static final int BORDER_MARGIN = 10;
-	private static final int MIN_WIDTH = 20;
+	private static final int MIN_WIDTH = 10;
 
 	public StatementFigure(Statement<?> statement) {
 		super();

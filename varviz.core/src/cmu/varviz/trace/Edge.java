@@ -8,9 +8,9 @@ import de.fosd.typechef.featureexpr.FeatureExpr;
 public class Edge {
 
 	FeatureExpr ctx;
-	Statement<?> from, to;
+	MethodElement<?> from, to;
 
-	public Edge(FeatureExpr ctx, Statement<?> from, Statement<?> to) {
+	public Edge(FeatureExpr ctx, MethodElement<?> from, MethodElement<?> to) {
 		this.ctx = ctx;
 		this.from = from;
 		this.to = to;
@@ -58,11 +58,11 @@ public class Edge {
 		pw.println("color=\""+ color +"\"]");
 	}
 
-	public Statement<?> getFrom() {
+	public MethodElement<?> getFrom() {
 		return from;
 	}
 	
-	public Statement<?> getTo() {
+	public MethodElement<?> getTo() {
 		return to;
 	}
 	

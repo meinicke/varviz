@@ -42,6 +42,7 @@ import cmu.varviz.trace.generator.TraceGenerator;
 import cmu.varviz.trace.generator.varexj.VarexJGenerator;
 import cmu.varviz.trace.view.actions.HideAction;
 import cmu.varviz.trace.view.actions.RemovePathAction;
+import cmu.varviz.trace.view.actions.WhyAction;
 import cmu.varviz.trace.view.editparts.TraceEditPartFactory;
 
 /**
@@ -66,8 +67,9 @@ public class VarvizView extends ViewPart {
 	private PrintAction printAction;
 	private Action showLablesButton;
 	private Action exportGraphVizButton;
+	private Action modeAction;
 	private Action exceptionButton;
-	private Action exportAsToolbarIcon;
+	private Action generatorAction;
 
 	public static boolean reExecuteForExceptionFeatures = Boolean.parseBoolean(getProperty(REEXECUTE_QN));
 	public static boolean showLables = Boolean.parseBoolean(getProperty(SHOW_LABELS_QN));
@@ -158,7 +160,7 @@ public class VarvizView extends ViewPart {
 		exportGraphVizButton.setImageDescriptor(AbstractUIPlugin.imageDescriptorFromPlugin(PlatformUI.PLUGIN_ID,
 				"icons/full/etool16/export_wiz.png"));
 
-		exportAsToolbarIcon = new Action(useVarexJ ? "VarexJ" : "SampleJ", Action.AS_DROP_DOWN_MENU) {
+		generatorAction = new Action(useVarexJ ? "VarexJ" : "SampleJ", Action.AS_DROP_DOWN_MENU) {
 			@Override
 			public void run() {
 				useVarexJ = !useVarexJ;
@@ -166,7 +168,7 @@ public class VarvizView extends ViewPart {
 				setText(useVarexJ ? "VarexJ" : "SampleJ");
 			}
 		};
-		exportAsToolbarIcon.setMenuCreator(new IMenuCreator() {
+		generatorAction.setMenuCreator(new IMenuCreator() {
 			Menu fMenu = null;
 
 			@Override
@@ -180,7 +182,7 @@ public class VarvizView extends ViewPart {
 				ActionContributionItem exportImageContributionItem = new ActionContributionItem(new Action("VarexJ") {
 					@Override
 					public void run() {
-						exportAsToolbarIcon.setText(this.getText());
+						generatorAction.setText(this.getText());
 						useVarexJ = true;
 						setProperty(USE_VAREXJ_QN, Boolean.toString(useVarexJ));
 					}
@@ -189,7 +191,7 @@ public class VarvizView extends ViewPart {
 				ActionContributionItem exportXMLContributionItem = new ActionContributionItem(new Action("SampleJ") {
 					@Override
 					public void run() {
-						exportAsToolbarIcon.setText(this.getText());
+						generatorAction.setText(this.getText());
 						useVarexJ = false;
 						setProperty(USE_VAREXJ_QN, Boolean.toString(useVarexJ));
 					}
@@ -203,7 +205,7 @@ public class VarvizView extends ViewPart {
 			}
 
 		});
-		toolbarManager.add(exportAsToolbarIcon);
+		toolbarManager.add(generatorAction);
 
 		((ScalableFreeformRootEditPart) viewer.getRootEditPart()).getZoomManager().setZoomLevels(ZOOM_LEVELS);
 		viewer.getControl().addMouseWheelListener(ev -> {
@@ -255,6 +257,7 @@ public class VarvizView extends ViewPart {
 	private void fillContextMenu(IMenuManager menuMgr) {
 		menuMgr.add(new HideAction("Hide Element", viewer));
 		menuMgr.add(new RemovePathAction("Remove Path", viewer));
+		menuMgr.add(new WhyAction("Why", viewer));
 	}
 
 	@Override

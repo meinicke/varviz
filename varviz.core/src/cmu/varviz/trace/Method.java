@@ -75,7 +75,13 @@ public class Method<U> extends MethodElement<U> {
 				}
 			});
 		}
-		return !execution.isEmpty();
+//		if (parent == null || !Conditional.equivalentTo(parent.getCTX(), getCTX())) {
+//			return true;
+//		}
+		if (Trace.REMOVE_EMPTY_METHODS) {
+			return !execution.isEmpty();
+		}
+		return true;
 	}
 
 	public void remove(int index) {
@@ -121,7 +127,9 @@ public class Method<U> extends MethodElement<U> {
 	}
 
 	public void addStatements(Trace trace) {
+		trace.addStatement(this);
 		execution.forEach(e -> e.addStatements(trace));
+//		trace.addStatement(new EndStatement(null, this, 0, getCTX()));
 	}
 
 	@Override

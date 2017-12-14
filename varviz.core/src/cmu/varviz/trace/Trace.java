@@ -13,9 +13,11 @@ import de.fosd.typechef.featureexpr.bdd.BDDFeatureExprFactory;
 
 public class Trace {
 	
+	public static boolean REMOVE_EMPTY_METHODS = true;
+	
 	private Statement<?> START, END;
 	
-	private Conditional<Statement<?>> lastStatement;
+	private Conditional<MethodElement<?>> lastStatement;
 
 	private List<Edge> edges = new ArrayList<>();
 	
@@ -185,7 +187,11 @@ public class Trace {
 			if (deep && element instanceof Method) {
 				removeUnnecessaryIfs((Method<?>) element, deep);
 				if (((Method<?>) element).getChildren().isEmpty()) {
-					method.remove(i);
+					if (REMOVE_EMPTY_METHODS) {
+						method.remove(i);
+					} else if (Conditional.equivalentTo(element.getCTX(), method.getCTX())) {
+						method.remove(i);
+					}
 				}
 			}
 		}
@@ -210,11 +216,11 @@ public class Trace {
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public void addStatement(final Statement<?> statement) {
+	public void addStatement(final MethodElement<?> statement) {
 		if (lastStatement == null) {
 			lastStatement = new One<>(statement);
 		} else {
-			lastStatement.mapf(statement.getCTX(), (FeatureExpr ctx, Statement<?> from) -> {
+			lastStatement.mapf(statement.getCTX(), (FeatureExpr ctx, MethodElement<?> from) -> {
 				if (!Conditional.isContradiction(ctx)) {
 					edges.add(new Edge(ctx, from, statement));
 					from.to = ChoiceFactory.create(ctx, new One(statement), from.to).simplify();
