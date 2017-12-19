@@ -7,6 +7,7 @@ import java.io.LineNumberReader;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +33,7 @@ import org.eclipse.ui.console.MessageConsoleStream;
 import cmu.conditional.Conditional;
 import cmu.samplej.Collector;
 import cmu.samplej.SampleJMonitor;
+import cmu.samplej.instrumentation.Instrumenter;
 import cmu.varviz.trace.Method;
 import cmu.varviz.trace.Trace;
 import cmu.varviz.trace.filters.And;
@@ -176,7 +178,9 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 
 				Conditional.setFM(getFeatureModel(resource));
 				Collector collector = new Collector(getOptions(resource, runConfig.getClassToLaunch()));
+				Instrumenter.cfgMap = new HashMap<>();
 				Collector.whys = new HashSet<>();
+				Collector.fields = new HashMap<>();
 				String projectPath = project.getLocation().toOSString();
 				try {
 					Collector.FILTER = new Or(new And(VarvizView.basefilter, new InteractionFilter(VarvizView.minDegree)),
@@ -192,7 +196,7 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 						Set<String> methods = collectMethods(new HashSet<String>(), VarvizView.TRACE.getMain());
 						Collector.whys = methods;
 
-						Trace.REMOVE_EMPTY_METHODS = true;
+						Trace.REMOVE_EMPTY_METHODS = false;
 						VarvizView.TRACE = collector.createTrace(runConfig.getClassToLaunch(), projectPath, runConfig
 								.getClassPath(), samplejMonitor);
 					} else {
