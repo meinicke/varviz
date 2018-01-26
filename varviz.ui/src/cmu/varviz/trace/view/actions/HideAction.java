@@ -33,16 +33,16 @@ public class HideAction extends Action {
 			final MethodElement<?> element;
 			if (selectedItem instanceof MethodEditPart) {
 				element = ((MethodEditPart) selectedItem).getMethodModel();
+				((Method<?>)element).filterExecution(e -> false, true);
 			} else if (selectedItem instanceof StatementEditPart) {
 				element = ((StatementEditPart) selectedItem).getStatementModel();
 			} else {
 				return;
 			}
-
-			element.filterExecution(e -> false);
+			
 			Method<?> parent = element.getParent();
 			if (parent != null) {
-				parent.filterExecution(e -> e != element);
+				parent.filterExecution(e -> e != element, true);
 			}
 			VarvizView.TRACE.finalizeGraph();
 			VarvizView.refreshVisuals();
