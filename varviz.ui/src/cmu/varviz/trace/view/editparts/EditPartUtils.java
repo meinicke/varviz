@@ -18,26 +18,12 @@ public class EditPartUtils {
 	}
 
 	public static String getContext(FeatureExpr ctx) {
-		final String originalContext = Conditional.getCTXString(ctx);
-		final String[] split = originalContext.split("&");
-
-		for (int i = 0; i < split.length; i++) {
-			String current = split[i];
-			if (current.contains("|")) {
-				current = current.replaceAll("\\|", Character.toString(LOGICAL_OR));
-				if (split.length == 1) {
-					split[i] = current;
-				} else {
-					split[i] = '(' + current + ')';
-				}
-			}
+		String contextString = Conditional.getCTXString(ctx);
+		contextString = contextString.replaceAll("\\|", Character.toString(LOGICAL_OR));
+		contextString = contextString.replaceAll("\\&", Character.toString(LOGICAL_AND));
+		if (contextString.charAt(0) == '(' && contextString.charAt(contextString.length() - 1) == ')') {
+			contextString = contextString.substring(1, contextString.length() - 1);
 		}
-		final StringBuilder contextWithParenthesis = new StringBuilder();
-		for (int i = 0; i < split.length; i++) {
-			contextWithParenthesis.append(split[i]).append(LOGICAL_AND);
-		}
-
-		contextWithParenthesis.deleteCharAt(contextWithParenthesis.length() - 1);
-		return contextWithParenthesis.toString();
+		return contextString;
 	}
 }
