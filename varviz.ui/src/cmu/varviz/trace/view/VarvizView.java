@@ -1,5 +1,8 @@
 package cmu.varviz.trace.view;
 
+import java.util.IdentityHashMap;
+import java.util.Map;
+
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -278,21 +281,30 @@ public class VarvizView extends ViewPart {
 		});
 	}
 
+	public static Map<Method<?>, Boolean> checked = new IdentityHashMap<>();
 	public static StatementFilter basefilter = new Or(new StatementFilter() {
 
+		
 		@Override
 		public boolean filter(Statement<?> s) {
-			return !(hasParent(s.getParent(), "java", "<init>") || hasParent(s.getParent(), "java", "<clinit>"));
+			return !(hasParent(s.getParent(), "java."));
 		}
 
-		private boolean hasParent(Method<?> parent, String filter, String filter2) {
+		private boolean hasParent(Method<?> parent, String filter) {
+			if (checked.containsKey(parent)) {
+				return checked.get(parent);
+			}
 			if (parent.toString().contains(filter)) {
+				checked.put(parent, true);
 				return true;
 			}
 			parent = parent.getParent();
 			if (parent != null) {
-				return hasParent(parent, filter, filter2);
+				boolean result = hasParent(parent, filter);
+				checked.put(parent, result);
+				return result;
 			}
+			checked.put(parent, false);
 			return false;
 		}
 	});

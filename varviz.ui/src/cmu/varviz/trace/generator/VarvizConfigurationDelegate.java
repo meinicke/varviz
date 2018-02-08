@@ -182,13 +182,16 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 				}
 			}
 
-			VarvizView.refreshVisuals();
+			if (VarvizView.TRACE.getMain().size() < 10_000) {
+				VarvizView.refreshVisuals();
+			}
 
 			// check for cancellation
 			if (monitor.isCanceled()) {
 				return;
 			}
 		} finally {
+			VarvizView.checked.clear();
 			monitor.done();
 			System.setOut(originalOutputStream);
 		}

@@ -18,9 +18,15 @@ public class EditPartUtils {
 	}
 
 	public static String getContext(FeatureExpr ctx) {
+		if (ctx.isContradiction()) {
+			return "False";
+		}
 		String contextString = Conditional.getCTXString(ctx);
 		contextString = contextString.replaceAll("\\|", Character.toString(LOGICAL_OR));
 		contextString = contextString.replaceAll("\\&", Character.toString(LOGICAL_AND));
+		if (contextString.isEmpty()) {
+			return "??";
+		}
 		if (contextString.charAt(0) == '(' && contextString.charAt(contextString.length() - 1) == ')') {
 			contextString = contextString.substring(1, contextString.length() - 1);
 		}
