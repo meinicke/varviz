@@ -8,6 +8,7 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collector;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -27,7 +28,6 @@ import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
 
 import cmu.conditional.Conditional;
-import cmu.samplej.Collector;
 import cmu.samplej.SampleJMonitor;
 import cmu.varviz.trace.Trace;
 import cmu.varviz.trace.filters.And;

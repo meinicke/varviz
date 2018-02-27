@@ -21,19 +21,26 @@
 package cmu.varviz.trace.view.editparts;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Set;
 
+import org.eclipse.draw2d.ConnectionAnchor;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.Rectangle;
+import org.eclipse.gef.ConnectionEditPart;
+import org.eclipse.gef.NodeEditPart;
 import org.eclipse.gef.Request;
 import org.eclipse.gef.editparts.AbstractGraphicalEditPart;
 
 import cmu.conditional.Conditional;
+import cmu.varviz.trace.Edge;
 import cmu.varviz.trace.Method;
 import cmu.varviz.trace.MethodElement;
 import cmu.varviz.trace.Statement;
+import cmu.varviz.trace.view.VarvizView;
 import cmu.varviz.trace.view.figures.MethodFigure;
 import de.fosd.typechef.featureexpr.FeatureExpr;
 
@@ -42,9 +49,12 @@ import de.fosd.typechef.featureexpr.FeatureExpr;
  * 
  * @author Jens Meinicke
  */
-public class MethodEditPart extends AbstractTraceEditPart {
+public class MethodEditPart extends AbstractTraceEditPart implements NodeEditPart {
 
 	private final static int BORDER_MARGIN = 10;
+
+	private ConnectionAnchor sourceAnchor = null;
+	private ConnectionAnchor targetAnchor = null;
 
 	public MethodEditPart(Method<?> method) {
 		super();
@@ -53,7 +63,11 @@ public class MethodEditPart extends AbstractTraceEditPart {
 
 	@Override
 	protected IFigure createFigure() {
-		return new MethodFigure((Method<?>) getModel());
+		MethodFigure methodFigure = new MethodFigure((Method<?>) getModel());
+		sourceAnchor = methodFigure.getSourceAnchor();
+		targetAnchor = methodFigure.getTargetAnchor();
+
+		return methodFigure;
 	}
 
 	@Override
@@ -65,12 +79,38 @@ public class MethodEditPart extends AbstractTraceEditPart {
 		return children;
 	}
 
+	List<Edge> connections;
+
+	@Override
+	protected List<Edge> getModelTargetConnections() {
+		if (connections == null) {
+			connections = new ArrayList<>();
+			for (Edge edge : VarvizView.TRACE.getEdges()) {
+				if (edge.getTo() == getModel()) {
+					connections.add(edge);
+				}
+			}
+		}
+		return connections;
+	}
+
+	enum Direction {
+		LEFT, RIGHT, CENTER
+	}
+
 	@Override
 	public void layout() {
+		// TODO revise this method
 		final IFigure methodFigure = getFigure();
 		Rectangle bounds = methodFigure.getBounds();
 		final Point referencePoint = bounds.getTopLeft();
 		int h = 40;
+
+		Direction direction = Direction.CENTER;
+
+		Set<AbstractTraceEditPart> previousFigures = new HashSet<>();
+		int maxWidth = 0;
+		AbstractTraceEditPart previousMax = null;
 
 		MethodElement<?> previous = null;
 		AbstractTraceEditPart previousFigure = null;
@@ -83,51 +123,70 @@ public class MethodEditPart extends AbstractTraceEditPart {
 				if (previous != null) {
 					FeatureExpr prevctx = previous.getCTX();
 					if (!prevctx.equivalentTo(ctx)) {
-						if (Conditional.isTautology(ctx)) {
-							// a -> True
-
-							// center
-							childEditPart.layout();
-							childEditPart.getFigure().translateToRelative(referencePoint);
-
-							childEditPart.getFigure().setLocation(new Point(-childEditPart.getFigure().getBounds().width / 2, h));
-							h = childEditPart.getFigure().getBounds().bottom() + BORDER_MARGIN * 4;
-							previous = model;
-							previousFigure = childEditPart;
-							continue;
-						} else if (Conditional.isSatisfiable(prevctx.and(ctx))) {
-							// True -> a
-
-							// move to left
-							childEditPart.layout();
-							childEditPart.getFigure().translateToRelative(referencePoint);
-
-							childEditPart.getFigure().setLocation(new Point(previousFigure.getFigure().getBounds().getBottom().x -(childEditPart.getFigure().getBounds().width + BORDER_MARGIN), h));
-							h = childEditPart.getFigure().getBounds().bottom() + BORDER_MARGIN * 4;
-							previous = model;
-							previousFigure = childEditPart;
-							continue;
-						} else {
-							// a -> -a
-							childEditPart.layout();
-							childEditPart.getFigure().translateToRelative(referencePoint);
-							h = previousFigure.getFigure().getBounds().y;
-							childEditPart.getFigure().setLocation(new Point(previousFigure.getFigure().getBounds().right() + BORDER_MARGIN, h));
-							h = childEditPart.getFigure().getBounds().bottom() + BORDER_MARGIN * 4;
-							previous = model;
-							previousFigure = childEditPart;
-							continue;
-						}
-					} else {
+						previousFigures.clear();
 						childEditPart.layout();
 						childEditPart.getFigure().translateToRelative(referencePoint);
+						maxWidth = childEditPart.getFigure().getBounds().width;
+						previousMax = childEditPart;
 
-						if (previousFigure.getFigure().getBounds().width < childEditPart.getFigure().getBounds().width) {
-							childEditPart.getFigure().setLocation(new Point(previousFigure.getFigure().getBounds().right() - childEditPart.getFigure().getBounds().width, h));
-							previousFigure.getFigure().setLocation(new Point(childEditPart.getFigure().getBounds().getTop().x - previousFigure.getFigure().getBounds().width/2, previousFigure.getFigure().getBounds().y));
-						} else {						
-							childEditPart.getFigure().setLocation(new Point(previousFigure.getFigure().getBounds().getTop().x - childEditPart.getFigure().getBounds().width/2, h));
+						if (Conditional.equivalentTo(((Method<?>) getModel()).getCTX(), ctx)) {
+							// a -> True
+							direction = Direction.CENTER;
+							childEditPart.getFigure().setLocation(new Point(-childEditPart.getFigure().getBounds().width / 2, h));
+						} else if (Conditional.isSatisfiable(prevctx.and(ctx)) || direction == Direction.RIGHT/* TODO */) {
+							// True -> a
+							direction = Direction.LEFT;
+							childEditPart.getFigure().setLocation(new Point(previousFigure.getFigure().getBounds().getBottom().x -(childEditPart.getFigure().getBounds().width + BORDER_MARGIN), h));
+						} else {
+							// a -> -a
+							direction = Direction.RIGHT;
+							h = previousFigure.getFigure().getBounds().y;// TODO this should be the highet of the other branch 
+							childEditPart.getFigure().setLocation(new Point(previousFigure.getFigure().getBounds().right() + BORDER_MARGIN, h));
 						}
+						h = childEditPart.getFigure().getBounds().bottom() + BORDER_MARGIN * 4;
+						previous = model;
+						previousFigure = childEditPart;
+						continue;
+					} else {
+						// prevctx.equivalentTo(ctx)
+						previousFigures.add(previousFigure);
+						if (previousMax == null) {
+							previousMax = childEditPart;
+						}
+
+						IFigure currentFigure = childEditPart.getFigure();
+						childEditPart.layout();
+						currentFigure.translateToRelative(referencePoint);
+						boolean move = false;
+						if (maxWidth < currentFigure.getBounds().width) {
+							move = true;
+							maxWidth = currentFigure.getBounds().width;
+						}
+
+						if (move) {
+							// move current figure to edge of previous (max)
+							Point point;
+							if (direction == Direction.LEFT) {
+								point = new Point(previousMax.getFigure().getBounds().right() - currentFigure.getBounds().width,
+										h);
+							} else {
+								point = new Point(previousMax.getFigure().getBounds().x, h);
+							}
+							currentFigure.setLocation(point);
+
+							// center all previous figures under current element
+							for (AbstractTraceEditPart editPart : previousFigures) {
+								editPart.getFigure().setLocation(new Point(currentFigure.getBounds().getTop().x
+										- editPart.getFigure().getBounds().width / 2, editPart.getFigure().getBounds().y));
+							}
+							previousMax = childEditPart;
+						} else {
+							// center under previous element
+							Point point = new Point(previousFigure.getFigure().getBounds().getTop().x - currentFigure
+									.getBounds().width / 2, h);
+							childEditPart.getFigure().setLocation(point);
+						}
+
 						h = childEditPart.getFigure().getBounds().bottom() + BORDER_MARGIN * 4;
 						previous = model;
 						previousFigure = childEditPart;
@@ -218,6 +277,39 @@ public class MethodEditPart extends AbstractTraceEditPart {
 			}
 		}
 		return null;
+	}
+
+	@Override
+	public ConnectionAnchor getSourceConnectionAnchor(ConnectionEditPart arg0) {
+		return sourceAnchor;
+	}
+
+	@Override
+	public ConnectionAnchor getSourceConnectionAnchor(Request arg0) {
+		return sourceAnchor;
+	}
+
+	@Override
+	public ConnectionAnchor getTargetConnectionAnchor(ConnectionEditPart arg0) {
+		return targetAnchor;
+	}
+
+	@Override
+	public ConnectionAnchor getTargetConnectionAnchor(Request arg0) {
+		return targetAnchor;
+	}
+
+	@Override
+	public void activate() {
+		getFigure().setVisible(true);
+		super.activate();
+	}
+
+	@Override
+	public void deactivate() {
+		super.deactivate();
+		getFigure().setVisible(false);
+		getModelTargetConnections().forEach(edge -> ((EdgeEditPart) getViewer().getEditPartRegistry().get(edge)).deactivate());
 	}
 
 }

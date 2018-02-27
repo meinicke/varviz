@@ -12,7 +12,6 @@ import org.eclipse.swt.graphics.Font;
 
 import cmu.varviz.VarvizConstants;
 import cmu.varviz.trace.Method;
-import cmu.varviz.trace.view.editparts.EditPartUtils;
 
 /**
  * TODO description
@@ -28,6 +27,9 @@ public class MethodFigure extends Figure {
 	private Method<?> method;
 	private final Label label = new Label();
 	private int height = 20;
+	
+	private SourceAnchor sourceAnchor;
+	private TargetAnchor targetAnchor;
 
 	public MethodFigure(Method<?> method) {
 		super();
@@ -41,6 +43,9 @@ public class MethodFigure extends Figure {
 		Label tooltip = new Label();
 		tooltip.setText(method.toString());
 		setToolTip(tooltip);
+		
+		sourceAnchor = new SourceAnchor(this, method);
+		targetAnchor = new TargetAnchor(this, method);
 	}
 
 	public int getMinWidth() {
@@ -72,5 +77,15 @@ public class MethodFigure extends Figure {
 		}
 		setBounds(bounds);
 	}
+	
+
+	public SourceAnchor getSourceAnchor() {
+		return sourceAnchor;
+	}
+	
+	public TargetAnchor getTargetAnchor() {
+		return targetAnchor;
+	}
+
 
 }

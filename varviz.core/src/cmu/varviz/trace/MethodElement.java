@@ -2,6 +2,8 @@ package cmu.varviz.trace;
 
 import java.io.PrintWriter;
 
+import cmu.conditional.Conditional;
+import cmu.conditional.One;
 import cmu.varviz.trace.filters.StatementFilter;
 import de.fosd.typechef.featureexpr.FeatureExpr;
 
@@ -11,6 +13,17 @@ public abstract class MethodElement<T> {
 	protected final int id = ID++;
 	protected boolean filtered = false;
 	
+	public Conditional<MethodElement<T>> from = (Conditional<MethodElement<T>>) One.NULL;
+	public Conditional<MethodElement<T>> to = (Conditional<MethodElement<T>>) One.NULL;
+
+	public Conditional<MethodElement<T>> getFrom() {
+		return from;
+	}
+
+	public Conditional<MethodElement<T>> getTo() {
+		return to;
+	}
+
 	protected FeatureExpr ctx;
 
 	protected final T content;

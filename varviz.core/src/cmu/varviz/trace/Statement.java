@@ -13,14 +13,14 @@ public class Statement<T> extends MethodElement<T> {
 	private Conditional<?> oldValue;
 	private Conditional<?> value;
 
-	public Conditional<Statement<T>> from = (Conditional<Statement<T>>) One.NULL;
-	public Conditional<Statement<T>> to = (Conditional<Statement<T>>) One.NULL;
+	public Conditional<MethodElement<T>> from = (Conditional<MethodElement<T>>) One.NULL;
+	public Conditional<MethodElement<T>> to = (Conditional<MethodElement<T>>) One.NULL;
 
-	public Conditional<Statement<T>> getFrom() {
+	public Conditional<MethodElement<T>> getFrom() {
 		return from;
 	}
 
-	public Conditional<Statement<T>> getTo() {
+	public Conditional<MethodElement<T>> getTo() {
 		return to;
 	}
 
