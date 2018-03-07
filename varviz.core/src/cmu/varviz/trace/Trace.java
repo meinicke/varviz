@@ -15,17 +15,17 @@ public class Trace {
 	
 	private Statement<?> START, END;
 	
-	private Conditional<Statement<?>> lastStatement;
+	private Conditional<MethodElement<?>> lastStatement;
 
 	private List<Edge> edges = new ArrayList<>();
 	
 	Method<?> main;
 
 	public Trace() {
-		START = new NoStatement<String>("Start");
+		START = new NoStatement<>("Start");
 		START.setShape(Shape.Msquare);
 		
-		END = new NoStatement<String>("End");
+		END = new NoStatement<>("End");
 		END.setShape(Shape.Msquare);
 	}
 
@@ -210,11 +210,11 @@ public class Trace {
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public void addStatement(final Statement<?> statement) {
+	public void addStatement(final MethodElement<?> statement) {
 		if (lastStatement == null) {
 			lastStatement = new One<>(statement);
 		} else {
-			lastStatement.mapf(statement.getCTX(), (FeatureExpr ctx, Statement<?> from) -> {
+			lastStatement.mapf(statement.getCTX(), (FeatureExpr ctx, MethodElement<?> from) -> {
 				if (!Conditional.isContradiction(ctx)) {
 					edges.add(new Edge(ctx, from, statement));
 					from.to = ChoiceFactory.create(ctx, new One(statement), from.to).simplify();

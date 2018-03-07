@@ -76,13 +76,13 @@ public class EdgeEditPart extends AbstractConnectionEditPart {
 	@Override
 	protected void refreshVisuals() {
 		Edge edge = (Edge) getModel();
-		StatementEditPart source = (StatementEditPart) getViewer().getEditPartRegistry().get(edge.getFrom());
+		AbstractTraceEditPart source = (AbstractTraceEditPart) getViewer().getEditPartRegistry().get(edge.getFrom());
 		if (source == null) {
 			deactivate();
 			return;
 		}
 		setSource(source);
-		StatementEditPart target = (StatementEditPart) getViewer().getEditPartRegistry().get(edge.getTo());
+		AbstractTraceEditPart target = (AbstractTraceEditPart) getViewer().getEditPartRegistry().get(edge.getTo());
 		setTarget(target);
 		final Label contextLabel = new Label(EditPartUtils.getContext(edge.getCtx()));
 		contextLabel.setFont(TEXT_FONT);

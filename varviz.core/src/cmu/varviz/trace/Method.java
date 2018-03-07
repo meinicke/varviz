@@ -121,6 +121,7 @@ public class Method<U> extends MethodElement<U> {
 	}
 
 	public void addStatements(Trace trace) {
+		trace.addStatement(this);
 		execution.forEach(e -> e.addStatements(trace));
 	}
 
