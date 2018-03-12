@@ -92,6 +92,7 @@ public class IfBranchFigure extends Shape {
 		g.drawPolygon(diamond);
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public void validate() {
 		Rectangle r = getBounds().getCopy();

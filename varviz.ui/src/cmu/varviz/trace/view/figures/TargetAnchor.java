@@ -8,11 +8,9 @@ import cmu.varviz.trace.MethodElement;
 
 public class TargetAnchor  extends AbstractConnectionAnchor {
 
-	private MethodElement<?> statement;
 
 	public TargetAnchor(IFigure owner, MethodElement<?> statement) {
 		super(owner);
-		this.statement = statement;
 	}
 
 	@Override

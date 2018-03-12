@@ -25,7 +25,6 @@ public class SquareFigure extends RectangleFigure {
 	private static final String FONT_NAME = "Consolas";
 	private static final Font TEXT_FONT = new Font(null, FONT_NAME, 12, SWT.NORMAL);
 	
-	private Statement<?> statement;
 	private final Label label = new Label();
 	private SourceAnchor sourceAnchor;
 	private TargetAnchor targetAnchor;
@@ -35,7 +34,6 @@ public class SquareFigure extends RectangleFigure {
 	
 	public SquareFigure(Statement<?> statement) {
 		super();
-		this.statement = statement;
 		this.setLayoutManager(new FreeformLayout());
 		setName(statement.toString());
 		NodeColor color = statement.getColor();

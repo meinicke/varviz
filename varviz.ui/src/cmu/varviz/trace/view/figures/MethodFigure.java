@@ -24,7 +24,6 @@ public class MethodFigure extends Figure {
 	private static final String FONT_NAME = "Consolas";
 	private static final Font TEXT_FONT = new Font(null, FONT_NAME, 12, SWT.NORMAL);
 
-	private Method<?> method;
 	private final Label label = new Label();
 	private int height = 20;
 	
@@ -33,7 +32,6 @@ public class MethodFigure extends Figure {
 
 	public MethodFigure(Method<?> method) {
 		super();
-		this.method = method;
 		this.setLayoutManager(new FreeformLayout());
 		this.setName(method.toString());
 		setBackgroundColor(VarvizConstants.WHITE);
