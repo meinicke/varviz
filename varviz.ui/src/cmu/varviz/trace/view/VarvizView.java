@@ -114,6 +114,8 @@ public class VarvizView extends ViewPart {
 
 		IToolBarManager toolbarManager = bars.getToolBarManager();
 
+		toolbarManager.add(new SearchBar());
+
 		showLablesButton = new Action() {
 			public void run() {
 				showLables = !showLables;
@@ -284,7 +286,6 @@ public class VarvizView extends ViewPart {
 	public static Map<Method<?>, Boolean> checked = new IdentityHashMap<>();
 	public static StatementFilter basefilter = new Or(new StatementFilter() {
 
-		
 		@Override
 		public boolean filter(Statement<?> s) {
 			return !(hasParent(s.getParent(), "java."));
