@@ -29,10 +29,14 @@ import org.eclipse.gef.ConnectionEditPart;
 import org.eclipse.gef.NodeEditPart;
 import org.eclipse.gef.Request;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Color;
 
+import cmu.varviz.VarvizConstants;
 import cmu.varviz.trace.Edge;
 import cmu.varviz.trace.Shape;
 import cmu.varviz.trace.Statement;
+import cmu.varviz.trace.uitrace.GraphicalStatement;
+import cmu.varviz.trace.uitrace.VarvizEvent;
 import cmu.varviz.trace.view.VarvizView;
 import cmu.varviz.trace.view.figures.IfBranchFigure;
 import cmu.varviz.trace.view.figures.SquareFigure;
@@ -48,9 +52,9 @@ public class StatementEditPart extends AbstractTraceEditPart implements NodeEdit
 	private ConnectionAnchor sourceAnchor = null;
 	private ConnectionAnchor targetAnchor = null;
 	
-	public StatementEditPart(Statement<?> method) {
+	public StatementEditPart(Statement<?> statement) {
 		super();
-		setModel(method);
+		setModel(statement);
 	}
 
 	@Override
@@ -90,7 +94,7 @@ public class StatementEditPart extends AbstractTraceEditPart implements NodeEdit
 	protected List<Edge> getModelTargetConnections() {
 		if (connections == null) {
 			connections = new ArrayList<>();
-			for (Edge edge : VarvizView.TRACE.getEdges()) {
+			for (Edge edge : VarvizView.getTRACE().getEdges()) {
 				if (edge.getTo() == getModel()) {
 					connections.add(edge);
 				}
@@ -110,6 +114,13 @@ public class StatementEditPart extends AbstractTraceEditPart implements NodeEdit
 	
 	@Override
 	public void activate() {
+		Statement<?> statementModel = getStatementModel();
+		if (VarvizView.GRAPHICAL_TRACE != null) {
+			GraphicalStatement graphicalStatement = VarvizView.GRAPHICAL_TRACE.getGraphicalStatement(statementModel);
+			if (graphicalStatement != null) {
+				graphicalStatement.registerUIObject(this);
+			}
+		}
 		getFigure().setVisible(true);
 		super.activate();
 	}
@@ -151,4 +162,10 @@ public class StatementEditPart extends AbstractTraceEditPart implements NodeEdit
 		return targetAnchor;
 	}
 	
+	@Override
+	public void propertyChange(VarvizEvent event) {
+		Statement<?> statement = (Statement<?>)getModel();
+		Color color = VarvizConstants.getColor(statement.getColor());
+		figure.setBackgroundColor(color);
+	}
 }

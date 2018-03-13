@@ -55,7 +55,7 @@ public class IgnoreContext extends Action {
 			removeContext(ctx);
 
 			VarvizView.projectID--;
-			varvizViewView.refresh();
+			VarvizView.refreshVisuals();
 		}
 	}
 

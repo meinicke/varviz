@@ -67,7 +67,7 @@ public class RemovePathAction extends Action {
 				}
 			}
 
-			VarvizView.TRACE.finalizeGraph();
+			VarvizView.getTRACE().finalizeGraph();
 			VarvizView.refreshVisuals();
 		}
 	}

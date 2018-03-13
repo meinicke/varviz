@@ -33,6 +33,7 @@ import org.eclipse.gef.editparts.AbstractGraphicalEditPart;
 
 import cmu.varviz.VarvizConstants;
 import cmu.varviz.trace.Trace;
+import cmu.varviz.trace.uitrace.VarvizEvent;
 
 /**
  * TODO description
@@ -129,6 +130,12 @@ public class TraceEditPart extends AbstractTraceEditPart {
 			childEditPart.getFigure().setLocation(new Point(statement.getFigure().getBounds().getCenter().x - childEditPart
 					.getFigure().getBounds().width / 2, childEditPart.getFigure().getBounds().y));
 		}
+	}
+
+	@Override
+	public void propertyChange(VarvizEvent event) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

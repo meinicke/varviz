@@ -153,7 +153,7 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 					}
 				}
 				JPF.vatrace.finalizeGraph();
-				VarvizView.TRACE = JPF.vatrace;
+				VarvizView.setTRACE(JPF.vatrace);
 			} else {
 				// TODO move to SampleJ builder
 				// run SampleJ
@@ -175,14 +175,14 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 				try {
 					Collector.FILTER = new Or(new And(VarvizView.basefilter, new InteractionFilter(VarvizView.minDegree)),
 							new ExceptionFilter());
-					VarvizView.TRACE = collector.createTrace(runConfig.getClassToLaunch(), projectPath, runConfig.getClassPath(),
-							samplejMonitor);
+					VarvizView.setTRACE(collector.createTrace(runConfig.getClassToLaunch(), projectPath, runConfig.getClassPath(),
+							samplejMonitor));
 				} finally {
 //					project.build(IncrementalProjectBuilder.FULL_BUILD, monitor);
 				}
 			}
 
-			if (VarvizView.TRACE.getMain().size() < 10_000) {
+			if (VarvizView.getTRACE().getMain().size() < 10_000) {
 				VarvizView.refreshVisuals();
 			}
 

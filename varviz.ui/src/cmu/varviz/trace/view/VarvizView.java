@@ -37,12 +37,15 @@ import cmu.varviz.VarvizActivator;
 import cmu.varviz.io.graphviz.Format;
 import cmu.varviz.io.graphviz.GrapVizExport;
 import cmu.varviz.trace.Method;
+import cmu.varviz.trace.MethodElement;
 import cmu.varviz.trace.Statement;
 import cmu.varviz.trace.Trace;
 import cmu.varviz.trace.filters.Or;
 import cmu.varviz.trace.filters.StatementFilter;
 import cmu.varviz.trace.generator.TraceGenerator;
 import cmu.varviz.trace.generator.varexj.VarexJGenerator;
+import cmu.varviz.trace.uitrace.GraphicalStatement;
+import cmu.varviz.trace.uitrace.GraphicalTrace;
 import cmu.varviz.trace.view.actions.HideAction;
 import cmu.varviz.trace.view.actions.RemovePathAction;
 import cmu.varviz.trace.view.editparts.TraceEditPartFactory;
@@ -74,14 +77,29 @@ public class VarvizView extends ViewPart {
 
 	public static boolean reExecuteForExceptionFeatures = Boolean.parseBoolean(getProperty(REEXECUTE_QN));
 	public static boolean showLables = Boolean.parseBoolean(getProperty(SHOW_LABELS_QN));
-	public static boolean useVarexJ = Boolean.parseBoolean(getProperty(USE_VAREXJ_QN));;
+	public static boolean useVarexJ = Boolean.parseBoolean(getProperty(USE_VAREXJ_QN));
 
 	public static int projectID = 0;
 	public static int minDegree = 2;
 
 	private static LayoutManager lm = new LayoutManager();
 
-	public static Trace TRACE = new Trace();
+	private static Trace TRACE = new Trace();
+	public static GraphicalTrace GRAPHICAL_TRACE = null;
+	
+	public static GraphicalStatement getGraphicalStatement(MethodElement<?> element) {
+		return VarvizView.GRAPHICAL_TRACE.getGraphicalStatement((Statement<?>) element);
+	}
+	
+	public static Trace getTRACE() {
+		return TRACE;
+	}
+	
+	public static void setTRACE(Trace trace) {
+		TRACE = trace;
+		GRAPHICAL_TRACE = new GraphicalTrace(TRACE);
+	}
+	
 	public static String PROJECT_NAME = "";
 
 	// TODO remove
@@ -105,7 +123,7 @@ public class VarvizView extends ViewPart {
 		rootEditPart = new ScalableFreeformRootEditPart();
 		((ConnectionLayer) rootEditPart.getLayer(LayerConstants.CONNECTION_LAYER)).setAntialias(SWT.ON);
 		viewer.setRootEditPart(rootEditPart);
-		refresh();
+		refreshVisuals();
 
 		printAction = new PrintAction(this);
 
@@ -265,10 +283,6 @@ public class VarvizView extends ViewPart {
 	@Override
 	public void setFocus() {
 
-	}
-
-	public void refresh() {
-		refreshVisuals();
 	}
 
 	public static void refreshVisuals() {

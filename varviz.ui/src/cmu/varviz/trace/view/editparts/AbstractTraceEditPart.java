@@ -2,7 +2,9 @@ package cmu.varviz.trace.view.editparts;
 
 import org.eclipse.gef.editparts.AbstractGraphicalEditPart;
 
-public abstract class AbstractTraceEditPart extends AbstractGraphicalEditPart {
+import cmu.varviz.trace.uitrace.VarvizEventListener;
+
+public abstract class AbstractTraceEditPart extends AbstractGraphicalEditPart implements VarvizEventListener {
 
 	@Override
 	protected void createEditPolicies() {	}

@@ -44,7 +44,7 @@ public class HideAction extends Action {
 			if (parent != null) {
 				parent.filterExecution(e -> e != element, true);
 			}
-			VarvizView.TRACE.finalizeGraph();
+			VarvizView.getTRACE().finalizeGraph();
 			VarvizView.refreshVisuals();
 		}
 	}

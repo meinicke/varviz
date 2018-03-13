@@ -40,6 +40,7 @@ import cmu.varviz.trace.Edge;
 import cmu.varviz.trace.Method;
 import cmu.varviz.trace.MethodElement;
 import cmu.varviz.trace.Statement;
+import cmu.varviz.trace.uitrace.VarvizEvent;
 import cmu.varviz.trace.view.VarvizView;
 import cmu.varviz.trace.view.figures.MethodFigure;
 import de.fosd.typechef.featureexpr.FeatureExpr;
@@ -85,7 +86,7 @@ public class MethodEditPart extends AbstractTraceEditPart implements NodeEditPar
 	protected List<Edge> getModelTargetConnections() {
 		if (connections == null) {
 			connections = new ArrayList<>();
-			for (Edge edge : VarvizView.TRACE.getEdges()) {
+			for (Edge edge : VarvizView.getTRACE().getEdges()) {
 				if (edge.getTo() == getModel()) {
 					connections.add(edge);
 				}
@@ -310,6 +311,12 @@ public class MethodEditPart extends AbstractTraceEditPart implements NodeEditPar
 		super.deactivate();
 		getFigure().setVisible(false);
 		getModelTargetConnections().forEach(edge -> ((EdgeEditPart) getViewer().getEditPartRegistry().get(edge)).deactivate());
+	}
+
+	@Override
+	public void propertyChange(VarvizEvent event) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

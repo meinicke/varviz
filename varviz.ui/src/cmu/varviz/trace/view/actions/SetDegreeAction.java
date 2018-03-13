@@ -25,6 +25,6 @@ public class SetDegreeAction extends Action {
 	public void run() {
 		VarvizView.minDegree = degree;
 		VarvizView.projectID--;
-		varvizViewView.refresh();
+		VarvizView.refreshVisuals();
 	}
 }

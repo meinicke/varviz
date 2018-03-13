@@ -1,8 +1,5 @@
 package cmu.varviz.trace.view;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.eclipse.jface.action.ControlContribution;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusEvent;
@@ -62,7 +59,7 @@ public class SearchBar extends ControlContribution {
 			
 			@Override
 			public void keyPressed(KeyEvent e) {
-
+				// nothing here
 			}
 		});
 		
@@ -70,17 +67,12 @@ public class SearchBar extends ControlContribution {
 			@Override
 			public void modifyText(ModifyEvent e) {
 				final String value = text.getText();
-				final Method<?> main = VarvizView.TRACE.getMain();
-				if (main.size() > 1000) {// TODO fix refreshing the graph
-					return;
-				}
+				final Method<?> main = VarvizView.getTRACE().getMain();
 				if (value.trim().isEmpty() || value.equals(DEFAULT_SEARCH_ENTRY)) {
 					resetAllStatements(main);
 				} else {
 					highLightStatements(main, value.trim());
 				}
-				VarvizView.TRACE.createEdges();
-				VarvizView.refreshVisuals();
 			}
 
 			private void resetAllStatements(Method<?> method) {
@@ -115,19 +107,11 @@ public class SearchBar extends ControlContribution {
 				return varName.toLowerCase().contains(value.toLowerCase());
 			}
 
-			Map<MethodElement<?>, NodeColor> colors = new HashMap<>();
-			
 			private void resetElement(MethodElement<?> element, boolean original) {
 				if (original) {
-					if (colors.containsKey(element)) {
-						element.setWidth(1);
-						element.setColor(colors.get(element));
-					}
+					VarvizView.getGraphicalStatement(element).resetColor();
 				} else {
-					if (!colors.containsKey(element)) {
-						colors.put(element, element.getColor());
-					}
-					element.setColor(NodeColor.white);
+					setColor(element, NodeColor.white);
 				}
 			}
 
@@ -142,12 +126,13 @@ public class SearchBar extends ControlContribution {
 				if (element instanceof ReturnStatement || element instanceof cmu.samplej.statement.ReturnStatement) {
 					return;
 				}
-				
-				if (!colors.containsKey(element)) {
-					colors.put(element, element.getColor());
-				}
-				element.setColor(NodeColor.red);
+				setColor(element, NodeColor.red);
 			}
+
+			private void setColor(MethodElement<?> element, NodeColor red) {
+				VarvizView.getGraphicalStatement(element).setColor(red);
+			}
+			
 		});
 		text.addFocusListener(new FocusListener() {
 			@Override
