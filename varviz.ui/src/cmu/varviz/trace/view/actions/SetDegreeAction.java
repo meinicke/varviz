@@ -12,12 +12,10 @@ import cmu.varviz.trace.view.VarvizView;
  */
 public class SetDegreeAction extends Action {
 
-	private VarvizView varvizViewView;
 	private final int degree;
 
 	public SetDegreeAction(VarvizView varvizViewView, Integer degree) {
 		super(degree.toString());
-		this.varvizViewView = varvizViewView;
 		this.degree = degree;
 	}
 	

@@ -28,12 +28,10 @@ import scala.collection.Iterator;
 public class IgnoreContext extends Action {
 
 	private GraphicalViewerImpl viewer;
-	private VarvizView varvizViewView;
 
 	public IgnoreContext(String text, GraphicalViewerImpl viewer, VarvizView varvizViewView) {
 		super(text);
 		this.viewer = viewer;
-		this.varvizViewView = varvizViewView;
 	}
 
 	@Override
