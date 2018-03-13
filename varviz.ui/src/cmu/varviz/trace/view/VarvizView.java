@@ -138,9 +138,7 @@ public class VarvizView extends ViewPart {
 			public void run() {
 				showLables = !showLables;
 				setProperty(SHOW_LABELS_QN, Boolean.toString(showLables));
-				TRACE.createEdges();
-				TRACE.highlightException();
-				refreshVisuals();
+				GRAPHICAL_TRACE.refreshGraphicalEdges();
 			}
 		};
 		showLablesButton.setChecked(showLables);

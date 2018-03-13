@@ -2,35 +2,35 @@ package cmu.varviz.trace.uitrace;
 
 import org.eclipse.draw2d.geometry.Point;
 
+import cmu.varviz.trace.Edge;
 import cmu.varviz.trace.NodeColor;
-import cmu.varviz.trace.Statement;
 import cmu.varviz.trace.uitrace.VarvizEvent.EventType;
 
 /**
- * Graphical representation of statements in the variational trace.
+ * Graphical representation of edges in the variational trace.
  * 
  * @author Jens Meinicke
  *
  */
-public class GraphicalStatement {
+public class GraphicalEdge {
 
-	private final Statement<?> statement;
+	private final Edge edge;
 	private VarvizEventListener uiObject;
 	
 	protected Point location = new Point(0, 0);
 	private final NodeColor originalColor;
 	
-	public GraphicalStatement(Statement<?> statement) {
-		this.statement = statement;
-		originalColor = statement.getColor();
+	public GraphicalEdge(Edge edge) {
+		this.edge = edge;
+		originalColor = edge.getColor();
 	}
 	
 	public void registerUIObject(VarvizEventListener uiObject) {
 		this.uiObject = uiObject;
 	}
 	
-	public Statement<?> getStatement() {
-		return statement;
+	public Edge getEdge() {
+		return edge;
 	}
 	
 	public Point getLocation() {
@@ -45,12 +45,12 @@ public class GraphicalStatement {
 	}
 	
 	public NodeColor getColor() {
-		return statement.getColor();
+		return edge.getColor();
 	}
 	
 	public void setColor(NodeColor color) {
-		if (statement.getColor() != color) {
-			statement.setColor(color);
+		if (edge.getColor() != color) {
+			edge.setColor(color);
 			update(EventType.COLOR_CHANGED);
 		}
 	}
@@ -59,10 +59,9 @@ public class GraphicalStatement {
 		setColor(originalColor);
 	}
 	
-	private void update(EventType type) {
+	public void update(EventType type) {
 		if (uiObject != null) {
 			uiObject.propertyChange(new VarvizEvent(type));
 		}
 	}
-	
 }

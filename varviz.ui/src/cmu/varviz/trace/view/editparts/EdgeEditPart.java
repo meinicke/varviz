@@ -7,6 +7,7 @@ import org.eclipse.draw2d.MidpointLocator;
 import org.eclipse.draw2d.PolygonDecoration;
 import org.eclipse.draw2d.PolylineConnection;
 import org.eclipse.draw2d.geometry.PointList;
+import org.eclipse.gef.ConnectionEditPart;
 import org.eclipse.gef.Request;
 import org.eclipse.gef.editparts.AbstractConnectionEditPart;
 import org.eclipse.swt.SWT;
@@ -15,17 +16,21 @@ import org.eclipse.swt.graphics.Font;
 
 import cmu.conditional.Conditional;
 import cmu.varviz.VarvizConstants;
+import cmu.varviz.VarvizException;
 import cmu.varviz.trace.Edge;
 import cmu.varviz.trace.NodeColor;
+import cmu.varviz.trace.uitrace.GraphicalEdge;
+import cmu.varviz.trace.uitrace.VarvizEvent;
+import cmu.varviz.trace.uitrace.VarvizEventListener;
 import cmu.varviz.trace.view.VarvizView;
 
 /**
- * TODO description
+ * Represents the {@link ConnectionEditPart} in the variational trace.
  * 
  * @author Jens Meinicke
  *
  */
-public class EdgeEditPart extends AbstractConnectionEditPart {
+public class EdgeEditPart extends AbstractConnectionEditPart implements VarvizEventListener {
 
 	private static final String FONT_NAME = "Segoe UI Symbol";
 	private static final Font TEXT_FONT = new Font(null, FONT_NAME, 12, SWT.NORMAL);
@@ -36,6 +41,12 @@ public class EdgeEditPart extends AbstractConnectionEditPart {
 	public EdgeEditPart(Edge edge) {
 		super();
 		setModel(edge);
+		if (VarvizView.GRAPHICAL_TRACE != null) {
+			GraphicalEdge graphicalEdge = VarvizView.GRAPHICAL_TRACE.getGraphicalEdge(edge);
+			if (graphicalEdge != null) {
+				graphicalEdge.registerUIObject(this);
+			}
+		}
 	}
 
 	@Override
@@ -59,10 +70,8 @@ public class EdgeEditPart extends AbstractConnectionEditPart {
 		arrow.setTemplate(arrowPointList);
 		arrow.setForegroundColor(VarvizConstants.getColor(edge.getColor()));
 		line.setTargetDecoration(arrow);
-
-		if ((!Conditional.isTautology(edge.getCtx()) && VarvizView.showLables) || showLabel) {
-			createLabel(edge, line);
-		}
+		
+		refreshLabel(edge, line);
 		
 		return line;
 	}
@@ -91,17 +100,27 @@ public class EdgeEditPart extends AbstractConnectionEditPart {
 		figure.setForegroundColor(VarvizConstants.getColor(edge.getColor()));
 		((PolylineConnection)figure).setLineWidth(edge.getWidth());
 		
-		if ((!Conditional.isTautology(edge.getCtx()) && VarvizView.showLables) || showLabel) {
-			createLabel(edge, (PolylineConnection) getFigure());
+		refreshLabel(edge);
+	}
+	
+	private void refreshLabel(Edge edge) {
+		refreshLabel(edge, (PolylineConnection) getFigure());
+	}
+	
+	private void refreshLabel(Edge edge, PolylineConnection figure) {
+		if (showLabel || (VarvizView.showLables && !Conditional.isTautology(edge.getCtx()))) {
+			createOrSetLabel(edge, figure);
 		} else if (label != null) {
 			figure.remove(label);
 		}
 	}
 
-
-
-	private void createLabel(Edge edge, PolylineConnection figure) {
+	private void createOrSetLabel(Edge edge, PolylineConnection figure) {
 		MidpointLocator sourceEndpointLocator = new MidpointLocator(figure, 0);
+		if (label != null) {
+			figure.add(label, sourceEndpointLocator);
+			return;
+		}
 		label = new Label();
 		// Fonts that support logical symbols:
 		// Cambria, Lucida Sans Unicode, Malgun Gothic, Segoe UI Symbol
@@ -121,6 +140,15 @@ public class EdgeEditPart extends AbstractConnectionEditPart {
 	
 	@Override
 	public void activate() {
+		// TODO this is not called????
+		Edge edgeModel = getEdgeModel();
+		if (VarvizView.GRAPHICAL_TRACE != null) {
+			GraphicalEdge graphicalEdge = VarvizView.GRAPHICAL_TRACE.getGraphicalEdge(edgeModel);
+			if (graphicalEdge != null) {
+				graphicalEdge.registerUIObject(this);
+			}
+		}
+		
 		getFigure().setVisible(getTarget() != null);
 		super.activate();
 	}
@@ -140,6 +168,19 @@ public class EdgeEditPart extends AbstractConnectionEditPart {
 		if ("open".equals(request.getType())) {
 			showLabel = !showLabel;
 			refreshVisuals();
+		}
+	}
+
+	@Override
+	public void propertyChange(VarvizEvent event) {
+		switch (event.getType()) {
+		case LABEL_CHANGED:
+			refreshLabel(getEdgeModel());
+			break;
+		case COLOR_CHANGED:
+		case LOCATION_CHANGED:
+		default:
+			throw new VarvizException("Event " + event.getType() + " not supported for " + getClass());
 		}
 	}
 

@@ -5,7 +5,7 @@ public class VarvizEvent {
 	private final EventType type;
 
 	public enum EventType {
-		COLOR_CHANGED, LOCATION_CHANGED
+		COLOR_CHANGED, LOCATION_CHANGED, LABEL_CHANGED
 	}
 	
 	public VarvizEvent(EventType type) {
