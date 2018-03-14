@@ -32,6 +32,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 
 import cmu.varviz.VarvizConstants;
+import cmu.varviz.VarvizException;
 import cmu.varviz.trace.Edge;
 import cmu.varviz.trace.Shape;
 import cmu.varviz.trace.Statement;
@@ -164,8 +165,19 @@ public class StatementEditPart extends AbstractTraceEditPart implements NodeEdit
 	
 	@Override
 	public void propertyChange(VarvizEvent event) {
-		Statement<?> statement = (Statement<?>)getModel();
-		Color color = VarvizConstants.getColor(statement.getColor());
-		figure.setBackgroundColor(color);
+		switch (event.getType()) {
+		case COLOR_CHANGED:
+			Statement<?> statement = (Statement<?>)getModel();
+			Color color = VarvizConstants.getColor(statement.getColor());
+			figure.setBackgroundColor(color);
+			break;
+		case BORDER_CHANGED:
+			refreshVisuals();
+			break;
+		case LABEL_CHANGED:
+		case LOCATION_CHANGED:
+		default:
+			throw new VarvizException("Event " + event.getType() + " not supported for " + getClass());
+		}
 	}
 }

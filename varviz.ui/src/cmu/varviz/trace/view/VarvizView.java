@@ -84,6 +84,7 @@ public class VarvizView extends ViewPart {
 
 	private static LayoutManager lm = new LayoutManager();
 
+	// TODO remove static
 	private static Trace TRACE = new Trace();
 	public static GraphicalTrace GRAPHICAL_TRACE = null;
 	
@@ -119,6 +120,7 @@ public class VarvizView extends ViewPart {
 		viewer.createControl(parent);
 		viewer.setEditDomain(new EditDomain());
 		viewer.setEditPartFactory(new TraceEditPartFactory());
+		
 
 		rootEditPart = new ScalableFreeformRootEditPart();
 		((ConnectionLayer) rootEditPart.getLayer(LayerConstants.CONNECTION_LAYER)).setAntialias(SWT.ON);
@@ -132,7 +134,7 @@ public class VarvizView extends ViewPart {
 
 		IToolBarManager toolbarManager = bars.getToolBarManager();
 
-		toolbarManager.add(new SearchBar());
+		toolbarManager.add(new SearchBar(this));
 
 		showLablesButton = new Action() {
 			public void run() {

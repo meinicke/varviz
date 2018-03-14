@@ -1,6 +1,8 @@
 package cmu.varviz.trace.uitrace;
 
 import org.eclipse.draw2d.geometry.Point;
+import org.eclipse.gef.EditPart;
+import org.eclipse.gef.ui.parts.ScrollingGraphicalViewer;
 
 import cmu.varviz.trace.NodeColor;
 import cmu.varviz.trace.Statement;
@@ -19,10 +21,12 @@ public class GraphicalStatement {
 	
 	protected Point location = new Point(0, 0);
 	private final NodeColor originalColor;
+	private final int originalBorder;
 	
 	public GraphicalStatement(Statement<?> statement) {
 		this.statement = statement;
 		originalColor = statement.getColor();
+		originalBorder = statement.getWidth();
 	}
 	
 	public void registerUIObject(VarvizEventListener uiObject) {
@@ -55,6 +59,20 @@ public class GraphicalStatement {
 		}
 	}
 	
+	public void resetBorder() {
+		if (statement.getWidth() != originalBorder) {
+			statement.setWidth(originalBorder);
+			update(EventType.BORDER_CHANGED);
+		}
+	}
+	
+	public void setBorder(int border) {
+		if (statement.getWidth() != border) {
+			statement.setWidth(border);
+			update(EventType.BORDER_CHANGED);
+		}
+	}
+	
 	public void resetColor() {
 		setColor(originalColor);
 	}
@@ -64,5 +82,13 @@ public class GraphicalStatement {
 			uiObject.propertyChange(new VarvizEvent(type));
 		}
 	}
+
+	public void reveal(ScrollingGraphicalViewer viewer) {
+		if (uiObject != null) {
+			viewer.reveal((EditPart) uiObject);
+		}
+	}
+
+	
 	
 }

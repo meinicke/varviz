@@ -1,5 +1,8 @@
 package cmu.varviz.trace.view;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.jface.action.ControlContribution;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusEvent;
@@ -20,6 +23,7 @@ import cmu.varviz.trace.IFStatement;
 import cmu.varviz.trace.Method;
 import cmu.varviz.trace.MethodElement;
 import cmu.varviz.trace.NodeColor;
+import cmu.varviz.trace.uitrace.GraphicalStatement;
 import cmu.vatrace.ReturnStatement;
 
 /**
@@ -31,9 +35,14 @@ import cmu.vatrace.ReturnStatement;
 public class SearchBar extends ControlContribution {
 
 	private static final String DEFAULT_SEARCH_ENTRY = "Search                         ";
+	private final VarvizView varvizView;
+	
+	private final List<MethodElement<?>> highlightedElements = new ArrayList<>();
+	private int currentFocus = -1;
 
-	protected SearchBar() {
+	protected SearchBar(VarvizView varvizView) {
 		super("searchBar");
+		this.varvizView = varvizView;
 	}
 
 	@Override
@@ -54,7 +63,19 @@ public class SearchBar extends ControlContribution {
 			
 			@Override
 			public void keyReleased(KeyEvent e) {
-				// TODO implement scrolling to next entry
+				/*
+				 * scoll to the next highlighted element
+				 */
+				if (e.keyCode == SWT.CR || e.keyCode == SWT.KEYPAD_CR) {
+					if (currentFocus >= 0) {
+						GraphicalStatement oldGraphicalStatement = VarvizView.getGraphicalStatement(highlightedElements.get(currentFocus));
+						oldGraphicalStatement.setColor(NodeColor.red);
+					}
+					currentFocus = (currentFocus + 1) % highlightedElements.size();
+					GraphicalStatement graphicalStatement = VarvizView.getGraphicalStatement(highlightedElements.get(currentFocus));
+					graphicalStatement.setColor(NodeColor.darkorange);
+					graphicalStatement.reveal(VarvizView.viewer);
+				}
 			}
 			
 			@Override
@@ -67,7 +88,9 @@ public class SearchBar extends ControlContribution {
 			@Override
 			public void modifyText(ModifyEvent e) {
 				final String value = text.getText();
-				final Method<?> main = VarvizView.getTRACE().getMain();
+				final Method<?> main = varvizView.getTRACE().getMain();
+				currentFocus = -1;
+				highlightedElements.clear();
 				if (value.trim().isEmpty() || value.equals(DEFAULT_SEARCH_ENTRY)) {
 					resetAllStatements(main);
 				} else {
@@ -126,6 +149,7 @@ public class SearchBar extends ControlContribution {
 				if (element instanceof ReturnStatement || element instanceof cmu.samplej.statement.ReturnStatement) {
 					return;
 				}
+				highlightedElements.add(element);
 				setColor(element, NodeColor.red);
 			}
 
