@@ -91,10 +91,12 @@ public class SearchBar extends ControlContribution {
 				final Method<?> main = varvizView.getTRACE().getMain();
 				currentFocus = -1;
 				highlightedElements.clear();
-				if (value.trim().isEmpty() || value.equals(DEFAULT_SEARCH_ENTRY)) {
-					resetAllStatements(main);
-				} else {
-					highLightStatements(main, value.trim());
+				if (main != null) {
+					if (value.trim().isEmpty() || value.equals(DEFAULT_SEARCH_ENTRY)) {
+						resetAllStatements(main);
+					} else {
+						highLightStatements(main, value.trim());
+					}
 				}
 			}
 
