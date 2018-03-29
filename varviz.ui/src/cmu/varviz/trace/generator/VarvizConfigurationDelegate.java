@@ -6,8 +6,10 @@ import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -19,6 +21,8 @@ import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.jdt.launching.AbstractJavaLaunchConfigurationDelegate;
 import org.eclipse.jdt.launching.ExecutionArguments;
+import org.eclipse.jdt.launching.IRuntimeClasspathEntry;
+import org.eclipse.jdt.launching.JavaRuntime;
 import org.eclipse.jdt.launching.VMRunnerConfiguration;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
@@ -72,9 +76,10 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 			Map<String, Object> vmAttributesMap = getVMSpecificAttributesMap(configuration);
 
 			// Classpath
-			String[] classpath = getClasspath(configuration);
-
+			String[] classpath = getUserClasspath(configuration);
+			
 			// Create VM config
+			
 			VMRunnerConfiguration runConfig = new VMRunnerConfiguration(mainTypeName, classpath);
 			runConfig.setProgramArguments(execArgs.getProgramArgumentsArray());
 			runConfig.setEnvironment(envp);
@@ -195,6 +200,34 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 			monitor.done();
 			System.setOut(originalOutputStream);
 		}
+	}
+
+	/** 
+	 *  returns the user specified classpath entries.
+	 *  the eclipse implementations changed with version Oxigen.3 and {@link AbstractJavaLaunchConfigurationDelegate#getClassPath} 
+	 *  returns JVM classes that must not be contained for VarexJ.
+	 */
+	private String[] getUserClasspath(ILaunchConfiguration config) {
+		IRuntimeClasspathEntry[] entries;
+		try {
+			entries = JavaRuntime.computeUnresolvedRuntimeClasspath(config);
+			entries = JavaRuntime.resolveRuntimeClasspath(entries, config);
+		} catch (CoreException e) {
+			e.printStackTrace();
+			return new String[0];
+		}
+		Set<String> classpathEntries = new HashSet<>(entries.length);
+		for (IRuntimeClasspathEntry entry : entries) {
+			String location = entry.getLocation();
+			if (location != null) {
+				if (entry.getClasspathProperty() == IRuntimeClasspathEntry.USER_CLASSES && !classpathEntries.contains(location)) {
+					classpathEntries.add(location);
+				}
+
+			}
+		}
+		
+		return classpathEntries.toArray(new String[classpathEntries.size()]);
 	}
 
 	private String getFeatureModel(IResource resource) {
