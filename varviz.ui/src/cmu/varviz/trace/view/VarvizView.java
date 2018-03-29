@@ -42,8 +42,9 @@ import cmu.varviz.trace.Statement;
 import cmu.varviz.trace.Trace;
 import cmu.varviz.trace.filters.Or;
 import cmu.varviz.trace.filters.StatementFilter;
+import cmu.varviz.trace.generator.SampleJGenerator;
 import cmu.varviz.trace.generator.TraceGenerator;
-import cmu.varviz.trace.generator.varexj.VarexJGenerator;
+import cmu.varviz.trace.generator.VarexJGenerator;
 import cmu.varviz.trace.uitrace.GraphicalStatement;
 import cmu.varviz.trace.uitrace.GraphicalTrace;
 import cmu.varviz.trace.view.actions.HideAction;
@@ -64,7 +65,6 @@ public class VarvizView extends ViewPart {
 	public static final QualifiedName USE_VAREXJ_QN = new QualifiedName(VarvizView.class.getName() + "#useVarexJ", "useVarexJ");
 	public static final QualifiedName REEXECUTE_QN = new QualifiedName(VarvizView.class.getName() + "#REEXECUTE", "REEXECUTE");
 
-	public static TraceGenerator generator = new VarexJGenerator();
 
 	public static ScrollingGraphicalViewer viewer;
 	private ScalableFreeformRootEditPart rootEditPart;
@@ -78,6 +78,7 @@ public class VarvizView extends ViewPart {
 	public static boolean reExecuteForExceptionFeatures = Boolean.parseBoolean(getProperty(REEXECUTE_QN));
 	public static boolean showLables = Boolean.parseBoolean(getProperty(SHOW_LABELS_QN));
 	public static boolean useVarexJ = Boolean.parseBoolean(getProperty(USE_VAREXJ_QN));
+	public static TraceGenerator generator = useVarexJ ? VarexJGenerator.geGenerator():SampleJGenerator.geGenerator();
 
 	public static int projectID = 0;
 	public static int minDegree = 2;
@@ -187,6 +188,11 @@ public class VarvizView extends ViewPart {
 				useVarexJ = !useVarexJ;
 				setProperty(USE_VAREXJ_QN, Boolean.toString(useVarexJ));
 				setText(useVarexJ ? "VarexJ" : "SampleJ");
+				if (useVarexJ) {
+					generator = VarexJGenerator.geGenerator();
+				} else  {
+					generator = SampleJGenerator.geGenerator();
+				}
 			}
 		};
 		exportAsToolbarIcon.setMenuCreator(new IMenuCreator() {

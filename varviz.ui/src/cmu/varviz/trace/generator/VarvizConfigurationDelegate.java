@@ -2,16 +2,11 @@ package cmu.varviz.trace.generator;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.LineNumberReader;
 import java.io.PrintStream;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
@@ -30,20 +25,8 @@ import org.eclipse.ui.console.IConsoleManager;
 import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
 
-import cmu.conditional.Conditional;
-import cmu.samplej.Collector;
-import cmu.samplej.SampleJMonitor;
 import cmu.varviz.trace.Trace;
-import cmu.varviz.trace.filters.And;
-import cmu.varviz.trace.filters.InteractionFilter;
-import cmu.varviz.trace.filters.Or;
 import cmu.varviz.trace.view.VarvizView;
-import cmu.varviz.trace.view.actions.IgnoreContext;
-import cmu.vatrace.ExceptionFilter;
-import de.fosd.typechef.featureexpr.FeatureExpr;
-import de.fosd.typechef.featureexpr.FeatureExprFactory;
-import de.fosd.typechef.featureexpr.bdd.BDDFeatureExprFactory;
-import gov.nasa.jpf.JPF;
 
 /**
  * Runs the Java Application to generate the {@link Trace}.
@@ -103,17 +86,10 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 
 			// Launch the configuration - 1 unit of work
 			monitor.subTask("Run application with VarexJ");
-			StringBuilder cp = new StringBuilder();
-			for (String c : classpath) {
-				cp.append(c);
-				cp.append(',');
-			}
-			cp.append("${jpf-core}");
 
 			final IResource resource = configuration.getWorkingCopy().getMappedResources()[0];
-
 			IProject project = resource.getProject();
-			MessageConsole myConsole = findAndCreateConsole("VarexJ: " + project.getName() + ":" + runConfig.getClassToLaunch());
+			MessageConsole myConsole = findAndCreateConsole((VarvizView.useVarexJ ?"VarexJ: ": "SampleJ: ") + project.getName() + ":" + runConfig.getClassToLaunch());
 			myConsole.clearConsole();
 			
 			PrintStream myPrintStream = createOutputStream(originalOutputStream, myConsole.newMessageStream());
@@ -121,72 +97,8 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 
 			VarvizView.PROJECT_NAME = project.getName();
 
-			String featureModelPath = null;
-			for (IResource child : project.members()) {
-				if (child instanceof IFile) {
-					if ("dimacs".equals(child.getFileExtension())) {
-						featureModelPath = child.getRawLocation().toOSString();
-					}
-				}
-			}
-
 			project.build(IncrementalProjectBuilder.FULL_BUILD, monitor);
-			if (VarvizView.useVarexJ) {
-				// TODO move this to VarexJ Generator Class
-				FeatureExprFactory.setDefault(FeatureExprFactory.bdd());
-				final String[] args = { "+classpath=" + cp, "+choice=MapChoice", "+stack=HybridStackHandler", "+nhandler.delegateUnhandledNative", "+search.class=.search.RandomSearch",
-						featureModelPath != null ? "+ featuremodel=" + featureModelPath : "", runConfig.getClassToLaunch() };
-				JPF.vatrace = new Trace();
-				JPF.vatrace.filter = new Or(new And(VarvizView.basefilter, new InteractionFilter(VarvizView.minDegree)), new ExceptionFilter());
-				FeatureExprFactory.setDefault(FeatureExprFactory.bdd());
-				JPF.main(args);
-				Conditional.additionalConstraint = BDDFeatureExprFactory.True();
-
-				if (VarvizView.reExecuteForExceptionFeatures) {
-					FeatureExpr exceptionContext = JPF.vatrace.getExceptionContext();
-					IgnoreContext.removeContext(exceptionContext);
-					if (!JPF.ignoredFeatures.isEmpty()) {
-						// second run for important features
-						myConsole = findAndCreateConsole("VarexJ: " + project.getName() + ":" + runConfig.getClassToLaunch() + " (exception features only)");
-						myConsole.clearConsole();
-						PrintStream consoleStream = createOutputStream(originalOutputStream, myConsole.newMessageStream());
-						System.setOut(consoleStream);
-						JPF.vatrace = new Trace();
-						JPF.vatrace.filter = new Or(new And(VarvizView.basefilter, new InteractionFilter(VarvizView.minDegree)), new ExceptionFilter());
-						JPF.main(args);
-						Conditional.additionalConstraint = BDDFeatureExprFactory.True();
-						JPF.ignoredFeatures.clear();
-					}
-				}
-				JPF.vatrace.finalizeGraph();
-				VarvizView.setTRACE(JPF.vatrace);
-			} else {
-				// TODO move to SampleJ builder
-				// run SampleJ
-				final SampleJMonitor samplejMonitor = new SampleJMonitor() {
-					@Override
-					public void beginTask(String name, int totalWork) {
-						monitor.beginTask(name, totalWork);
-					}
-
-					@Override
-					public void worked(int work) {
-						monitor.worked(work);
-					}
-				};
-
-				Conditional.setFM(getFeatureModel(resource));
-				Collector collector = new Collector(getOptions(resource));
-				String projectPath = project.getLocation().toOSString();
-				try {
-					Collector.FILTER = new Or(new And(VarvizView.basefilter, new InteractionFilter(VarvizView.minDegree)),
-							new ExceptionFilter());
-					VarvizView.setTRACE(collector.createTrace(runConfig.getClassToLaunch(), projectPath, runConfig.getClassPath(),
-							samplejMonitor));
-				} finally {
-//					project.build(IncrementalProjectBuilder.FULL_BUILD, monitor);
-				}
-			}
+			VarvizView.setTRACE(VarvizView.generator.run(runConfig, resource, monitor, classpath));
 
 			if (VarvizView.getTRACE().getMain().size() < 10_000) {
 				VarvizView.refreshVisuals();
@@ -231,36 +143,6 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 		return classpathEntries.toArray(new String[classpathEntries.size()]);
 	}
 
-	private String getFeatureModel(IResource resource) {
-		try {
-			for (IResource child : resource.getProject().members()) {
-				if ("dimacs".equals(child.getFileExtension())) {
-					return child.getLocation().toOSString();
-				}
-			}
-		} catch (CoreException e) {
-			e.printStackTrace();
-		}
-		return "";
-	}
-
-	private String[] getOptions(IResource resource) {
-		IFile optionsFile = resource.getProject().getFile("options.txt");
-		List<String> options = new ArrayList<>();
-
-		try (LineNumberReader reader = new LineNumberReader(new InputStreamReader(optionsFile.getContents(true), optionsFile.getCharset()))) {
-			String line;
-			while ((line = reader.readLine()) != null) {
-				System.out.println(line);
-				options.add(line.trim());
-			}
-		} catch (IOException | CoreException e) {
-			e.printStackTrace();
-		}
-		final String[] optionsArr = new String[options.size()];
-		options.toArray(optionsArr);
-		return optionsArr;
-	}
 
 	private PrintStream createOutputStream(PrintStream originalOut, final MessageConsoleStream consoleStream) {
 		return new PrintStream(originalOut) {
