@@ -51,7 +51,7 @@ import gov.nasa.jpf.JPF;
  * @author Jens Meinicke
  *
  */
-public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfigurationDelegate {// TODO JavaLaunchDelegate?
+public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfigurationDelegate {
 
 	@Override
 	public void launch(ILaunchConfiguration configuration, String mode, ILaunch launch, IProgressMonitor monitor) throws CoreException {
@@ -99,7 +99,7 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 			prepareStopInMain(configuration);
 
 			// set the default source locator if required
-			// setDefaultSourceLocator(launch, configuration); TODO
+			//setDefaultSourceLocator(launch, configuration);
 
 			// Launch the configuration - 1 unit of work
 			monitor.subTask("Run application with VarexJ");
@@ -115,6 +115,7 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 			IProject project = resource.getProject();
 			MessageConsole myConsole = findAndCreateConsole("VarexJ: " + project.getName() + ":" + runConfig.getClassToLaunch());
 			myConsole.clearConsole();
+			
 			PrintStream myPrintStream = createOutputStream(originalOutputStream, myConsole.newMessageStream());
 			System.setOut(myPrintStream);
 
@@ -307,7 +308,7 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 		IConsole[] existing = conMan.getConsoles();
 		for (int i = 0; i < existing.length; i++) {
 			if (name.equals(existing[i].getName())) {
-				return (MessageConsole) existing[i];
+				((MessageConsole) existing[i]).destroy();
 			}
 		}
 		// no console found, so create a new one
