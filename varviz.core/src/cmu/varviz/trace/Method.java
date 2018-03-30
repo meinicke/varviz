@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+import cmu.conditional.Conditional;
 import cmu.varviz.trace.filters.Or;
 import cmu.varviz.trace.filters.StatementFilter;
 import de.fosd.typechef.featureexpr.FeatureExpr;
@@ -147,6 +148,29 @@ public class Method<U> extends MethodElement<U> {
 
 	public List<MethodElement<?>> getChildren() {
 		return Collections.unmodifiableList(execution);
+	}
+
+	@Override
+	public MethodElement<?> simplify(final FeatureExpr ctx, final StatementFilter filter) {
+		setCtx(Conditional.simplifyCondition(this.getCTX(), Conditional.additionalConstraint));
+		execution.removeIf(element -> Conditional.isContradiction(Conditional.and(element.getCTX(), ctx)));
+		execution.forEach(x-> x.simplify(ctx, filter));
+		execution.removeIf(element -> {
+			if (element instanceof Statement) {
+				FeatureExpr simpleCTX = Conditional.simplifyCondition(element.getCTX(), Conditional.additionalConstraint);
+				if (Conditional.isTautology(simpleCTX)) {
+					if (!element.filterExecution(filter)) {
+						return true;
+					} else {
+						return false;
+					}
+				}
+			}
+			return false;
+		});
+		
+		return this;
+		
 	}
 
 }

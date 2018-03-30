@@ -49,6 +49,7 @@ import cmu.varviz.trace.uitrace.GraphicalStatement;
 import cmu.varviz.trace.uitrace.GraphicalTrace;
 import cmu.varviz.trace.view.actions.HideAction;
 import cmu.varviz.trace.view.actions.RemovePathAction;
+import cmu.varviz.trace.view.actions.Slicer;
 import cmu.varviz.trace.view.editparts.TraceEditPartFactory;
 
 /**
@@ -75,7 +76,7 @@ public class VarvizView extends ViewPart {
 	private Action exceptionButton;
 	private Action exportAsToolbarIcon;
 
-	public static boolean reExecuteForExceptionFeatures = Boolean.parseBoolean(getProperty(REEXECUTE_QN));
+	public static boolean showForExceptionFeatures = Boolean.parseBoolean(getProperty(REEXECUTE_QN));
 	public static boolean showLables = Boolean.parseBoolean(getProperty(SHOW_LABELS_QN));
 	public static boolean useVarexJ = Boolean.parseBoolean(getProperty(USE_VAREXJ_QN));
 	public static TraceGenerator generator = useVarexJ ? VarexJGenerator.geGenerator():SampleJGenerator.geGenerator();
@@ -151,13 +152,21 @@ public class VarvizView extends ViewPart {
 
 		exceptionButton = new Action() {
 			public void run() {
-				reExecuteForExceptionFeatures = !reExecuteForExceptionFeatures;
-				setProperty(REEXECUTE_QN, Boolean.toString(reExecuteForExceptionFeatures));
+				showForExceptionFeatures = !showForExceptionFeatures;
+				setProperty(REEXECUTE_QN, Boolean.toString(showForExceptionFeatures));
+				
+				if (showForExceptionFeatures) {
+					Slicer.sliceForExceptiuon(TRACE);
+					
+					if (TRACE.getMain().size() < 10_000) {
+					}
+
+				}
 			}
 		};
 		exceptionButton.setToolTipText("Show Trace for Exception Features Only");
 		toolbarManager.add(exceptionButton);
-		exceptionButton.setChecked(reExecuteForExceptionFeatures);
+		exceptionButton.setChecked(showForExceptionFeatures);
 		exceptionButton.setImageDescriptor(VarvizActivator.REFESH_EXCEPTION_IMAGE_DESCRIPTOR);
 
 		exportGraphVizButton = new Action() {

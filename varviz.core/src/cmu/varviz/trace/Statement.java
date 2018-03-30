@@ -10,8 +10,8 @@ import de.fosd.typechef.featureexpr.FeatureExpr;
 @SuppressWarnings("unchecked")
 public class Statement<T> extends MethodElement<T> {
 
-	private Conditional<?> oldValue;
-	private Conditional<?> value;
+	protected Conditional<?> oldValue;
+	protected Conditional<?> value;
 
 	public Conditional<MethodElement<T>> from = (Conditional<MethodElement<T>>) One.NULL;
 	public Conditional<MethodElement<T>> to = (Conditional<MethodElement<T>>) One.NULL;
@@ -123,5 +123,19 @@ public class Statement<T> extends MethodElement<T> {
 
 	public boolean isModificationStatement() {
 		return false;
+	}
+
+	@Override
+	public MethodElement<?> simplify(FeatureExpr ctx, StatementFilter filter) {
+		setCtx(Conditional.simplifyCondition(this.getCTX(), Conditional.additionalConstraint));
+		Conditional<?> value2 = getValue();
+		if (value2 != null) {
+			value2 = value2.simplify(ctx);
+			setValue(value2);
+		}
+		if (getOldValue() != null) {
+			setOldValue(getOldValue().simplify(ctx));
+		}
+		return this;
 	}
 }

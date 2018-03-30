@@ -35,6 +35,7 @@ import cmu.vatrace.ReturnStatement;
 public class SearchBar extends ControlContribution {
 
 	private static final String DEFAULT_SEARCH_ENTRY = "Search                         ";
+	@SuppressWarnings("unused")
 	private final VarvizView varvizView;
 	
 	private final List<MethodElement<?>> highlightedElements = new ArrayList<>();
@@ -88,7 +89,7 @@ public class SearchBar extends ControlContribution {
 			@Override
 			public void modifyText(ModifyEvent e) {
 				final String value = text.getText();
-				final Method<?> main = varvizView.getTRACE().getMain();
+				final Method<?> main = VarvizView.getTRACE().getMain();
 				currentFocus = -1;
 				highlightedElements.clear();
 				if (main != null) {

@@ -14,7 +14,6 @@ import cmu.varviz.trace.filters.And;
 import cmu.varviz.trace.filters.InteractionFilter;
 import cmu.varviz.trace.filters.Or;
 import cmu.varviz.trace.view.VarvizView;
-import cmu.varviz.trace.view.actions.IgnoreContext;
 import cmu.varviz.utils.FileUtils;
 import cmu.vatrace.ExceptionFilter;
 import de.fosd.typechef.featureexpr.FeatureExpr;
@@ -69,7 +68,8 @@ public class VarexJGenerator implements TraceGenerator {
 
 	@Override
 	public Trace run(VMRunnerConfiguration runConfig, IResource resource, IProgressMonitor monitor, String[] classpath) throws CoreException {
-		
+		Conditional.additionalConstraint = BDDFeatureExprFactory.True();
+		clearIgnoredFeatures();
 		StringBuilder cp = new StringBuilder();
 		for (String c : classpath) {
 			cp.append(c);
@@ -81,25 +81,10 @@ public class VarexJGenerator implements TraceGenerator {
 		final String[] args = { "+classpath=" + cp, "+choice=MapChoice", "+stack=HybridStackHandler", "+nhandler.delegateUnhandledNative", "+search.class=.search.RandomSearch",
 				featureModelPath != null ? "+ featuremodel=" + featureModelPath : "", runConfig.getClassToLaunch() };
 		JPF.vatrace = new Trace();
-		JPF.vatrace.filter = new Or(new And(VarvizView.basefilter, new InteractionFilter(VarvizView.minDegree)), new ExceptionFilter());
+		JPF.vatrace.filter = new Or(new And(VarvizView.basefilter, new InteractionFilter(VarvizView.minDegree)), new ExceptionFilter());/// remove code clone
 		FeatureExprFactory.setDefault(FeatureExprFactory.bdd());
 		JPF.main(args);
-		Conditional.additionalConstraint = BDDFeatureExprFactory.True();
-
-		if (VarvizView.reExecuteForExceptionFeatures) {
-			// TODO rimplement trace slicing
-			FeatureExpr exceptionContext = JPF.vatrace.getExceptionContext();
-			IgnoreContext.removeContext(exceptionContext);
-			if (!JPF.ignoredFeatures.isEmpty()) {
-				// second run for important features
-				JPF.vatrace = new Trace();
-				JPF.vatrace.filter = new Or(new And(VarvizView.basefilter, new InteractionFilter(VarvizView.minDegree)), new ExceptionFilter());
-				JPF.main(args);
-				Conditional.additionalConstraint = BDDFeatureExprFactory.True();
-				JPF.ignoredFeatures.clear();
-			}
-		}
-		JPF.vatrace.finalizeGraph();
+		
 		return JPF.vatrace;
 	}
 

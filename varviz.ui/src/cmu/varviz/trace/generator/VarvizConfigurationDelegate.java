@@ -27,6 +27,7 @@ import org.eclipse.ui.console.MessageConsoleStream;
 
 import cmu.varviz.trace.Trace;
 import cmu.varviz.trace.view.VarvizView;
+import cmu.varviz.trace.view.actions.Slicer;
 
 /**
  * Runs the Java Application to generate the {@link Trace}.
@@ -98,8 +99,14 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 			VarvizView.PROJECT_NAME = project.getName();
 
 			project.build(IncrementalProjectBuilder.FULL_BUILD, monitor);
-			VarvizView.setTRACE(VarvizView.generator.run(runConfig, resource, monitor, classpath));
-
+			Trace trace = VarvizView.generator.run(runConfig, resource, monitor, classpath);
+			
+			if (VarvizView.showForExceptionFeatures) {
+				Slicer.sliceForExceptiuon(trace);
+			}
+			trace.finalizeGraph();
+			VarvizView.setTRACE(trace);
+			
 			if (VarvizView.getTRACE().getMain().size() < 10_000) {
 				VarvizView.refreshVisuals();
 			}

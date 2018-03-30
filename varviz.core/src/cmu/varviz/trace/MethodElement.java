@@ -7,6 +7,7 @@ import cmu.conditional.One;
 import cmu.varviz.trace.filters.StatementFilter;
 import de.fosd.typechef.featureexpr.FeatureExpr;
 
+@SuppressWarnings("unchecked")
 public abstract class MethodElement<T> {
 
 	private static int ID = 0;
@@ -127,4 +128,11 @@ public abstract class MethodElement<T> {
 	public boolean canBeRemoved(int line) {// TODO revise this, seems unnecessary
 		return false;
 	}
+	
+	/**
+	 * returns the simplified Element for the given context.
+	 * @param ctx
+	 * @return
+	 */
+	public abstract MethodElement<?> simplify(FeatureExpr ctx, StatementFilter filter);
 }
