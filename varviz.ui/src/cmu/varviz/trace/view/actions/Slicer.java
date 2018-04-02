@@ -7,6 +7,7 @@ import static cmu.conditional.Conditional.not;
 import static cmu.conditional.Conditional.simplifyCondition;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -30,6 +31,10 @@ import scala.collection.Iterator;
  *
  */
 public class Slicer {
+	
+	private Slicer() {
+		// nothing here
+	}
 
 	/**
 	 * tries to set all features that do not matter for the given expression to fixed values.
@@ -39,29 +44,39 @@ public class Slicer {
 		if (Conditional.isContradiction(ctx)) {
 			return FeatureExprFactory.True();
 		}
-		Set<String> includedFeatures = new HashSet<>();
+		Set<SingleFeatureExpr> sliceFeatures = new HashSet<>();
 		scala.collection.immutable.Set<SingleFeatureExpr> distinctfeatureObjects = ctx.collectDistinctFeatureObjects();
 		Iterator<SingleFeatureExpr> iterator = distinctfeatureObjects.iterator();
 		while (iterator.hasNext()) {
-			includedFeatures.add(getCTXString(iterator.next()));
+			sliceFeatures.add(iterator.next());
 		}
+		return sliceFeatures(sliceFeatures);
+	}
+	
+	/**
+	 * tries to set all features that do not matter for the given expression to fixed values.
+	 * @return returns the new constraint with the fixed features.
+	 */
+	public static FeatureExpr sliceFeatures(final Set<SingleFeatureExpr> sliceFeatures) {
+		System.out.print("slice Trace for :");
+		for (SingleFeatureExpr singleFeatureExpr : sliceFeatures) {
+			System.out.print(getCTXString(singleFeatureExpr, false)+ ", ");
+		}
+		System.out.println();
 
 		// select the features of the exception
 		// check whether the other features can be (de)selected
 		final TraceGenerator generator = VarvizView.generator;
 		generator.clearIgnoredFeatures();
 
-		FeatureExpr ctxcheck = simplifyCondition(ctx);
 		FeatureExpr constraint = FeatureExprFactory.True();
 		for (Entry<String, SingleFeatureExpr> feature : generator.getFeatures().entrySet()) {
-			if (!includedFeatures.contains(getCTXString(feature.getValue()))) {
-				if (checkSat(constraint, ctx, not(feature.getValue()))) {
+			if (!sliceFeatures.contains(feature.getValue())) {
+				if (checkSat(constraint, sliceFeatures, not(feature.getValue()))) {
 					generator.getIgnoredFeatures().put(feature.getValue(), false);
-					ctxcheck = ctxcheck.andNot(feature.getValue());
 					constraint = constraint.andNot(feature.getValue());
-					} else if (checkSat(constraint, ctx, feature.getValue())) {
+					} else if (checkSat(constraint, sliceFeatures, feature.getValue())) {
 					generator.getIgnoredFeatures().put(feature.getValue(), true);
-					ctxcheck = ctxcheck.and(feature.getValue());
 					constraint = constraint.and(feature.getValue());
 				}
 			}
@@ -71,25 +86,75 @@ public class Slicer {
 		return constraint;	
 	}
 
-	private static boolean checkSat(FeatureExpr constraint, FeatureExpr ctx, FeatureExpr value) {
-		FeatureExpr constraintAndException = and(constraint, ctx); 
-		FeatureExpr constraintAndNotException = and(constraint, not(ctx));
-		boolean result = isSatisfiable(and(constraintAndException,value)) && isSatisfiable(and(constraintAndNotException, value));
-		
-
+	/**
+	 * Checks if the slice features can all be selected and unselected for the given constraint.
+	 * @param constraint The constraint 
+	 * @param sliceFeatures the features we slice for
+	 * @param featue A feature (can be selected or unselected); 
+	 * @return
+	 */
+	private static boolean checkSat(FeatureExpr constraint, Set<SingleFeatureExpr> sliceFeatures, FeatureExpr featue) {
+		if (!isSatisfiable(and(constraint, featue))) {
+			return false;
+		}
 		// check if context features are still conditional (i.e., they can be true and false)
-		scala.collection.immutable.Set<SingleFeatureExpr> distinctfeatureObjects = ctx.collectDistinctFeatureObjects();
-		Iterator<SingleFeatureExpr> iterator = distinctfeatureObjects.iterator();
-		while (iterator.hasNext()) {
-			FeatureExpr feature = iterator.next();
-			if (!isSatisfiable(constraint.and(value).and(feature))) {
+		for (SingleFeatureExpr slicefeature : sliceFeatures) {
+			if (!isSatisfiable(and(and(constraint, featue), slicefeature))) {
 				return false;
 			}
-			if (!isSatisfiable(constraint.and(value).andNot(feature))) {
+			if (!isSatisfiable(and(and(constraint, featue), not(slicefeature)))) {
 				return false;
 			}
 		}
-		return result;
+		return true;
+	}
+	
+	public static void sliceForFeatures(Trace trace, Map<SingleFeatureExpr, Boolean> featureSelection) {
+		long start = System.currentTimeMillis();
+		FeatureExpr constraint = FeatureExprFactory.True();
+		
+		for (Entry<SingleFeatureExpr, Boolean> entry : featureSelection.entrySet()) {
+			if (entry.getValue()) {
+				constraint = and(constraint, entry.getKey());
+			} else {
+				constraint = and(constraint, not(entry.getKey()));
+			}
+		}
+		if (Conditional.isTautology(constraint)) {
+			return;
+		}
+		if (!Conditional.isSatisfiable(constraint)) {
+			return;
+		}
+		trace.getMain().simplify(constraint, new Or(new And(VarvizView.basefilter, new InteractionFilter(VarvizView.minDegree)), new ExceptionFilter()));
+		long end= System.currentTimeMillis();
+		System.out.println((end - start) + "ms");
+		System.out.println("constraint:" + Conditional.getCTXString(constraint));
+		
+		final TraceGenerator generator = VarvizView.generator;
+		for (Entry<FeatureExpr, Boolean> entry : generator.getIgnoredFeatures().entrySet()) {
+			System.out.println("set feature " + getCTXString(entry.getKey(), false) + " to " + entry.getValue());
+		}
+	}
+	
+	/**
+	 * Sets the given constrint.
+	 * 
+	 */
+	public static void sliceForConstraint(Trace trace, FeatureExpr constraint) {
+		Conditional.additionalConstraint = and(Conditional.additionalConstraint, constraint);
+		System.out.println("set Constraint: "+ Conditional.additionalConstraint);
+		
+		long start = System.currentTimeMillis();
+		trace.getMain().simplify(constraint, new Or(new And(VarvizView.basefilter, new InteractionFilter(VarvizView.minDegree)), new ExceptionFilter()));
+		long end= System.currentTimeMillis();
+		System.out.println((end - start) + "ms");
+		System.out.println("constraint:" + Conditional.getCTXString(constraint));
+		
+		final TraceGenerator generator = VarvizView.generator;
+		for (Entry<FeatureExpr, Boolean> entry : generator.getIgnoredFeatures().entrySet()) {
+			System.out.println("set feature " + getCTXString(entry.getKey(), false) + " to " + entry.getValue());
+		}
 	}
 	
 	/**
@@ -97,12 +162,18 @@ public class Slicer {
 	 * 
 	 */
 	public static void sliceForExceptiuon(Trace trace) {
+		long start = System.currentTimeMillis();
 		FeatureExpr exceptionContext = trace.getExceptionContext();
 		exceptionContext = Conditional.simplifyCondition(exceptionContext);
 		
 		FeatureExpr constraint = Slicer.sliceContext(exceptionContext);
+		if (Conditional.isTautology(constraint)) {
+			return;
+		}
 		trace.getMain().simplify(constraint, new Or(new And(VarvizView.basefilter, new InteractionFilter(VarvizView.minDegree)), new ExceptionFilter()));
-		System.out.println("slice trace : "+ Conditional.getCTXString(constraint));
+		long end= System.currentTimeMillis();
+		System.out.println((end - start) + "ms");
+		System.out.println("constraint:" + Conditional.getCTXString(constraint));
 		
 		final TraceGenerator generator = VarvizView.generator;
 		for (Entry<FeatureExpr, Boolean> entry : generator.getIgnoredFeatures().entrySet()) {

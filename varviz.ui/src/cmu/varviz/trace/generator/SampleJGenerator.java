@@ -36,10 +36,10 @@ import de.fosd.typechef.featureexpr.SingleFeatureExpr;
  */
 public class SampleJGenerator implements TraceGenerator {
 
-	static SampleJGenerator SampleJGenerator= new SampleJGenerator();
+	private static final SampleJGenerator INSTANCE = new SampleJGenerator();
 	
 	public static TraceGenerator geGenerator() {
-		return SampleJGenerator;
+		return INSTANCE;
 	}
 	
 	private SampleJGenerator() {

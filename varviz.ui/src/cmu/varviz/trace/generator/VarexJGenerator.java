@@ -30,10 +30,10 @@ import gov.nasa.jpf.JPF;
  */
 public class VarexJGenerator implements TraceGenerator {
 
-	static VarexJGenerator VarexJGenerator= new VarexJGenerator();
+	private static final VarexJGenerator INSTANCE = new VarexJGenerator();
 	
 	public static TraceGenerator geGenerator() {
-		return VarexJGenerator;
+		return INSTANCE;
 	}
 	
 	private VarexJGenerator() {

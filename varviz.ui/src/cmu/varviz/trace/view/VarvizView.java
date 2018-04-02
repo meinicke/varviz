@@ -49,6 +49,7 @@ import cmu.varviz.trace.uitrace.GraphicalStatement;
 import cmu.varviz.trace.uitrace.GraphicalTrace;
 import cmu.varviz.trace.view.actions.HideAction;
 import cmu.varviz.trace.view.actions.RemovePathAction;
+import cmu.varviz.trace.view.actions.SetSelectionAction;
 import cmu.varviz.trace.view.actions.Slicer;
 import cmu.varviz.trace.view.editparts.TraceEditPartFactory;
 
@@ -112,8 +113,7 @@ public class VarvizView extends ViewPart {
 
 	private static final double[] ZOOM_LEVELS;
 	static {
-		ZOOM_LEVELS = new double[] { .1, .15, .2, .3, .4, .5, .6, .7, .8, .9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9,
-				2 };
+		ZOOM_LEVELS = new double[] { .1, .15, .2, .3, .4, .5, .6, .7, .8, .9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2 };
 	}
 
 	@Override
@@ -157,8 +157,9 @@ public class VarvizView extends ViewPart {
 				
 				if (showForExceptionFeatures) {
 					Slicer.sliceForExceptiuon(TRACE);
-					
+					TRACE.finalizeGraph();
 					if (TRACE.getMain().size() < 10_000) {
+						refreshVisuals();
 					}
 
 				}
