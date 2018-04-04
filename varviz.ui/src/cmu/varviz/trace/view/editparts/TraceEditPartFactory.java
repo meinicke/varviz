@@ -1,5 +1,7 @@
 package cmu.varviz.trace.view.editparts;
 
+import javax.annotation.Nullable;
+
 import org.eclipse.gef.EditPart;
 import org.eclipse.gef.EditPartFactory;
 
@@ -23,6 +25,7 @@ public class TraceEditPartFactory implements EditPartFactory {
 		this.varvizView = varvizView;
 	}
 
+	@Nullable
 	@Override
 	public EditPart createEditPart(EditPart context, Object model) {
 		if (model instanceof Trace) {

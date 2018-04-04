@@ -303,9 +303,11 @@ public class VarvizView extends ViewPart {
 				setProperty(REEXECUTE_QN, Boolean.toString(showForExceptionFeatures));
 				
 				if (showForExceptionFeatures) {
+					int originalSize = trace.getMain().size();
 					Slicer.sliceForExceptiuon(trace, generator);
 					trace.finalizeGraph();
-					if (trace.getMain().size() < 10_000) {
+					int slicedSize = trace.getMain().size();
+					if (originalSize > slicedSize && slicedSize < 10_000) {
 						refreshVisuals();
 					}
 

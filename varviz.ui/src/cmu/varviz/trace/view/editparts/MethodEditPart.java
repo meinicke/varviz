@@ -28,6 +28,8 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
 
+import javax.annotation.Nullable;
+
 import org.eclipse.draw2d.ConnectionAnchor;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.geometry.Point;
@@ -260,6 +262,7 @@ public class MethodEditPart extends AbstractTraceEditPart implements NodeEditPar
 		super.performRequest(request);
 	}
 	
+	@Nullable
 	@SuppressWarnings("unchecked")
 	public AbstractGraphicalEditPart getLastTrueStatement() {
 		ListIterator<Object> iterator = getChildren().listIterator(getChildren().size());

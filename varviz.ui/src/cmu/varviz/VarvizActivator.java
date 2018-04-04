@@ -1,5 +1,7 @@
 package cmu.varviz;
 
+import javax.annotation.Nullable;
+
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -52,6 +54,7 @@ public class VarvizActivator extends AbstractUIPlugin {
 		getDefault().getLog().log(new Status(IStatus.INFO, "VARVIZ", message, new Exception()));
 	}
 
+	@Nullable
 	public static Image getImage(String name) {
 		if (getDefault() != null) {
 			return getImageDescriptor(name).createImage();
@@ -59,6 +62,7 @@ public class VarvizActivator extends AbstractUIPlugin {
 		return null;
 	}
 	
+	@Nullable
 	public static ImageDescriptor getImageDescriptor(String path) {
 		return imageDescriptorFromPlugin(PLUGIN_ID, "images/" + path);
 	}
