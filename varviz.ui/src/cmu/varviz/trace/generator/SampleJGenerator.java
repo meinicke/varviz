@@ -23,6 +23,7 @@ import cmu.varviz.trace.Trace;
 import cmu.varviz.trace.filters.And;
 import cmu.varviz.trace.filters.InteractionFilter;
 import cmu.varviz.trace.filters.Or;
+import cmu.varviz.trace.filters.StatementFilter;
 import cmu.varviz.trace.view.VarvizView;
 import cmu.vatrace.ExceptionFilter;
 import de.fosd.typechef.featureexpr.FeatureExpr;
@@ -78,11 +79,11 @@ public class SampleJGenerator implements TraceGenerator {
 		};
 
 		Conditional.setFM(getFeatureModel(resource));
-		Collector collector = new Collector(getOptions(resource));
+		final StatementFilter filter = new Or(new And(VarvizView.basefilter, new InteractionFilter(VarvizView.MIN_INTERACTION_DEGREE)),
+				new ExceptionFilter());
+		Collector collector = new Collector(filter, getOptions(resource));
 		String projectPath = project.getLocation().toOSString();
 		try {
-			Collector.FILTER = new Or(new And(VarvizView.basefilter, new InteractionFilter(VarvizView.MIN_INTERACTION_DEGREE)),
-					new ExceptionFilter());
 			return(collector.createTrace(runConfig.getClassToLaunch(), projectPath, runConfig.getClassPath(),
 					samplejMonitor));
 		} finally {
