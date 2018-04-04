@@ -11,7 +11,7 @@ import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
 
-import cmu.varviz.VarvizConstants;
+import cmu.varviz.VarvizColors;
 import cmu.varviz.trace.IFStatement;
 import cmu.varviz.trace.NodeColor;
 import cmu.varviz.trace.Statement;
@@ -19,7 +19,7 @@ import cmu.varviz.trace.view.VarvizView;
 import cmu.varviz.trace.view.editparts.EditPartUtils;
 
 /**
- * TODO description
+ * The diamond figure used to represent if-statements.
  * 
  * @author Jens Meinicke
  *
@@ -48,7 +48,7 @@ public class IfBranchFigure extends Shape {
 			setName("if");
 		}
 		NodeColor color = statement.getColor();
-		setBackgroundColor(VarvizConstants.getColor(color));
+		setBackgroundColor(VarvizColors.getColor(color));
 		
 		this.add(label);
 		this.setOpaque(true);

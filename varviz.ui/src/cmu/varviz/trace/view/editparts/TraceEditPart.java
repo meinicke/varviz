@@ -29,18 +29,21 @@ import org.eclipse.draw2d.FreeformLayout;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.Rectangle;
+import org.eclipse.gef.EditPart;
 import org.eclipse.gef.editparts.AbstractGraphicalEditPart;
 
-import cmu.varviz.VarvizConstants;
+import cmu.varviz.VarvizColors;
 import cmu.varviz.trace.Trace;
 import cmu.varviz.trace.uitrace.VarvizEvent;
 
 /**
- * TODO description
+ * The {@link EditPart} representing the {@link Trace}
  * 
  * @author Jens Meinicke
  */
 public class TraceEditPart extends AbstractTraceEditPart {
+	
+	static final  int BORDER_MARGIN = 10;
 
 	public TraceEditPart(Trace model) {
 		super();
@@ -55,7 +58,7 @@ public class TraceEditPart extends AbstractTraceEditPart {
 	protected IFigure createFigure() {
 		Figure fig = new FreeformLayer();
 		fig.setLayoutManager(new FreeformLayout());
-		fig.setBackgroundColor(VarvizConstants.WHITE);
+		fig.setBackgroundColor(VarvizColors.WHITE.getColor());
 		fig.setOpaque(true);
 		return fig;
 	}
@@ -63,7 +66,7 @@ public class TraceEditPart extends AbstractTraceEditPart {
 	@Override
 	protected List<?> getModelChildren() {
 		Trace t = getRoleModel();
-		List<Object> list = new ArrayList<Object>();
+		List<Object> list = new ArrayList<>();
 		list.add(t.getSTART());
 		if (t.getMain() != null) {
 			list.add(t.getMain());
@@ -72,7 +75,7 @@ public class TraceEditPart extends AbstractTraceEditPart {
 		return list;
 	}
 
-	private final static int BORDER_MARGIN = 10;
+	
 
 	/**
 	 * TODO remove code clone with {@link MethodEditPart}
@@ -119,10 +122,8 @@ public class TraceEditPart extends AbstractTraceEditPart {
 
 		AbstractGraphicalEditPart statement = null;
 		for (Object object : children) {
-			if (object instanceof AbstractTraceEditPart) {
-				if (object instanceof MethodEditPart) {
-					statement = ((MethodEditPart) object).getLastTrueStatement();
-				}
+			if (object instanceof AbstractTraceEditPart && object instanceof MethodEditPart) {
+				statement = ((MethodEditPart) object).getLastTrueStatement();
 			}
 		}
 
@@ -134,7 +135,7 @@ public class TraceEditPart extends AbstractTraceEditPart {
 
 	@Override
 	public void propertyChange(VarvizEvent event) {
-		// TODO Auto-generated method stub
+		// not implemented
 		
 	}
 

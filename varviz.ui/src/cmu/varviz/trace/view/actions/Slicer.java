@@ -73,10 +73,10 @@ public class Slicer {
 		for (Entry<String, SingleFeatureExpr> feature : generator.getFeatures().entrySet()) {
 			if (!sliceFeatures.contains(feature.getValue())) {
 				if (checkSat(constraint, sliceFeatures, not(feature.getValue()))) {
-					generator.getIgnoredFeatures().put(feature.getValue(), false);
+					generator.getIgnoredFeatures().put(feature.getValue(), Boolean.FALSE);
 					constraint = constraint.andNot(feature.getValue());
 					} else if (checkSat(constraint, sliceFeatures, feature.getValue())) {
-					generator.getIgnoredFeatures().put(feature.getValue(), true);
+					generator.getIgnoredFeatures().put(feature.getValue(), Boolean.TRUE);
 					constraint = constraint.and(feature.getValue());
 				}
 			}
@@ -126,7 +126,7 @@ public class Slicer {
 		if (!Conditional.isSatisfiable(constraint)) {
 			return;
 		}
-		trace.getMain().simplify(constraint, new Or(new And(VarvizView.basefilter, new InteractionFilter(VarvizView.minDegree)), new ExceptionFilter()));
+		trace.getMain().simplify(constraint, new Or(new And(VarvizView.basefilter, new InteractionFilter(VarvizView.MIN_INTERACTION_DEGREE)), new ExceptionFilter()));
 		long end= System.currentTimeMillis();
 		System.out.println((end - start) + "ms");
 		System.out.println("constraint:" + Conditional.getCTXString(constraint));
@@ -146,7 +146,7 @@ public class Slicer {
 		System.out.println("set Constraint: "+ Conditional.additionalConstraint);
 		
 		long start = System.currentTimeMillis();
-		trace.getMain().simplify(constraint, new Or(new And(VarvizView.basefilter, new InteractionFilter(VarvizView.minDegree)), new ExceptionFilter()));
+		trace.getMain().simplify(constraint, new Or(new And(VarvizView.basefilter, new InteractionFilter(VarvizView.MIN_INTERACTION_DEGREE)), new ExceptionFilter()));
 		long end= System.currentTimeMillis();
 		System.out.println((end - start) + "ms");
 		System.out.println("constraint:" + Conditional.getCTXString(constraint));
@@ -170,7 +170,7 @@ public class Slicer {
 		if (Conditional.isTautology(constraint)) {
 			return;
 		}
-		trace.getMain().simplify(constraint, new Or(new And(VarvizView.basefilter, new InteractionFilter(VarvizView.minDegree)), new ExceptionFilter()));
+		trace.getMain().simplify(constraint, new Or(new And(VarvizView.basefilter, new InteractionFilter(VarvizView.MIN_INTERACTION_DEGREE)), new ExceptionFilter()));
 		long end= System.currentTimeMillis();
 		System.out.println((end - start) + "ms");
 		System.out.println("constraint:" + Conditional.getCTXString(constraint));

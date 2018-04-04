@@ -20,6 +20,8 @@
  */
 package cmu.varviz.trace.view.editparts;
 
+import static  cmu.varviz.trace.view.editparts.TraceEditPart.BORDER_MARGIN;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -31,6 +33,7 @@ import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.gef.ConnectionEditPart;
+import org.eclipse.gef.EditPart;
 import org.eclipse.gef.NodeEditPart;
 import org.eclipse.gef.Request;
 import org.eclipse.gef.editparts.AbstractGraphicalEditPart;
@@ -46,13 +49,11 @@ import cmu.varviz.trace.view.figures.MethodFigure;
 import de.fosd.typechef.featureexpr.FeatureExpr;
 
 /**
- * TODO description
+ * The {@link EditPart} for methods.
  * 
  * @author Jens Meinicke
  */
 public class MethodEditPart extends AbstractTraceEditPart implements NodeEditPart {
-
-	private final static int BORDER_MARGIN = 10;
 
 	private ConnectionAnchor sourceAnchor = null;
 	private ConnectionAnchor targetAnchor = null;
@@ -315,7 +316,7 @@ public class MethodEditPart extends AbstractTraceEditPart implements NodeEditPar
 
 	@Override
 	public void propertyChange(VarvizEvent event) {
-		// TODO Auto-generated method stub
+		// not imeplemented
 		
 	}
 

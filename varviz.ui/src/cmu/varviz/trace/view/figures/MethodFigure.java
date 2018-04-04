@@ -10,11 +10,11 @@ import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
 
-import cmu.varviz.VarvizConstants;
+import cmu.varviz.VarvizColors;
 import cmu.varviz.trace.Method;
 
 /**
- * TODO description
+ * The {@link Figure} representing methods in the trace. 
  * 
  * @author Jens Meinicke
  *
@@ -34,8 +34,8 @@ public class MethodFigure extends Figure {
 		super();
 		this.setLayoutManager(new FreeformLayout());
 		this.setName(method.toString());
-		setBackgroundColor(VarvizConstants.WHITE);
-		setBorder(new LineBorder(VarvizConstants.BLACK, 1));
+		setBackgroundColor(VarvizColors.WHITE.getColor());
+		setBorder(new LineBorder(VarvizColors.BLACK.getColor(), 1));
 		this.add(label);
 		this.setOpaque(false);
 		Label tooltip = new Label();

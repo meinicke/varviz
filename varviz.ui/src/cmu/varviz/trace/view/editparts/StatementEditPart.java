@@ -26,12 +26,13 @@ import java.util.List;
 import org.eclipse.draw2d.ConnectionAnchor;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.gef.ConnectionEditPart;
+import org.eclipse.gef.EditPart;
 import org.eclipse.gef.NodeEditPart;
 import org.eclipse.gef.Request;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 
-import cmu.varviz.VarvizConstants;
+import cmu.varviz.VarvizColors;
 import cmu.varviz.VarvizException;
 import cmu.varviz.trace.Edge;
 import cmu.varviz.trace.Shape;
@@ -44,7 +45,8 @@ import cmu.varviz.trace.view.figures.SquareFigure;
 import cmu.varviz.trace.view.figures.StatementFigure;
 
 /**
- * TODO description
+ * The {@link EditPart} representing any kind of statements.
+ * @see {@link StatementFigure}, {@link IfBranchFigure}, {@link SquareFigure}
  * 
  * @author Jens Meinicke
  */
@@ -84,7 +86,7 @@ public class StatementEditPart extends AbstractTraceEditPart implements NodeEdit
 			targetAnchor = boxFigure.getTargetAnchor();
 			return boxFigure;
 		default:
-			throw new RuntimeException("shape not supported: " + shape);
+			throw new VarvizException("shape not supported: " + shape);
 		}
 		
 	}
@@ -106,7 +108,7 @@ public class StatementEditPart extends AbstractTraceEditPart implements NodeEdit
 
 	@Override
 	public void layout() {
-		
+		// nothing here
 	}
 	
 	public Statement<?> getStatementModel() {
@@ -168,7 +170,7 @@ public class StatementEditPart extends AbstractTraceEditPart implements NodeEdit
 		switch (event.getType()) {
 		case COLOR_CHANGED:
 			Statement<?> statement = (Statement<?>)getModel();
-			Color color = VarvizConstants.getColor(statement.getColor());
+			Color color = VarvizColors.getColor(statement.getColor());
 			figure.setBackgroundColor(color);
 			break;
 		case BORDER_CHANGED:

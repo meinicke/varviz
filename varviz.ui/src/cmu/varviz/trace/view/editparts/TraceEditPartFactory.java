@@ -9,7 +9,7 @@ import cmu.varviz.trace.Statement;
 import cmu.varviz.trace.Trace;
 
 /**
- * TODO description
+ * The {@link EditPartFactory} for the {@link Trace} elements. 
  * 
  * @author Jens Meinicke
  *

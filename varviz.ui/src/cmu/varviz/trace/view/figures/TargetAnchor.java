@@ -15,9 +15,9 @@ public class TargetAnchor  extends AbstractConnectionAnchor {
 
 	@Override
 	public Point getLocation(Point ref) {
-		ref = getOwner().getBounds().getTop();
-		getOwner().translateToAbsolute(ref);
-		return ref;
+		Point locations = getOwner().getBounds().getTop();
+		getOwner().translateToAbsolute(locations);
+		return locations;
 	}
 
 

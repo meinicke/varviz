@@ -47,7 +47,7 @@ public class VarexJGenerator implements TraceGenerator {
 		if (!jpfPath.exists()) {
 			jpfPath.mkdir();
 		}
-		FileUtils.CopyFileFromVarvizJar("/res", "site.properties", jpfPath);
+		FileUtils.copyFileFromVarvizJar("/res", "site.properties", jpfPath);
 	}
 	
 
@@ -81,7 +81,7 @@ public class VarexJGenerator implements TraceGenerator {
 		final String[] args = { "+classpath=" + cp, "+choice=MapChoice", "+stack=HybridStackHandler", "+nhandler.delegateUnhandledNative", "+search.class=.search.RandomSearch",
 				featureModelPath != null ? "+ featuremodel=" + featureModelPath : "", runConfig.getClassToLaunch() };
 		JPF.vatrace = new Trace();
-		JPF.vatrace.filter = new Or(new And(VarvizView.basefilter, new InteractionFilter(VarvizView.minDegree)), new ExceptionFilter());/// remove code clone
+		JPF.vatrace.filter = new Or(new And(VarvizView.basefilter, new InteractionFilter(VarvizView.MIN_INTERACTION_DEGREE)), new ExceptionFilter());/// remove code clone
 		FeatureExprFactory.setDefault(FeatureExprFactory.bdd());
 		JPF.main(args);
 		

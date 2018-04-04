@@ -15,7 +15,7 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 
 import cmu.conditional.Conditional;
-import cmu.varviz.VarvizConstants;
+import cmu.varviz.VarvizColors;
 import cmu.varviz.VarvizException;
 import cmu.varviz.trace.Edge;
 import cmu.varviz.trace.NodeColor;
@@ -59,7 +59,7 @@ public class EdgeEditPart extends AbstractConnectionEditPart implements VarvizEv
 			line.setLineDash(new float[]{5, 5});
 		}
 		
-		line.setForegroundColor(VarvizConstants.getColor(edge.getColor()));
+		line.setForegroundColor(VarvizColors.getColor(edge.getColor()));
 		line.setLineWidth(edge.getWidth());
 
 		PolygonDecoration arrow = new PolygonDecoration();
@@ -68,7 +68,7 @@ public class EdgeEditPart extends AbstractConnectionEditPart implements VarvizEv
 		arrowPointList.addPoint(-2, 1);
 		arrowPointList.addPoint(-2, -1);
 		arrow.setTemplate(arrowPointList);
-		arrow.setForegroundColor(VarvizConstants.getColor(edge.getColor()));
+		arrow.setForegroundColor(VarvizColors.getColor(edge.getColor()));
 		line.setTargetDecoration(arrow);
 		
 		refreshLabel(edge, line);
@@ -97,7 +97,7 @@ public class EdgeEditPart extends AbstractConnectionEditPart implements VarvizEv
 		contextLabel.setFont(TEXT_FONT);
 		figure.setToolTip(contextLabel);
 		
-		figure.setForegroundColor(VarvizConstants.getColor(edge.getColor()));
+		figure.setForegroundColor(VarvizColors.getColor(edge.getColor()));
 		((PolylineConnection)figure).setLineWidth(edge.getWidth());
 		
 		refreshLabel(edge);
@@ -126,11 +126,11 @@ public class EdgeEditPart extends AbstractConnectionEditPart implements VarvizEv
 		// Cambria, Lucida Sans Unicode, Malgun Gothic, Segoe UI Symbol
 		label.setFont(TEXT_FONT);
 		label.setText(EditPartUtils.getContext(edge.getCtx()));
-		label.setForegroundColor(VarvizConstants.BLACK);
+		label.setForegroundColor(VarvizColors.BLACK.getColor());
 		label.setBackgroundColor(new Color(null, 239, 242, 185));
 		figure.add(label, sourceEndpointLocator);
 		label.setOpaque(true);
-		label.setBorder(new LineBorder(VarvizConstants.BLACK));
+		label.setBorder(new LineBorder(VarvizColors.BLACK.getColor()));
 	}
 
 	@Override

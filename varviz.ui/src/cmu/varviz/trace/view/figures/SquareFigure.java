@@ -1,5 +1,6 @@
 package cmu.varviz.trace.view.figures;
 
+import org.eclipse.draw2d.Figure;
 import org.eclipse.draw2d.FreeformLayout;
 import org.eclipse.draw2d.Label;
 import org.eclipse.draw2d.LineBorder;
@@ -10,12 +11,12 @@ import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
 
-import cmu.varviz.VarvizConstants;
+import cmu.varviz.VarvizColors;
 import cmu.varviz.trace.NodeColor;
 import cmu.varviz.trace.Statement;
 
 /**
- * TODO description
+ * The {@link Figure} represnting squares for start and end nodes.
  * 
  * @author Jens Meinicke
  *
@@ -37,8 +38,8 @@ public class SquareFigure extends RectangleFigure {
 		this.setLayoutManager(new FreeformLayout());
 		setName(statement.toString());
 		NodeColor color = statement.getColor();
-		setBackgroundColor(VarvizConstants.getColor(color));
-		setBorder(new LineBorder(VarvizConstants.BLACK, BORDER_WIDTH));
+		setBackgroundColor(VarvizColors.getColor(color));
+		setBorder(new LineBorder(VarvizColors.BLACK.getColor(), BORDER_WIDTH));
 		
 		this.add(label);
 		this.setOpaque(true);

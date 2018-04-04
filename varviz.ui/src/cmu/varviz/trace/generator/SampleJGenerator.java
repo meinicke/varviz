@@ -81,7 +81,7 @@ public class SampleJGenerator implements TraceGenerator {
 		Collector collector = new Collector(getOptions(resource));
 		String projectPath = project.getLocation().toOSString();
 		try {
-			Collector.FILTER = new Or(new And(VarvizView.basefilter, new InteractionFilter(VarvizView.minDegree)),
+			Collector.FILTER = new Or(new And(VarvizView.basefilter, new InteractionFilter(VarvizView.MIN_INTERACTION_DEGREE)),
 					new ExceptionFilter());
 			return(collector.createTrace(runConfig.getClassToLaunch(), projectPath, runConfig.getClassPath(),
 					samplejMonitor));

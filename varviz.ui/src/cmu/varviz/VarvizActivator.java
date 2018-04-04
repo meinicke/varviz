@@ -28,13 +28,17 @@ public class VarvizActivator extends AbstractUIPlugin {
 	public static final String PLUGIN_ID = "varviz";
 	private static VarvizActivator plugin;
 	
-	public VarvizActivator() {	}
+	public VarvizActivator() {
+		// nothing here
+	}
 
+	@Override
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin = this;
 	}
 
+	@Override
 	public void stop(BundleContext context) throws Exception {
 		plugin = null;
 		super.stop(context);

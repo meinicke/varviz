@@ -17,7 +17,6 @@ import org.eclipse.gef.ui.parts.ScrollingGraphicalViewer;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.IMenuCreator;
-import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
@@ -49,7 +48,6 @@ import cmu.varviz.trace.uitrace.GraphicalStatement;
 import cmu.varviz.trace.uitrace.GraphicalTrace;
 import cmu.varviz.trace.view.actions.HideAction;
 import cmu.varviz.trace.view.actions.RemovePathAction;
-import cmu.varviz.trace.view.actions.SetSelectionAction;
 import cmu.varviz.trace.view.actions.Slicer;
 import cmu.varviz.trace.view.editparts.TraceEditPartFactory;
 
@@ -61,12 +59,13 @@ import cmu.varviz.trace.view.editparts.TraceEditPartFactory;
  */
 public class VarvizView extends ViewPart {
 
+	private static final String SAMPLEJ = "SampleJ";
+	private static final String VAREXJ = "VarexJ";
 	public static final IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
 	public static final QualifiedName SHOW_LABELS_QN = new QualifiedName(VarvizView.class.getName() + "#showLables",
 			"showLables");
 	public static final QualifiedName USE_VAREXJ_QN = new QualifiedName(VarvizView.class.getName() + "#useVarexJ", "useVarexJ");
 	public static final QualifiedName REEXECUTE_QN = new QualifiedName(VarvizView.class.getName() + "#REEXECUTE", "REEXECUTE");
-
 
 	public static ScrollingGraphicalViewer viewer;
 	private ScalableFreeformRootEditPart rootEditPart;
@@ -82,8 +81,7 @@ public class VarvizView extends ViewPart {
 	public static boolean useVarexJ = Boolean.parseBoolean(getProperty(USE_VAREXJ_QN));
 	public static TraceGenerator generator = useVarexJ ? VarexJGenerator.geGenerator():SampleJGenerator.geGenerator();
 
-	public static int projectID = 0;
-	public static int minDegree = 2;
+	public static final int MIN_INTERACTION_DEGREE = 2;
 
 	private static LayoutManager lm = new LayoutManager();
 
@@ -105,11 +103,6 @@ public class VarvizView extends ViewPart {
 	}
 	
 	public static String PROJECT_NAME = "";
-
-	// TODO remove
-	public static final String PROJECT_Sources = "NanoXML";
-	public static final String PROJECT_Sources_Folder = "Sources/Java";
-	public static final String PROJECT_Sources_Test_Folder = "Test/Java";
 
 	private static final double[] ZOOM_LEVELS;
 	static {
@@ -192,12 +185,12 @@ public class VarvizView extends ViewPart {
 		exportGraphVizButton.setImageDescriptor(AbstractUIPlugin.imageDescriptorFromPlugin(PlatformUI.PLUGIN_ID,
 				"icons/full/etool16/export_wiz.png"));
 
-		exportAsToolbarIcon = new Action(useVarexJ ? "VarexJ" : "SampleJ", Action.AS_DROP_DOWN_MENU) {
+		exportAsToolbarIcon = new Action(useVarexJ ? VAREXJ : SAMPLEJ, Action.AS_DROP_DOWN_MENU) {
 			@Override
 			public void run() {
 				useVarexJ = !useVarexJ;
 				setProperty(USE_VAREXJ_QN, Boolean.toString(useVarexJ));
-				setText(useVarexJ ? "VarexJ" : "SampleJ");
+				setText(useVarexJ ? VAREXJ : SAMPLEJ);
 				if (useVarexJ) {
 					generator = VarexJGenerator.geGenerator();
 				} else  {
@@ -216,7 +209,7 @@ public class VarvizView extends ViewPart {
 			@Override
 			public Menu getMenu(Control parent) {
 				fMenu = new Menu(parent);
-				ActionContributionItem exportImageContributionItem = new ActionContributionItem(new Action("VarexJ") {
+				ActionContributionItem exportImageContributionItem = new ActionContributionItem(new Action(VAREXJ) {
 					@Override
 					public void run() {
 						exportAsToolbarIcon.setText(this.getText());
@@ -225,7 +218,7 @@ public class VarvizView extends ViewPart {
 					}
 				});
 				exportImageContributionItem.fill(fMenu, -1);
-				ActionContributionItem exportXMLContributionItem = new ActionContributionItem(new Action("SampleJ") {
+				ActionContributionItem exportXMLContributionItem = new ActionContributionItem(new Action(SAMPLEJ) {
 					@Override
 					public void run() {
 						exportAsToolbarIcon.setText(this.getText());
@@ -239,6 +232,7 @@ public class VarvizView extends ViewPart {
 
 			@Override
 			public void dispose() {
+				// nothing here
 			}
 
 		});
@@ -280,11 +274,7 @@ public class VarvizView extends ViewPart {
 		MenuManager menuMgr = new MenuManager("#PopupMenu");
 		menuMgr.setRemoveAllWhenShown(true);
 
-		menuMgr.addMenuListener(new IMenuListener() {
-			public void menuAboutToShow(IMenuManager m) {
-				fillContextMenu(m);
-			}
-		});
+		menuMgr.addMenuListener(m -> fillContextMenu(m));
 		Control control = viewer.getControl();
 		Menu menu = menuMgr.createContextMenu(control);
 		control.setMenu(menu);
@@ -298,7 +288,7 @@ public class VarvizView extends ViewPart {
 
 	@Override
 	public void setFocus() {
-
+		// nothing here
 	}
 
 	public static void refreshVisuals() {

@@ -139,11 +139,8 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 		Set<String> classpathEntries = new HashSet<>(entries.length);
 		for (IRuntimeClasspathEntry entry : entries) {
 			String location = entry.getLocation();
-			if (location != null) {
-				if (entry.getClasspathProperty() == IRuntimeClasspathEntry.USER_CLASSES && !classpathEntries.contains(location)) {
-					classpathEntries.add(location);
-				}
-
+			if (location != null && entry.getClasspathProperty() == IRuntimeClasspathEntry.USER_CLASSES && !classpathEntries.contains(location)) {
+				classpathEntries.add(location);
 			}
 		}
 		
