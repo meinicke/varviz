@@ -40,7 +40,7 @@ public class Slicer {
 	 * tries to set all features that do not matter for the given expression to fixed values.
 	 * @return returns the new constraint with the fixed features.
 	 */
-	public static FeatureExpr sliceContext(final FeatureExpr ctx) {
+	public static FeatureExpr sliceContext(final FeatureExpr ctx, TraceGenerator generator) {
 		if (Conditional.isContradiction(ctx)) {
 			return FeatureExprFactory.True();
 		}
@@ -50,14 +50,14 @@ public class Slicer {
 		while (iterator.hasNext()) {
 			sliceFeatures.add(iterator.next());
 		}
-		return sliceFeatures(sliceFeatures);
+		return sliceFeatures(sliceFeatures, generator);
 	}
 	
 	/**
 	 * tries to set all features that do not matter for the given expression to fixed values.
 	 * @return returns the new constraint with the fixed features.
 	 */
-	public static FeatureExpr sliceFeatures(final Set<SingleFeatureExpr> sliceFeatures) {
+	public static FeatureExpr sliceFeatures(final Set<SingleFeatureExpr> sliceFeatures, TraceGenerator generator) {
 		System.out.print("slice Trace for :");
 		for (SingleFeatureExpr singleFeatureExpr : sliceFeatures) {
 			System.out.print(getCTXString(singleFeatureExpr, false)+ ", ");
@@ -66,7 +66,6 @@ public class Slicer {
 
 		// select the features of the exception
 		// check whether the other features can be (de)selected
-		final TraceGenerator generator = VarvizView.generator;
 		generator.clearIgnoredFeatures();
 
 		FeatureExpr constraint = FeatureExprFactory.True();
@@ -109,7 +108,7 @@ public class Slicer {
 		return true;
 	}
 	
-	public static void sliceForFeatures(Trace trace, Map<SingleFeatureExpr, Boolean> featureSelection) {
+	public static void sliceForFeatures(Trace trace, Map<SingleFeatureExpr, Boolean> featureSelection, TraceGenerator generator) {
 		long start = System.currentTimeMillis();
 		FeatureExpr constraint = FeatureExprFactory.True();
 		
@@ -131,7 +130,6 @@ public class Slicer {
 		System.out.println((end - start) + "ms");
 		System.out.println("constraint:" + Conditional.getCTXString(constraint));
 		
-		final TraceGenerator generator = VarvizView.generator;
 		for (Entry<FeatureExpr, Boolean> entry : generator.getIgnoredFeatures().entrySet()) {
 			System.out.println("set feature " + getCTXString(entry.getKey(), false) + " to " + entry.getValue());
 		}
@@ -141,7 +139,7 @@ public class Slicer {
 	 * Sets the given constrint.
 	 * 
 	 */
-	public static void sliceForConstraint(Trace trace, FeatureExpr constraint) {
+	public static void sliceForConstraint(Trace trace, FeatureExpr constraint, TraceGenerator generator) {
 		Conditional.additionalConstraint = and(Conditional.additionalConstraint, constraint);
 		System.out.println("set Constraint: "+ Conditional.additionalConstraint);
 		
@@ -151,7 +149,6 @@ public class Slicer {
 		System.out.println((end - start) + "ms");
 		System.out.println("constraint:" + Conditional.getCTXString(constraint));
 		
-		final TraceGenerator generator = VarvizView.generator;
 		for (Entry<FeatureExpr, Boolean> entry : generator.getIgnoredFeatures().entrySet()) {
 			System.out.println("set feature " + getCTXString(entry.getKey(), false) + " to " + entry.getValue());
 		}
@@ -159,14 +156,15 @@ public class Slicer {
 	
 	/**
 	 * Slices the given  {@link Trace} for the exception.
+	 * @param traceGenerator 
 	 * 
 	 */
-	public static void sliceForExceptiuon(Trace trace) {
+	public static void sliceForExceptiuon(Trace trace, TraceGenerator generator) {
 		long start = System.currentTimeMillis();
 		FeatureExpr exceptionContext = trace.getExceptionContext();
 		exceptionContext = Conditional.simplifyCondition(exceptionContext);
 		
-		FeatureExpr constraint = Slicer.sliceContext(exceptionContext);
+		FeatureExpr constraint = Slicer.sliceContext(exceptionContext, generator);
 		if (Conditional.isTautology(constraint)) {
 			return;
 		}
@@ -175,7 +173,6 @@ public class Slicer {
 		System.out.println((end - start) + "ms");
 		System.out.println("constraint:" + Conditional.getCTXString(constraint));
 		
-		final TraceGenerator generator = VarvizView.generator;
 		for (Entry<FeatureExpr, Boolean> entry : generator.getIgnoredFeatures().entrySet()) {
 			System.out.println("set feature " + getCTXString(entry.getKey(), false) + " to " + entry.getValue());
 		}

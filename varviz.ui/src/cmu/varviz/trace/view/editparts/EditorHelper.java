@@ -53,7 +53,7 @@ public class EditorHelper {
 	}
 	
 	private static IFile getFile(String fileName) {
-		IProject prj = ResourcesPlugin.getWorkspace().getRoot().getProject(VarvizView.PROJECT_NAME);		
+		IProject prj = ResourcesPlugin.getWorkspace().getRoot().getProject(VarvizView.getInstance().getProjectName());		
 		IFile file = prj.getFile("src/" + fileName);
 		if (!file.exists()) {
 			throw new VarvizException("file " + file.getFullPath() + " does not exist");
@@ -61,9 +61,8 @@ public class EditorHelper {
 		return file;
 	}
 	
-	// TODO revise this, iterate over list of possible paths
 	private static IFile getFile(MethodInfo mi) {
-		IProject prj = ResourcesPlugin.getWorkspace().getRoot().getProject(VarvizView.PROJECT_NAME);		
+		IProject prj = ResourcesPlugin.getWorkspace().getRoot().getProject(VarvizView.getInstance().getProjectName());		
 		IFile file = prj.getFile("src/" + mi.getSourceFileName());
 		if (!file.exists()) {
 			throw new VarvizException("file " + file.getFullPath() + " does not exist");

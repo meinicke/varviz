@@ -1,6 +1,5 @@
 package cmu.varviz.trace.view.actions;
 
-import org.eclipse.gef.ui.parts.GraphicalViewerImpl;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.IStructuredSelection;
 
@@ -18,16 +17,16 @@ import de.fosd.typechef.featureexpr.FeatureExpr;
  */
 public class HighlightPathAction extends Action {
 
-	private GraphicalViewerImpl viewer;
+	private VarvizView view;
 
-	public HighlightPathAction(String text, GraphicalViewerImpl viewer, VarvizView varvizViewView) {
+	public HighlightPathAction(String text, VarvizView varvizView) {
 		super(text);
-		this.viewer = viewer;
+		this.view = varvizView;
 	}
 
 	@Override
 	public void run() {
-		IStructuredSelection selection = (IStructuredSelection) viewer.getSelection();
+		IStructuredSelection selection = (IStructuredSelection) view.getViewer().getSelection();
 		Object selectedItem = selection.getFirstElement();
 		if (selectedItem != null) {
 			final FeatureExpr ctx;
@@ -41,9 +40,9 @@ public class HighlightPathAction extends Action {
 				return;
 			}
 
-			VarvizView.getTRACE().createEdges();
-			VarvizView.getTRACE().highlightException(ctx);
-			VarvizView.refreshVisuals();
+			view.getTRACE().createEdges();
+			view.getTRACE().highlightException(ctx);
+			view.refreshVisuals();
 		}
 	}
 }

@@ -36,14 +36,14 @@ public class SearchBar extends ControlContribution {
 
 	private static final String DEFAULT_SEARCH_ENTRY = "Search                         ";
 	@SuppressWarnings("unused")
-	private final VarvizView varvizView;
+	private final VarvizView view;
 	
 	private final List<MethodElement<?>> highlightedElements = new ArrayList<>();
 	private int currentFocus = -1;
 
 	protected SearchBar(VarvizView varvizView) {
 		super("searchBar");
-		this.varvizView = varvizView;
+		this.view = varvizView;
 	}
 
 	@Override
@@ -69,13 +69,13 @@ public class SearchBar extends ControlContribution {
 				 */
 				if (e.keyCode == SWT.CR || e.keyCode == SWT.KEYPAD_CR) {
 					if (currentFocus >= 0) {
-						GraphicalStatement oldGraphicalStatement = VarvizView.getGraphicalStatement(highlightedElements.get(currentFocus));
+						GraphicalStatement oldGraphicalStatement = view.getGraphicalStatement(highlightedElements.get(currentFocus));
 						oldGraphicalStatement.setColor(NodeColor.red);
 					}
 					currentFocus = (currentFocus + 1) % highlightedElements.size();
-					GraphicalStatement graphicalStatement = VarvizView.getGraphicalStatement(highlightedElements.get(currentFocus));
+					GraphicalStatement graphicalStatement = view.getGraphicalStatement(highlightedElements.get(currentFocus));
 					graphicalStatement.setColor(NodeColor.darkorange);
-					graphicalStatement.reveal(VarvizView.viewer);
+					graphicalStatement.reveal(view.getViewer());
 				}
 			}
 			
@@ -89,7 +89,7 @@ public class SearchBar extends ControlContribution {
 			@Override
 			public void modifyText(ModifyEvent e) {
 				final String value = text.getText();
-				final Method<?> main = VarvizView.getTRACE().getMain();
+				final Method<?> main = view.getTRACE().getMain();
 				currentFocus = -1;
 				highlightedElements.clear();
 				if (main != null) {
@@ -135,7 +135,7 @@ public class SearchBar extends ControlContribution {
 
 			private void resetElement(MethodElement<?> element, boolean original) {
 				if (original) {
-					VarvizView.getGraphicalStatement(element).resetColor();
+					view.getGraphicalStatement(element).resetColor();
 				} else {
 					setColor(element, NodeColor.white);
 				}
@@ -157,7 +157,7 @@ public class SearchBar extends ControlContribution {
 			}
 
 			private void setColor(MethodElement<?> element, NodeColor red) {
-				VarvizView.getGraphicalStatement(element).setColor(red);
+				view.getGraphicalStatement(element).setColor(red);
 			}
 			
 		});

@@ -1,6 +1,5 @@
 package cmu.varviz.trace.view.actions;
 
-import org.eclipse.gef.ui.parts.GraphicalViewerImpl;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.IStructuredSelection;
 
@@ -18,16 +17,16 @@ import cmu.varviz.trace.view.editparts.StatementEditPart;
  */
 public class HideAction extends Action {
 
-	private GraphicalViewerImpl viewer;
+	private VarvizView view;
 
-	public HideAction(String text, GraphicalViewerImpl viewer) {
+	public HideAction(String text, VarvizView view) {
 		super(text);
-		this.viewer = viewer;
+		this.view = view;
 	}
 
 	@Override
 	public void run() {
-		IStructuredSelection selection = (IStructuredSelection) viewer.getSelection();
+		IStructuredSelection selection = (IStructuredSelection) view.getViewer().getSelection();
 		Object selectedItem = selection.getFirstElement();
 		if (selectedItem != null) {
 			final MethodElement<?> element;
@@ -44,8 +43,8 @@ public class HideAction extends Action {
 			if (parent != null) {
 				parent.filterExecution(e -> e != element, true);
 			}
-			VarvizView.getTRACE().finalizeGraph();
-			VarvizView.refreshVisuals();
+			view.getTRACE().finalizeGraph();
+			view.refreshVisuals();
 		}
 	}
 }

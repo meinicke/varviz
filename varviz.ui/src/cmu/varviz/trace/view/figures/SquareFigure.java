@@ -45,7 +45,7 @@ public class SquareFigure extends RectangleFigure {
 		this.setOpaque(true);
 		
 		sourceAnchor = new SourceAnchor(this, statement);
-		targetAnchor = new TargetAnchor(this, statement);
+		targetAnchor = new TargetAnchor(this);
 		
 	}
 

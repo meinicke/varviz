@@ -43,8 +43,8 @@ import cmu.varviz.trace.Edge;
 import cmu.varviz.trace.Method;
 import cmu.varviz.trace.MethodElement;
 import cmu.varviz.trace.Statement;
+import cmu.varviz.trace.Trace;
 import cmu.varviz.trace.uitrace.VarvizEvent;
-import cmu.varviz.trace.view.VarvizView;
 import cmu.varviz.trace.view.figures.MethodFigure;
 import de.fosd.typechef.featureexpr.FeatureExpr;
 
@@ -57,9 +57,11 @@ public class MethodEditPart extends AbstractTraceEditPart implements NodeEditPar
 
 	private ConnectionAnchor sourceAnchor = null;
 	private ConnectionAnchor targetAnchor = null;
+	private final Trace trace;
 
-	public MethodEditPart(Method<?> method) {
+	public MethodEditPart(Method<?> method, Trace trace) {
 		super();
+		this.trace = trace;
 		setModel(method);
 	}
 
@@ -87,7 +89,7 @@ public class MethodEditPart extends AbstractTraceEditPart implements NodeEditPar
 	protected List<Edge> getModelTargetConnections() {
 		if (connections == null) {
 			connections = new ArrayList<>();
-			for (Edge edge : VarvizView.getTRACE().getEdges()) {
+			for (Edge edge : trace.getEdges()) {
 				if (edge.getTo() == getModel()) {
 					connections.add(edge);
 				}

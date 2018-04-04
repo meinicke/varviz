@@ -4,12 +4,10 @@ import org.eclipse.draw2d.AbstractConnectionAnchor;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.geometry.Point;
 
-import cmu.varviz.trace.MethodElement;
-
 public class TargetAnchor  extends AbstractConnectionAnchor {
 
 
-	public TargetAnchor(IFigure owner, MethodElement<?> statement) {
+	public TargetAnchor(IFigure owner) {
 		super(owner);
 	}
 

@@ -20,6 +20,7 @@ import cmu.varviz.VarvizException;
 import cmu.varviz.trace.Edge;
 import cmu.varviz.trace.NodeColor;
 import cmu.varviz.trace.uitrace.GraphicalEdge;
+import cmu.varviz.trace.uitrace.GraphicalTrace;
 import cmu.varviz.trace.uitrace.VarvizEvent;
 import cmu.varviz.trace.uitrace.VarvizEventListener;
 import cmu.varviz.trace.view.VarvizView;
@@ -37,12 +38,14 @@ public class EdgeEditPart extends AbstractConnectionEditPart implements VarvizEv
 	
 	private Label label;
 	private boolean showLabel = false;
+	private final GraphicalTrace graphicalTrace;
 	
-	public EdgeEditPart(Edge edge) {
+	public EdgeEditPart(Edge edge, GraphicalTrace graphicalTrace) {
 		super();
+		this.graphicalTrace = graphicalTrace;
 		setModel(edge);
-		if (VarvizView.GRAPHICAL_TRACE != null) {
-			GraphicalEdge graphicalEdge = VarvizView.GRAPHICAL_TRACE.getGraphicalEdge(edge);
+		if (graphicalTrace != null) {
+			GraphicalEdge graphicalEdge = graphicalTrace.getGraphicalEdge(edge);
 			if (graphicalEdge != null) {
 				graphicalEdge.registerUIObject(this);
 			}
@@ -108,7 +111,7 @@ public class EdgeEditPart extends AbstractConnectionEditPart implements VarvizEv
 	}
 	
 	private void refreshLabel(Edge edge, PolylineConnection figure) {
-		if (showLabel || (VarvizView.showLables && !Conditional.isTautology(edge.getCtx()))) {
+		if (showLabel || (VarvizView.getInstance().isShowLables() && !Conditional.isTautology(edge.getCtx()))) {
 			createOrSetLabel(edge, figure);
 		} else if (label != null) {
 			figure.remove(label);
@@ -140,10 +143,9 @@ public class EdgeEditPart extends AbstractConnectionEditPart implements VarvizEv
 	
 	@Override
 	public void activate() {
-		// TODO this is not called????
 		Edge edgeModel = getEdgeModel();
-		if (VarvizView.GRAPHICAL_TRACE != null) {
-			GraphicalEdge graphicalEdge = VarvizView.GRAPHICAL_TRACE.getGraphicalEdge(edgeModel);
+		if (graphicalTrace != null) {
+			GraphicalEdge graphicalEdge = graphicalTrace.getGraphicalEdge(edgeModel);
 			if (graphicalEdge != null) {
 				graphicalEdge.registerUIObject(this);
 			}

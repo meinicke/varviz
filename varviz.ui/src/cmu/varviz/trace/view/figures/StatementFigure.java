@@ -89,7 +89,7 @@ public class StatementFigure extends RoundedRectangle {
 		this.setOpaque(true);
 
 		sourceAnchor = new SourceAnchor(this, statement);
-		targetAnchor = new TargetAnchor(this, statement);
+		targetAnchor = new TargetAnchor(this);
 	}
 
 	private void createLabelName() {

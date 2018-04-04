@@ -37,9 +37,10 @@ import cmu.varviz.VarvizException;
 import cmu.varviz.trace.Edge;
 import cmu.varviz.trace.Shape;
 import cmu.varviz.trace.Statement;
+import cmu.varviz.trace.Trace;
 import cmu.varviz.trace.uitrace.GraphicalStatement;
+import cmu.varviz.trace.uitrace.GraphicalTrace;
 import cmu.varviz.trace.uitrace.VarvizEvent;
-import cmu.varviz.trace.view.VarvizView;
 import cmu.varviz.trace.view.figures.IfBranchFigure;
 import cmu.varviz.trace.view.figures.SquareFigure;
 import cmu.varviz.trace.view.figures.StatementFigure;
@@ -54,9 +55,13 @@ public class StatementEditPart extends AbstractTraceEditPart implements NodeEdit
 
 	private ConnectionAnchor sourceAnchor = null;
 	private ConnectionAnchor targetAnchor = null;
+	private final Trace trace;
+	private final GraphicalTrace graphicalTrace;
 	
-	public StatementEditPart(Statement<?> statement) {
+	public StatementEditPart(Statement<?> statement, Trace trace, GraphicalTrace graphicalTrace) {
 		super();
+		this.trace = trace;
+		this.graphicalTrace = graphicalTrace;
 		setModel(statement);
 	}
 
@@ -97,7 +102,7 @@ public class StatementEditPart extends AbstractTraceEditPart implements NodeEdit
 	protected List<Edge> getModelTargetConnections() {
 		if (connections == null) {
 			connections = new ArrayList<>();
-			for (Edge edge : VarvizView.getTRACE().getEdges()) {
+			for (Edge edge : trace.getEdges()) {
 				if (edge.getTo() == getModel()) {
 					connections.add(edge);
 				}
@@ -118,8 +123,8 @@ public class StatementEditPart extends AbstractTraceEditPart implements NodeEdit
 	@Override
 	public void activate() {
 		Statement<?> statementModel = getStatementModel();
-		if (VarvizView.GRAPHICAL_TRACE != null) {
-			GraphicalStatement graphicalStatement = VarvizView.GRAPHICAL_TRACE.getGraphicalStatement(statementModel);
+		if (graphicalTrace != null) {
+			GraphicalStatement graphicalStatement = graphicalTrace.getGraphicalStatement(statementModel);
 			if (graphicalStatement != null) {
 				graphicalStatement.registerUIObject(this);
 			}

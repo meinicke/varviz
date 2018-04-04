@@ -43,7 +43,7 @@ public class MethodFigure extends Figure {
 		setToolTip(tooltip);
 		
 		sourceAnchor = new SourceAnchor(this, method);
-		targetAnchor = new TargetAnchor(this, method);
+		targetAnchor = new TargetAnchor(this);
 	}
 
 	public int getMinWidth() {

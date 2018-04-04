@@ -42,7 +42,7 @@ public class IfBranchFigure extends Shape {
 		super();
 		this.statement = statement;
 		this.setLayoutManager(new FreeformLayout());
-		if (VarvizView.useVarexJ) {
+		if (VarvizView.getInstance().isUseVarexJ()) {
 			setName(EditPartUtils.getContext(((IFStatement<?>)statement).getTargetContext()));
 		} else {
 			setName("if");
@@ -54,7 +54,7 @@ public class IfBranchFigure extends Shape {
 		this.setOpaque(true);
 		
 		sourceAnchor = new SourceAnchor(this, statement);
-		targetAnchor = new TargetAnchor(this, statement);
+		targetAnchor = new TargetAnchor(this);
 	}
 
 	private void setName(String name){

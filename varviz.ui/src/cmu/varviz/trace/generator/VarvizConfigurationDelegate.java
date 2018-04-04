@@ -88,32 +88,35 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 			// Launch the configuration - 1 unit of work
 			monitor.subTask("Run application with VarexJ");
 
+			final VarvizView view = VarvizView.getInstance();
 			final IResource resource = configuration.getWorkingCopy().getMappedResources()[0];
 			IProject project = resource.getProject();
-			MessageConsole myConsole = findAndCreateConsole((VarvizView.useVarexJ ?"VarexJ: ": "SampleJ: ") + project.getName() + ":" + runConfig.getClassToLaunch());
+			MessageConsole myConsole = findAndCreateConsole((view.isUseVarexJ() ?"VarexJ: ": "SampleJ: ") + project.getName() + ":" + runConfig.getClassToLaunch());
 			myConsole.clearConsole();
 			
-			PrintStream myPrintStream = createOutputStream(originalOutputStream, myConsole.newMessageStream());
-			System.setOut(myPrintStream);
-
-			VarvizView.PROJECT_NAME = project.getName();
-
-			project.build(IncrementalProjectBuilder.FULL_BUILD, monitor);
-			Trace trace = VarvizView.generator.run(runConfig, resource, monitor, classpath);
-			
-			if (VarvizView.showForExceptionFeatures) {
-				Slicer.sliceForExceptiuon(trace);
-			}
-			trace.finalizeGraph();
-			VarvizView.setTRACE(trace);
-			
-			if (VarvizView.getTRACE().getMain().size() < 10_000) {
-				VarvizView.refreshVisuals();
-			}
-
-			// check for cancellation
-			if (monitor.isCanceled()) {
-				return;
+			try (PrintStream myPrintStream = createOutputStream(originalOutputStream, myConsole.newMessageStream())) {
+				System.setOut(myPrintStream);
+	
+				view.setProjectName(project.getName());
+	
+				project.build(IncrementalProjectBuilder.FULL_BUILD, monitor);
+				Trace trace = view.getGenerator().run(runConfig, resource, monitor, classpath);
+				
+				if (view.isShowForExceptionFeatures()) {
+					Slicer.sliceForExceptiuon(trace, view.getGenerator());
+				}
+				trace.finalizeGraph();
+				view.setTrace(trace);
+				
+				
+				if (view.getTRACE().getMain().size() < 10_000) {
+					view.refreshVisuals();
+				}
+	
+				// check for cancellation
+				if (monitor.isCanceled()) {
+					return;
+				}
 			}
 		} finally {
 			VarvizView.checked.clear();

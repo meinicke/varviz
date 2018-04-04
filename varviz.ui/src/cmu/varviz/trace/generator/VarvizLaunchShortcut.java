@@ -17,8 +17,6 @@ import org.eclipse.jdt.debug.ui.launchConfigurations.JavaApplicationLaunchShortc
 import org.eclipse.jdt.debug.ui.launchConfigurations.JavaLaunchShortcut;
 import org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants;
 
-import cmu.varviz.trace.view.VarvizView;
-
 /**
  * Implements the "run as" shortcut.
  * 
@@ -45,13 +43,13 @@ public class VarvizLaunchShortcut extends JavaApplicationLaunchShortcut {
 				config = createConfiguration(type);
 			}
 			if (config != null) {
-				runVarexJ(mode, config);
+				run(mode, config);
 			}
 		}
 	}
 
-	private void runVarexJ(final String mode, final ILaunchConfiguration config) {
-		Job job = new Job("Run with " + (VarvizView.useVarexJ ? "VarexJ" : "SampleJ")) {
+	private void run(final String mode, final ILaunchConfiguration config) {
+		Job job = new Job("create variational trace") {
 			
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
