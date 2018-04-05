@@ -9,9 +9,9 @@ import cmu.varviz.trace.MethodElement;
 
 public class SourceAnchor extends AbstractConnectionAnchor {
 
-	private MethodElement<?> statement;
+	private MethodElement statement;
 
-	public SourceAnchor(IFigure owner, MethodElement<?> statement) {
+	public SourceAnchor(IFigure owner, MethodElement statement) {
 		super(owner);
 		this.statement = statement;
 	}
@@ -19,7 +19,7 @@ public class SourceAnchor extends AbstractConnectionAnchor {
 	@Override
 	public Point getLocation(final Point ref) {
 		final Point newLocation;
-		if (statement instanceof Method && !((Method<?>) statement).getChildren().isEmpty()) {
+		if (statement instanceof Method && !((Method) statement).getChildren().isEmpty()) {
 			newLocation = getOwner().getBounds().getTop();
 		} else {
 			newLocation = getOwner().getBounds().getBottom();

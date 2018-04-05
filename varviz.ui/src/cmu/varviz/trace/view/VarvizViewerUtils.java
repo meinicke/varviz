@@ -1,6 +1,6 @@
 package cmu.varviz.trace.view;
 
-import org.eclipse.gef.ui.parts.GraphicalViewerImpl;
+import org.eclipse.gef.EditPartViewer;
 
 import cmu.varviz.trace.Trace;
 import cmu.varviz.trace.view.editparts.MethodEditPart;
@@ -21,7 +21,7 @@ public class VarvizViewerUtils {
 	 * Sets the focus to the trace again if the trace is out of sight.
 	 * 
 	 */
-	public static void refocusView(GraphicalViewerImpl viewer, Trace trace) {
+	public static void refocusView(EditPartViewer viewer, Trace trace) {
 		MethodEditPart mainEditPart = (MethodEditPart) viewer.getEditPartRegistry().get(trace.getMain());
 		if (mainEditPart != null) {
 			viewer.reveal(mainEditPart);

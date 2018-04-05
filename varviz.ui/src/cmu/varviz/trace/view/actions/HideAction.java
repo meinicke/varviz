@@ -29,17 +29,17 @@ public class HideAction extends Action {
 		IStructuredSelection selection = (IStructuredSelection) view.getViewer().getSelection();
 		Object selectedItem = selection.getFirstElement();
 		if (selectedItem != null) {
-			final MethodElement<?> element;
+			final MethodElement element;
 			if (selectedItem instanceof MethodEditPart) {
 				element = ((MethodEditPart) selectedItem).getMethodModel();
-				((Method<?>)element).filterExecution(e -> false, true);
+				((Method)element).filterExecution(e -> false, true);
 			} else if (selectedItem instanceof StatementEditPart) {
 				element = ((StatementEditPart) selectedItem).getStatementModel();
 			} else {
 				return;
 			}
 			
-			Method<?> parent = element.getParent();
+			Method parent = element.getParent();
 			if (parent != null) {
 				parent.filterExecution(e -> e != element, true);
 			}

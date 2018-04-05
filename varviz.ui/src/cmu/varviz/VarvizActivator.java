@@ -20,12 +20,12 @@ public class VarvizActivator extends AbstractUIPlugin {
 		FeatureExprFactory.setDefault(FeatureExprFactory.bdd());
 	}
 	
-	public static ImageDescriptor REFESH_TAB_IMAGE_DESCRIPTOR = getImageDescriptor("refresh_tab.gif");
-	public static ImageDescriptor REFESH_EXCEPTION_IMAGE_DESCRIPTOR = getImageDescriptor("refresh_exception.gif");
+	public static final ImageDescriptor REFESH_TAB_IMAGE_DESCRIPTOR = getImageDescriptor("refresh_tab.gif");
+	public static final ImageDescriptor REFESH_EXCEPTION_IMAGE_DESCRIPTOR = getImageDescriptor("refresh_exception.gif");
 	
-	public static ImageDescriptor LABEL_IMAGE_DESCRIPTOR = getImageDescriptor("label.gif");
-	public static ImageDescriptor GENERATOR_IMAGE_DESCRIPTOR = getImageDescriptor("debug.gif");
-	public static Image REFESH_TAB_IMAGE = REFESH_TAB_IMAGE_DESCRIPTOR.createImage();
+	public static final ImageDescriptor LABEL_IMAGE_DESCRIPTOR = getImageDescriptor("label.gif");
+	public static final ImageDescriptor GENERATOR_IMAGE_DESCRIPTOR = getImageDescriptor("debug.gif");
+	public static final Image REFESH_TAB_IMAGE = REFESH_TAB_IMAGE_DESCRIPTOR.createImage();
 
 	public static final String PLUGIN_ID = "varviz";
 	private static VarvizActivator plugin;

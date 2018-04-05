@@ -21,7 +21,7 @@ public class TraceFactory {
 	public static Trace createTrace() {
 		Trace trace = new Trace();
 		
-		Method<String> main = new Method<>("Main", 10, TRUE);
+		Method main = new Method("Main", 10, TRUE);
 		main.setFile("main.java");
 		
 		trace.setMain(main);
@@ -29,7 +29,7 @@ public class TraceFactory {
 		MyStatement s = new MyStatement("some instruction", main, 21, TRUE);
 		new MyStatement("PUTFIELD", main, 32, a);
 		
-		Method<?> method = new Method<>("method", main, 43, a);
+		Method method = new Method("method", main, 43, a);
 		method.setFile("method.java");
 		
 		s = new MyStatement("iadd", method, 54, b.and(a));
@@ -46,9 +46,9 @@ public class TraceFactory {
 
 }
 
-class MyStatement extends Statement<String> {
+class MyStatement extends Statement {
 
-	public MyStatement(String op, Method<?> m, int line, FeatureExpr ctx) {
+	public MyStatement(String op, Method m, int line, FeatureExpr ctx) {
 		super(op, m, line, ctx);
 	}
 	

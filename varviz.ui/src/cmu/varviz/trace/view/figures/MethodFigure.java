@@ -30,7 +30,7 @@ public class MethodFigure extends Figure {
 	private SourceAnchor sourceAnchor;
 	private TargetAnchor targetAnchor;
 
-	public MethodFigure(Method<?> method) {
+	public MethodFigure(Method method) {
 		super();
 		this.setLayoutManager(new FreeformLayout());
 		this.setName(method.toString());

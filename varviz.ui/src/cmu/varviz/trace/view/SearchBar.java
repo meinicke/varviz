@@ -38,7 +38,7 @@ public class SearchBar extends ControlContribution {
 	@SuppressWarnings("unused")
 	private final VarvizView view;
 	
-	private final List<MethodElement<?>> highlightedElements = new ArrayList<>();
+	private final List<MethodElement> highlightedElements = new ArrayList<>();
 	private int currentFocus = -1;
 
 	protected SearchBar(VarvizView varvizView) {
@@ -89,11 +89,11 @@ public class SearchBar extends ControlContribution {
 			@Override
 			public void modifyText(ModifyEvent e) {
 				final String value = text.getText();
-				final Method<?> main = view.getTRACE().getMain();
+				final Method main = view.getTRACE().getMain();
 				currentFocus = -1;
 				highlightedElements.clear();
 				if (main != null) {
-					if (value.trim().isEmpty() || value.equals(DEFAULT_SEARCH_ENTRY)) {
+					if (value.trim().isEmpty() || DEFAULT_SEARCH_ENTRY.equals(value)) {
 						resetAllStatements(main);
 					} else {
 						highLightStatements(main, value.trim());
@@ -101,10 +101,10 @@ public class SearchBar extends ControlContribution {
 				}
 			}
 
-			private void resetAllStatements(Method<?> method) {
-				for (final MethodElement<?> child : method.getChildren()) {
+			private void resetAllStatements(Method method) {
+				for (final MethodElement child : method.getChildren()) {
 					if (child instanceof Method) {
-						resetAllStatements((Method<?>) child);
+						resetAllStatements((Method) child);
 						continue;
 					}
 					
@@ -112,10 +112,10 @@ public class SearchBar extends ControlContribution {
 				}
 			}
 
-			private void highLightStatements(final Method<?> method, final String value) {
-				for (final MethodElement<?> child : method.getChildren()) {
+			private void highLightStatements(final Method method, final String value) {
+				for (final MethodElement child : method.getChildren()) {
 					if (child instanceof Method) {
-						highLightStatements((Method<?>) child, value);
+						highLightStatements((Method) child, value);
 						continue;
 					}
 					
@@ -133,7 +133,7 @@ public class SearchBar extends ControlContribution {
 				return varName.toLowerCase().contains(value.toLowerCase());
 			}
 
-			private void resetElement(MethodElement<?> element, boolean original) {
+			private void resetElement(MethodElement element, boolean original) {
 				if (original) {
 					view.getGraphicalStatement(element).resetColor();
 				} else {
@@ -141,14 +141,14 @@ public class SearchBar extends ControlContribution {
 				}
 			}
 
-			private boolean unmodifiableStatement(MethodElement<?> element) {
+			private boolean unmodifiableStatement(MethodElement element) {
 				return element instanceof ReturnStatement || 
 					   element instanceof cmu.samplej.statement.ReturnStatement ||
 					   element instanceof IFStatement || 
 					   element instanceof IFStatement2;
 			}
 
-			private void highlightElement(MethodElement<?> element) {
+			private void highlightElement(MethodElement element) {
 				if (element instanceof ReturnStatement || element instanceof cmu.samplej.statement.ReturnStatement) {
 					return;
 				}
@@ -156,7 +156,7 @@ public class SearchBar extends ControlContribution {
 				setColor(element, NodeColor.red);
 			}
 
-			private void setColor(MethodElement<?> element, NodeColor red) {
+			private void setColor(MethodElement element, NodeColor red) {
 				view.getGraphicalStatement(element).setColor(red);
 			}
 			

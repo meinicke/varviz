@@ -11,7 +11,7 @@ public class NameFilter implements StatementFilter {
 	}
 
 	@Override
-	public boolean filter(Statement<?> s) {
+	public boolean filter(Statement s) {
 		for (String n : name) {
 			if (s.affectsIdentifier(n)) {
 				return true;

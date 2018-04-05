@@ -34,16 +34,17 @@ public class StatementFigure extends RoundedRectangle {
 	private static final Font ARROW_FONT = new Font(null, FONT_NAME, 16, SWT.BOLD);
 	private static final Font TEXT_FONT = new Font(null, FONT_NAME, 12, SWT.NORMAL);
 
-	private Statement<?> statement;
+	private static final int BORDER_MARGIN = 10;
+	private static final int MIN_WIDTH = 20;
+	
+	private Statement statement;
 	private final Label label = new Label();
 	private final Label a = new Label();
 	private final Label b = new Label();
 	private SourceAnchor sourceAnchor;
 	private TargetAnchor targetAnchor;
-	private static final int BORDER_MARGIN = 10;
-	private static final int MIN_WIDTH = 20;
 
-	public StatementFigure(Statement<?> statement) {
+	public StatementFigure(Statement statement) {
 		super();
 		this.statement = statement;
 		this.setLayoutManager(new FreeformLayout());

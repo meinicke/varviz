@@ -10,7 +10,7 @@ public class Not implements StatementFilter {
 	}
 	
 	@Override
-	public boolean filter(Statement<?> s) {
+	public boolean filter(Statement s) {
 		return !filter.filter(s);
 	}
 }

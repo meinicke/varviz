@@ -44,8 +44,8 @@ public class Slicer {
 		if (Conditional.isContradiction(ctx)) {
 			return FeatureExprFactory.True();
 		}
-		Set<SingleFeatureExpr> sliceFeatures = new HashSet<>();
 		scala.collection.immutable.Set<SingleFeatureExpr> distinctfeatureObjects = ctx.collectDistinctFeatureObjects();
+		Set<SingleFeatureExpr> sliceFeatures = new HashSet<>(distinctfeatureObjects.size());
 		Iterator<SingleFeatureExpr> iterator = distinctfeatureObjects.iterator();
 		while (iterator.hasNext()) {
 			sliceFeatures.add(iterator.next());

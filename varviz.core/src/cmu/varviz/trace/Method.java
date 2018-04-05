@@ -12,9 +12,9 @@ import cmu.varviz.trace.filters.Or;
 import cmu.varviz.trace.filters.StatementFilter;
 import de.fosd.typechef.featureexpr.FeatureExpr;
 
-public class Method<U> extends MethodElement<U> {
+public class Method extends MethodElement {
 
-	protected final List<MethodElement<?>> execution = new ArrayList<>();
+	protected final List<MethodElement> execution = new ArrayList<>();
 
 	private String file = null;
 
@@ -26,23 +26,23 @@ public class Method<U> extends MethodElement<U> {
 		return file;
 	}
 
-	public Method(U mi, FeatureExpr ctx) {
+	public Method(Object mi, FeatureExpr ctx) {
 		this(mi, null, ctx);
 	}
 
-	public Method(U mi, Method<?> parent, FeatureExpr ctx) {
+	public Method(Object mi, Method parent, FeatureExpr ctx) {
 		this(mi, parent, -1, ctx);
 	}
 
-	public Method(U mi, int line, FeatureExpr ctx) {
+	public Method(Object mi, int line, FeatureExpr ctx) {
 		this(mi, null, line, ctx);
 	}
 
-	public Method(U mi, Method<?> parent, int line, FeatureExpr ctx) {
+	public Method(Object mi, Method parent, int line, FeatureExpr ctx) {
 		super(mi, parent, line, ctx);
 	}
 
-	public void addMethodElement(MethodElement<?> e) {
+	public void addMethodElement(MethodElement e) {
 		execution.add(e);
 	}
 
@@ -62,7 +62,7 @@ public class Method<U> extends MethodElement<U> {
 		if (deep) {
 			execution.removeIf(e -> {
 				if (e instanceof Method) {
-					return !((Method<?>) e).filterExecution(filter, deep);
+					return !((Method) e).filterExecution(filter, deep);
 				} else {
 					return !e.filterExecution(filter);
 				}
@@ -70,7 +70,7 @@ public class Method<U> extends MethodElement<U> {
 		} else {
 			execution.removeIf(e -> {
 				if (e instanceof Method) {
-					return ((Method<?>) e).execution.isEmpty();
+					return ((Method) e).execution.isEmpty();
 				} else {
 					return !e.filterExecution(filter);
 				}
@@ -83,22 +83,22 @@ public class Method<U> extends MethodElement<U> {
 		execution.remove(index);
 	}
 
-	public boolean remove(MethodElement<?> element) {
+	public boolean remove(MethodElement element) {
 		return remove(element, false);
 	}
 
-	public boolean remove(MethodElement<?> element, boolean deep) {
+	public boolean remove(MethodElement element, boolean deep) {
 		System.err.println("use remove(int) instead");
 		new Exception().printStackTrace();
 		if (deep) {
 			boolean success = execution.remove(element);
 			if (!success) {
-				Method<?> lastMethod = null;
-				for (MethodElement<?> methodElement : execution) {
+				Method lastMethod = null;
+				for (MethodElement methodElement : execution) {
 					if (methodElement instanceof Method) {
-						success = ((Method<?>) methodElement).remove(element, true);
+						success = ((Method) methodElement).remove(element, true);
 						if (success) {
-							lastMethod = (Method<?>) methodElement;
+							lastMethod = (Method) methodElement;
 							break;
 						}
 					}
@@ -115,7 +115,7 @@ public class Method<U> extends MethodElement<U> {
 	}
 
 	public void printLabel(PrintWriter pw) {
-		pw.println("subgraph \"cluster_" + TraceUtils.toShortID(id) + "\" {");
+		pw.println("subgraph \"cluster_" + TraceUtils.toShortID(elementID) + "\" {");
 		pw.println("label = \"" + toString() + "\";");
 		execution.forEach(e -> e.printLabel(pw));
 		pw.println("}");
@@ -135,23 +135,23 @@ public class Method<U> extends MethodElement<U> {
 		return accumulate((__, v) -> accumulator.apply(v), value);
 	}
 
-	public <T> T accumulate(BiFunction<Statement<?>, T, T> accumulator, T value) {
-		for (final MethodElement<?> methodElement : execution) {
+	public <T> T accumulate(BiFunction<Statement, T, T> accumulator, T value) {
+		for (final MethodElement methodElement : execution) {
 			if (methodElement instanceof Statement) {
-				value = accumulator.apply((Statement<?>) methodElement, value);
+				value = accumulator.apply((Statement) methodElement, value);
 			} else {
-				value = ((Method<?>) methodElement).accumulate(accumulator, value);
+				value = ((Method) methodElement).accumulate(accumulator, value);
 			}
 		}
 		return value;
 	}
 
-	public List<MethodElement<?>> getChildren() {
+	public List<MethodElement> getChildren() {
 		return Collections.unmodifiableList(execution);
 	}
 
 	@Override
-	public MethodElement<?> simplify(final FeatureExpr ctx, final StatementFilter filter) {
+	public MethodElement simplify(final FeatureExpr ctx, final StatementFilter filter) {
 		setCtx(Conditional.simplifyCondition(this.getCTX(), Conditional.additionalConstraint));
 		execution.removeIf(element -> Conditional.isContradiction(Conditional.and(element.getCTX(), ctx)));
 		execution.forEach(x-> x.simplify(ctx, filter));

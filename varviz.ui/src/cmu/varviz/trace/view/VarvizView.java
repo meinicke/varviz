@@ -71,15 +71,15 @@ public class VarvizView extends ViewPart {
 	private static final LayoutManager LAYOUT_MANAGER = new LayoutManager();
 
 	
-	public static final Map<Method<?>, Boolean> checked = new IdentityHashMap<>();
+	public static final Map<Method, Boolean> checked = new IdentityHashMap<>();
 	public static final StatementFilter basefilter = new Or(new StatementFilter() {
 
 		@Override
-		public boolean filter(Statement<?> s) {
+		public boolean filter(Statement s) {
 			return !(hasParent(s.getParent(), "java."));
 		}
 
-		private boolean hasParent(Method<?> parent, String filter) {
+		private boolean hasParent(Method parent, String filter) {
 			Boolean isChecked = checked.get(parent);
 			if (isChecked != null) {
 				return isChecked;
@@ -94,7 +94,6 @@ public class VarvizView extends ViewPart {
 				checked.put(parent, result);
 				return result;
 			}
-			checked.put(parent, false);
 			return false;
 		}
 	});
@@ -113,7 +112,7 @@ public class VarvizView extends ViewPart {
 	private GraphicalTrace graphicalTrace = null;
 	
 	// TODO dirty solutions for VarvizConfigurationDelegate (remove if possible)
-	public static VarvizView INSTANCE = null;
+	private static VarvizView INSTANCE = null;
 	
 	public static VarvizView getInstance() {
 		return INSTANCE;
@@ -127,8 +126,8 @@ public class VarvizView extends ViewPart {
 		return graphicalTrace;
 	}
 	
-	public GraphicalStatement getGraphicalStatement(MethodElement<?> element) {
-		return graphicalTrace.getGraphicalStatement((Statement<?>) element);
+	public GraphicalStatement getGraphicalStatement(MethodElement element) {
+		return graphicalTrace.getGraphicalStatement((Statement) element);
 	}
 	
 	public TraceGenerator getGenerator() {

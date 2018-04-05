@@ -16,14 +16,14 @@ import cmu.varviz.trace.uitrace.VarvizEvent.EventType;
  */
 public class GraphicalStatement {
 
-	private final Statement<?> statement;
+	private final Statement statement;
 	private VarvizEventListener uiObject;
 	
 	protected Point location = new Point(0, 0);
 	private final NodeColor originalColor;
 	private final int originalBorder;
 	
-	public GraphicalStatement(Statement<?> statement) {
+	public GraphicalStatement(Statement statement) {
 		this.statement = statement;
 		originalColor = statement.getColor();
 		originalBorder = statement.getWidth();
@@ -33,7 +33,7 @@ public class GraphicalStatement {
 		this.uiObject = uiObject;
 	}
 	
-	public Statement<?> getStatement() {
+	public Statement getStatement() {
 		return statement;
 	}
 	

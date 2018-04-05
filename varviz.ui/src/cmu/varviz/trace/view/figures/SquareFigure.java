@@ -33,7 +33,7 @@ public class SquareFigure extends RectangleFigure {
 	private static final int MIN_WIDTH = 20;
 	private static final int BORDER_WIDTH = 2;
 	
-	public SquareFigure(Statement<?> statement) {
+	public SquareFigure(Statement statement) {
 		super();
 		this.setLayoutManager(new FreeformLayout());
 		setName(statement.toString());

@@ -13,23 +13,23 @@ import de.fosd.typechef.featureexpr.bdd.BDDFeatureExprFactory;
 
 public class Trace {
 	
-	private Statement<?> START, END;
+	private Statement START, END;
 	
-	private Conditional<MethodElement<?>> lastStatement;
+	private Conditional<MethodElement> lastStatement;
 
 	private List<Edge> edges = new ArrayList<>();
 	
-	Method<?> main;
+	Method main;
 
 	public Trace() {
-		START = new NoStatement<>("Start");
+		START = new NoStatement("Start");
 		START.setShape(Shape.Msquare);
 		
-		END = new NoStatement<>("End");
+		END = new NoStatement("End");
 		END.setShape(Shape.Msquare);
 	}
 
-	public void setMain(Method<?> main) {
+	public void setMain(Method main) {
 		this.main = main;
 	}
 	
@@ -43,11 +43,11 @@ public class Trace {
 		filterExecution(main, true);
 	}
 	
-	public void filterExecution(Method<?> m) {
+	public void filterExecution(Method m) {
 		filterExecution(m, false);
 	}
 	
-	public void filterExecution(Method<?> m, boolean deep) {
+	public void filterExecution(Method m, boolean deep) {
 		if (m == null || m.size() == 0) {
 			return;
 		}
@@ -103,7 +103,7 @@ public class Trace {
 	}
 
 	public FeatureExpr getExceptionContext() {
-		return main.accumulate((Statement<?> s, FeatureExpr u) -> 
+		return main.accumulate((Statement s, FeatureExpr u) -> 
 			s.toString().contains("Exception") || s.toString().contains("Error") ? u.or(s.getCTX()) : u
 		, BDDFeatureExprFactory.False());
 	}
@@ -156,18 +156,18 @@ public class Trace {
 		}
 	}
 	
-	public static final void removeUnnecessaryIfs(Method<?> method) {
+	public static final void removeUnnecessaryIfs(Method method) {
 		removeUnnecessaryIfs(method, false);
 	}
 	
-	public static final void removeUnnecessaryIfs(Method<?> method, boolean deep) {
-		final List<MethodElement<?>> children = method.getChildren();
+	public static final void removeUnnecessaryIfs(Method method, boolean deep) {
+		final List<MethodElement> children = method.getChildren();
 		int line = Integer.MIN_VALUE;
 		
 		for (int i = children.size() - 1; i >= 0; i--) {
-			final MethodElement<?> element = children.get(i);
-			if (element instanceof Statement && ((Statement<?>) element).getShape() == Shape.Mdiamond) {
-				Statement<?> ifStatement = (Statement<?>) element;
+			final MethodElement element = children.get(i);
+			if (element instanceof Statement && ((Statement) element).getShape() == Shape.Mdiamond) {
+				Statement ifStatement = (Statement) element;
 				boolean hasDecission = checkForDecision(ifStatement, children, i);
 				if (hasDecission) {
 					line = ifStatement.lineNumber;
@@ -183,20 +183,20 @@ public class Trace {
 			}
 
 			if (deep && element instanceof Method) {
-				removeUnnecessaryIfs((Method<?>) element, deep);
-				if (((Method<?>) element).getChildren().isEmpty()) {
+				removeUnnecessaryIfs((Method) element, deep);
+				if (((Method) element).getChildren().isEmpty()) {
 					method.remove(i);
 				}
 			}
 		}
 	}
 	
-	private static boolean checkForDecision(Statement<?> ifStatement, List<MethodElement<?>>  children, int index) {
+	private static boolean checkForDecision(Statement ifStatement, List<MethodElement>  children, int index) {
 		if (index + 1 >= children.size()) {
 			return false;
 		}
 		final FeatureExpr context = ifStatement.getCTX();
-		MethodElement<?> methodElement = children.get(index + 1);
+		MethodElement methodElement = children.get(index + 1);
 		if (!Conditional.isContradiction(Conditional.and(context, methodElement.getCTX()))) {
 			if (Conditional.equivalentTo(context, methodElement.getCTX())) {
 				return false;
@@ -210,11 +210,11 @@ public class Trace {
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public void addStatement(final MethodElement<?> statement) {
+	public void addStatement(final MethodElement statement) {
 		if (lastStatement == null) {
 			lastStatement = new One<>(statement);
 		} else {
-			lastStatement.mapf(statement.getCTX(), (FeatureExpr ctx, MethodElement<?> from) -> {
+			lastStatement.mapf(statement.getCTX(), (FeatureExpr ctx, MethodElement from) -> {
 				if (!Conditional.isContradiction(ctx)) {
 					edges.add(new Edge(ctx, from, statement));
 					from.to = ChoiceFactory.create(ctx, new One(statement), from.to).simplify();
@@ -229,15 +229,15 @@ public class Trace {
 		return main != null;
 	}
 	
-	public Method<?> getMain() {
+	public Method getMain() {
 		return main;
 	}
 	
-	public Statement<?> getSTART() {
+	public Statement getSTART() {
 		return START;
 	}
 	
-	public Statement<?> getEND() {
+	public Statement getEND() {
 		return END;
 	}
 	

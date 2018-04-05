@@ -33,10 +33,10 @@ public class RemovePathAction extends Action {
 		IStructuredSelection selection = (IStructuredSelection) view.getViewer().getSelection();
 		Object selectedItem = selection.getFirstElement();
 		if (selectedItem != null) {
-			final Deque<MethodElement<?>> stack;
+			final Deque<MethodElement> stack;
 			final FeatureExpr ctx;
 			{
-				final MethodElement<?> s;
+				final MethodElement s;
 				if (selectedItem instanceof EdgeEditPart) {
 					s = ((EdgeEditPart) selectedItem).getEdgeModel().getTo();
 				} else if (selectedItem instanceof StatementEditPart) {
@@ -49,16 +49,16 @@ public class RemovePathAction extends Action {
 				ctx = s.getCTX();
 			}
 			while (!stack.isEmpty()) {
-				final MethodElement<?> currentStatement = stack.pop();
+				final MethodElement currentStatement = stack.pop();
 				if (currentStatement.getCTX().equals(currentStatement.getCTX().and(ctx))) {
-					final Method<?> parent = currentStatement.getParent();
+					final Method parent = currentStatement.getParent();
 					if (parent != null) {
 						parent.filterExecution(e -> e != currentStatement);
 					}
 					if (currentStatement.to == null) {
 						continue;
 					}
-					for (MethodElement<?> next : currentStatement.to.toList()) {
+					for (MethodElement next : currentStatement.to.toList()) {
 						if (next != null) {
 							stack.push(next);
 						}

@@ -32,10 +32,10 @@ public class TraceEditPartFactory implements EditPartFactory {
 			return new TraceEditPart((Trace) model);
 		}
 		if (model instanceof Method) {
-			return new MethodEditPart((Method<?>) model, varvizView.getTRACE());
+			return new MethodEditPart((Method) model, varvizView.getTRACE());
 		}
 		if (model instanceof Statement) {
-			return new StatementEditPart((Statement<?>) model, varvizView.getTRACE(), varvizView.getGraphicalTrace());
+			return new StatementEditPart((Statement) model, varvizView.getTRACE(), varvizView.getGraphicalTrace());
 		}
 		if (model instanceof Edge) {
 			return new EdgeEditPart((Edge) model, varvizView.getGraphicalTrace());

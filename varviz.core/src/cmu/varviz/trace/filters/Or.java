@@ -10,7 +10,7 @@ public class Or implements StatementFilter {
 	}
 	
 	@Override
-	public boolean filter(Statement<?> s) {
+	public boolean filter(Statement s) {
 		for (StatementFilter f : filter) {
 			if (f.filter(s)) {
 				return true;

@@ -61,7 +61,7 @@ public class MethodEditPart extends AbstractTraceEditPart implements NodeEditPar
 	private ConnectionAnchor targetAnchor = null;
 	private final Trace trace;
 
-	public MethodEditPart(Method<?> method, Trace trace) {
+	public MethodEditPart(Method method, Trace trace) {
 		super();
 		this.trace = trace;
 		setModel(method);
@@ -69,7 +69,7 @@ public class MethodEditPart extends AbstractTraceEditPart implements NodeEditPar
 
 	@Override
 	protected IFigure createFigure() {
-		MethodFigure methodFigure = new MethodFigure((Method<?>) getModel());
+		MethodFigure methodFigure = new MethodFigure((Method) getModel());
 		sourceAnchor = methodFigure.getSourceAnchor();
 		targetAnchor = methodFigure.getTargetAnchor();
 
@@ -77,12 +77,13 @@ public class MethodEditPart extends AbstractTraceEditPart implements NodeEditPar
 	}
 
 	@Override
-	protected List<MethodElement<?>> getModelChildren() {
-		List<MethodElement<?>> children = new ArrayList<>();
-		for (MethodElement<?> child : ((Method<?>) getModel()).getChildren()) {
-			children.add(child);
+	protected List<MethodElement> getModelChildren() {
+		List<MethodElement> children = ((Method) getModel()).getChildren();
+		List<MethodElement> modelChildren = new ArrayList<>(children.size());
+		for (MethodElement child : children) {
+			modelChildren.add(child);
 		}
-		return children;
+		return modelChildren;
 	}
 
 	List<Edge> connections;
@@ -118,13 +119,13 @@ public class MethodEditPart extends AbstractTraceEditPart implements NodeEditPar
 		int maxWidth = 0;
 		AbstractTraceEditPart previousMax = null;
 
-		MethodElement<?> previous = null;
+		MethodElement previous = null;
 		AbstractTraceEditPart previousFigure = null;
 		for (Object object : getChildren()) {
 			if (object instanceof AbstractTraceEditPart) {
 				AbstractTraceEditPart childEditPart = (AbstractTraceEditPart) object;
 
-				MethodElement<?> model = (MethodElement<?>) childEditPart.getModel();
+				MethodElement model = (MethodElement) childEditPart.getModel();
 				FeatureExpr ctx = model.getCTX();
 				if (previous != null) {
 					FeatureExpr prevctx = previous.getCTX();
@@ -135,7 +136,7 @@ public class MethodEditPart extends AbstractTraceEditPart implements NodeEditPar
 						maxWidth = childEditPart.getFigure().getBounds().width;
 						previousMax = childEditPart;
 
-						if (Conditional.equivalentTo(((Method<?>) getModel()).getCTX(), ctx)) {
+						if (Conditional.equivalentTo(((Method) getModel()).getCTX(), ctx)) {
 							// a -> True
 							direction = Direction.CENTER;
 							childEditPart.getFigure().setLocation(new Point(-childEditPart.getFigure().getBounds().width / 2, h));
@@ -245,16 +246,16 @@ public class MethodEditPart extends AbstractTraceEditPart implements NodeEditPar
 		methodFigure.setBounds(bounds);
 	}
 
-	public Method<?> getMethodModel() {
-		return (Method<?>) getModel();
+	public Method getMethodModel() {
+		return (Method) getModel();
 	}
 
 	@Override
 	public void performRequest(Request request) {
 		if ("open".equals(request.getType())) {
-			final Method<?> method = getMethodModel();
+			final Method method = getMethodModel();
 			final int lineNumber = method.getLineNumber();
-			Method<?> parent = method.getParent();
+			Method parent = method.getParent();
 			if (parent != null) {
 				EditorHelper.open(parent.getFile(), lineNumber);
 			}
@@ -270,7 +271,7 @@ public class MethodEditPart extends AbstractTraceEditPart implements NodeEditPar
 			Object object = iterator.previous();
 			if (object instanceof AbstractGraphicalEditPart) {
 				final AbstractGraphicalEditPart abstractGraphicalEditPart = (AbstractGraphicalEditPart) object;
-				MethodElement<?> element = (MethodElement<?>)abstractGraphicalEditPart.getModel();
+				MethodElement element = (MethodElement)abstractGraphicalEditPart.getModel();
 				if (element.getCTX().isTautology()) {
 					if (element instanceof Statement) {
 						return abstractGraphicalEditPart;

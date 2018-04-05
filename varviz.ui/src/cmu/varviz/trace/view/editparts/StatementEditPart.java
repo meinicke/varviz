@@ -58,7 +58,7 @@ public class StatementEditPart extends AbstractTraceEditPart implements NodeEdit
 	private final Trace trace;
 	private final GraphicalTrace graphicalTrace;
 	
-	public StatementEditPart(Statement<?> statement, Trace trace, GraphicalTrace graphicalTrace) {
+	public StatementEditPart(Statement statement, Trace trace, GraphicalTrace graphicalTrace) {
 		super();
 		this.trace = trace;
 		this.graphicalTrace = graphicalTrace;
@@ -67,7 +67,7 @@ public class StatementEditPart extends AbstractTraceEditPart implements NodeEdit
 
 	@Override
 	protected IFigure createFigure() {
-		Statement<?> model = getStatementModel();
+		Statement model = getStatementModel();
 		final Shape shape = model.getShape();
 		if (shape == null) {
 			StatementFigure statementFigure = new StatementFigure(model);
@@ -116,13 +116,13 @@ public class StatementEditPart extends AbstractTraceEditPart implements NodeEdit
 		// nothing here
 	}
 	
-	public Statement<?> getStatementModel() {
-		return (Statement<?>) getModel();
+	public Statement getStatementModel() {
+		return (Statement) getModel();
 	}
 	
 	@Override
 	public void activate() {
-		Statement<?> statementModel = getStatementModel();
+		Statement statementModel = getStatementModel();
 		if (graphicalTrace != null) {
 			GraphicalStatement graphicalStatement = graphicalTrace.getGraphicalStatement(statementModel);
 			if (graphicalStatement != null) {
@@ -143,7 +143,7 @@ public class StatementEditPart extends AbstractTraceEditPart implements NodeEdit
 	@Override
 	public void performRequest(Request request) {
 		if ("open".equals(request.getType())) {
-			final Statement<?> statement = getStatementModel();
+			final Statement statement = getStatementModel();
 			String file = statement.getParent().getFile();
 			EditorHelper.open(file, statement.getLineNumber());
 		}
@@ -174,7 +174,7 @@ public class StatementEditPart extends AbstractTraceEditPart implements NodeEdit
 	public void propertyChange(VarvizEvent event) {
 		switch (event.getType()) {
 		case COLOR_CHANGED:
-			Statement<?> statement = (Statement<?>)getModel();
+			Statement statement = (Statement)getModel();
 			Color color = VarvizColors.getColor(statement.getColor());
 			figure.setBackgroundColor(color);
 			break;

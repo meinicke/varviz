@@ -21,7 +21,8 @@ public interface FileUtils {
 
             int readBytes;
             byte[] buffer = new byte[4096];
-            try (OutputStream resStreamOut = new FileOutputStream(destination + "/" + resourceName)) {
+            File file = new File(destination + "/" + resourceName);
+            try (OutputStream resStreamOut = java.nio.file.Files.newOutputStream(file.toPath())) {
 	            while ((readBytes = stream.read(buffer)) > 0) {
 	                resStreamOut.write(buffer, 0, readBytes);
 	            }

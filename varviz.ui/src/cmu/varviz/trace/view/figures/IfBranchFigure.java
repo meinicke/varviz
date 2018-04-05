@@ -29,21 +29,22 @@ public class IfBranchFigure extends Shape {
 	private static final String FONT_NAME = "Consolas";
 	private static final Font TEXT_FONT = new Font(null, FONT_NAME, 12, SWT.NORMAL);
 	
+	private static final int BORDER_MARGIN = 10;
+	private static final int MIN_WIDTH = 20;
+
 	protected PointList diamond = new PointList(4);
 	
-	private Statement<?> statement;
+	private Statement statement;
 	private final Label label = new Label();
 	private SourceAnchor sourceAnchor;
 	private TargetAnchor targetAnchor;
-	private static final int BORDER_MARGIN = 10;
-	private static final int MIN_WIDTH = 20;
 	
-	public IfBranchFigure(Statement<?> statement) {
+	public IfBranchFigure(Statement statement) {
 		super();
 		this.statement = statement;
 		this.setLayoutManager(new FreeformLayout());
 		if (VarvizView.getInstance().isUseVarexJ()) {
-			setName(EditPartUtils.getContext(((IFStatement<?>)statement).getTargetContext()));
+			setName(EditPartUtils.getContext(((IFStatement)statement).getTargetContext()));
 		} else {
 			setName("if");
 		}

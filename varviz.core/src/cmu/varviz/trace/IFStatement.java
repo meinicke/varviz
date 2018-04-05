@@ -3,11 +3,11 @@ package cmu.varviz.trace;
 import cmu.conditional.Conditional;
 import de.fosd.typechef.featureexpr.FeatureExpr;
 
-public class IFStatement<T> extends Statement<T> {
+public class IFStatement extends Statement {
 
 	private FeatureExpr targetContext;
 	
-	public IFStatement(T op, Method<?> m, int line, FeatureExpr targetContext, FeatureExpr ctx) {
+	public IFStatement(Object op, Method m, int line, FeatureExpr targetContext, FeatureExpr ctx) {
 		super(op, m, line, ctx);
 		this.targetContext = targetContext;
 		this.lineNumber = line;

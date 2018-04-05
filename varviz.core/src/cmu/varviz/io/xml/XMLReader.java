@@ -61,7 +61,7 @@ public class XMLReader implements XMLvarviz {
 				if (child.getNodeName().equals(METHOD)) {
 					NamedNodeMap attributes = child.getAttributes();
 					String name = getName(attributes);
-					Method<String> mainMethod = new Method<>(name, BDDFeatureExprFactory.True());
+					Method mainMethod = new Method(name, BDDFeatureExprFactory.True());
 					setFile(attributes, mainMethod);
 					setLine(attributes,mainMethod);
 					coverage.setMain(mainMethod);
@@ -72,7 +72,7 @@ public class XMLReader implements XMLvarviz {
 		return coverage;
 	}
 
-	private void parseChildren(Node node, Method<String> parentMethod) {
+	private void parseChildren(Node node, Method parentMethod) {
 		NodeList children = node.getChildNodes();
 		for (int i = 0; i < children.getLength(); i++) {
 			Node child = children.item(i);
@@ -80,7 +80,7 @@ public class XMLReader implements XMLvarviz {
 			if (child.getNodeName().equals(METHOD)) {
 				String name = getName(attributes);
 				FeatureExpr ctx = getcontext(attributes);
-				Method<String> method = new Method<>(name, parentMethod, ctx);
+				Method method = new Method(name, parentMethod, ctx);
 
 				setFile(attributes, method);
 				setLine(attributes, method);
@@ -89,7 +89,7 @@ public class XMLReader implements XMLvarviz {
 			} else if (child.getNodeName().equals(STATEMENT)) {
 				String name = getName(attributes);
 				FeatureExpr ctx = getcontext(attributes);
-				Statement<String> statement = new Statement<String>(name, parentMethod, ctx);
+				Statement statement = new Statement(name, parentMethod, ctx);
 
 				setColor(attributes, statement);
 				setShape(attributes, statement);
@@ -99,7 +99,7 @@ public class XMLReader implements XMLvarviz {
 		}
 	}
 
-	private void setValues(NamedNodeMap attributes, Statement<String> statement) {
+	private void setValues(NamedNodeMap attributes, Statement statement) {
 		String oldValue = getAttribute(attributes, "old", v -> v);
 		String value = getAttribute(attributes, "new", v -> v);
 		
@@ -119,19 +119,19 @@ public class XMLReader implements XMLvarviz {
 		return getAttribute(attributes, CTX, v -> v != null ? ContextParser.getContext(v) : BDDFeatureExprFactory.True());
 	}
 
-	private void setFile(NamedNodeMap attributes, Method<?> method) {
+	private void setFile(NamedNodeMap attributes, Method method) {
 		method.setFile(getAttribute(attributes, FILE, v -> v));
 	}
 
-	private void setLine(NamedNodeMap attributes, MethodElement<?> s) {
+	private void setLine(NamedNodeMap attributes, MethodElement s) {
 		s.setLineNumber(getAttribute(attributes, LINE, v -> v != null ? Integer.parseInt(v) : DEFAULT_LINE_NUMBER));
 	}
 
-	private void setShape(NamedNodeMap attributes, Statement<String> s) {
+	private void setShape(NamedNodeMap attributes, Statement s) {
 		s.setShape(getAttribute(attributes, SHAPE, v -> v != null ? Shape.valueOf(v) : null));
 	}
 
-	private void setColor(NamedNodeMap attributes, Statement<String> s) {
+	private void setColor(NamedNodeMap attributes, Statement s) {
 		s.setColor(getAttribute(attributes, COLOR, v -> v != null ? NodeColor.valueOf(v) : null));
 	}
 

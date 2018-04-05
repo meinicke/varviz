@@ -69,7 +69,7 @@ public class XMLWriter implements XMLvarviz {
 		return prettyPrint(result.getWriter().toString());
 	}
 
-	private void writeTraceElements(MethodElement<?> methodElement, Document doc, Element parent) {
+	private void writeTraceElements(MethodElement methodElement, Document doc, Element parent) {
 
 		String elementType = methodElement instanceof Statement ? STATEMENT : METHOD;
 		Element element = doc.createElement(elementType);
@@ -87,14 +87,14 @@ public class XMLWriter implements XMLvarviz {
 
 		setColor(methodElement, element);
 		if (methodElement instanceof Statement) {
-			setShape((Statement<?>) methodElement, element);
-			setValues((Statement<?>) methodElement, element);
+			setShape((Statement) methodElement, element);
+			setValues((Statement) methodElement, element);
 		}
 
 		if (methodElement instanceof Method) {
-			Method<?> method = (Method<?>) methodElement;
+			Method method = (Method) methodElement;
 			element.setAttribute(FILE, method.getFile());
-			for (MethodElement<?> child : method.getChildren()) {
+			for (MethodElement child : method.getChildren()) {
 				writeTraceElements(child, doc, element);
 			}
 		}
@@ -102,7 +102,7 @@ public class XMLWriter implements XMLvarviz {
 		parent.appendChild(element);
 	}
 
-	private void setValues(Statement<?> statement, Element element) {
+	private void setValues(Statement statement, Element element) {
 		Conditional<?> oldValue = statement.getOldValue();
 		Conditional<?> value = statement.getValue();
 		if (oldValue != null) {
@@ -129,14 +129,14 @@ public class XMLWriter implements XMLvarviz {
 		}
 	}
 
-	private void setColor(MethodElement<?> methodElement, Element element) {
+	private void setColor(MethodElement methodElement, Element element) {
 		NodeColor color = methodElement.getColor();
 		if (color != null) {
 			element.setAttribute(COLOR, color.name());
 		}
 	}
 
-	private void setShape(Statement<?> methodElement, Element element) {
+	private void setShape(Statement methodElement, Element element) {
 		Shape shape = methodElement.getShape();
 		if (shape != null) {
 			element.setAttribute(SHAPE, shape.name());

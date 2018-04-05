@@ -13,7 +13,7 @@ import cmu.varviz.trace.uitrace.VarvizEvent.EventType;
 
 public class GraphicalTrace {
 
-	Map<Statement<?>, GraphicalStatement> graphicalStatements = new HashMap<>();
+	Map<Statement, GraphicalStatement> graphicalStatements = new HashMap<>();
 	Map<Edge, GraphicalEdge> graphicalEdges = new HashMap<>();
 	
 	public GraphicalTrace(Trace trace) {
@@ -27,17 +27,17 @@ public class GraphicalTrace {
 		}
 	}
 
-	private void createGraphicalStatements(Method<?> main) {
-		for (MethodElement<?> child : main.getChildren()) {
+	private void createGraphicalStatements(Method main) {
+		for (MethodElement child : main.getChildren()) {
 			if (child instanceof Method) {
-				createGraphicalStatements((Method<?>) child);
+				createGraphicalStatements((Method) child);
 			} else {
-				graphicalStatements.put((Statement<?>) child, new GraphicalStatement((Statement<?>) child));
+				graphicalStatements.put((Statement) child, new GraphicalStatement((Statement) child));
 			}
 		}
 	}
 	
-	public GraphicalStatement getGraphicalStatement(Statement<?> statement) {
+	public GraphicalStatement getGraphicalStatement(Statement statement) {
 		return graphicalStatements.get(statement);
 	}
 	
