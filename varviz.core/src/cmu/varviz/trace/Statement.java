@@ -12,14 +12,6 @@ public class Statement extends MethodElement {
 	protected Conditional<?> oldValue;
 	protected Conditional<?> value;
 
-	public Conditional<MethodElement> getFrom() {
-		return from;
-	}
-
-	public Conditional<MethodElement> getTo() {
-		return to;
-	}
-
 	public Statement(Object operation, Method method, int line, FeatureExpr ctx) {
 		super(operation, method, line, ctx);
 	}
