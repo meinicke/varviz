@@ -25,7 +25,7 @@ import cmu.varviz.trace.view.VarvizView;
 import gov.nasa.jpf.vm.MethodInfo;
 
 /**
- * TODO description
+ * Helper class to handle the editor.
  * 
  * @author Jens Meinicke
  *

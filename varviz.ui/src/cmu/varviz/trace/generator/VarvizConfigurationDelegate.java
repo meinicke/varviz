@@ -94,34 +94,34 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 			MessageConsole myConsole = findAndCreateConsole((view.isUseVarexJ() ?"VarexJ: ": "SampleJ: ") + project.getName() + ":" + runConfig.getClassToLaunch());
 			myConsole.clearConsole();
 			
-			try (PrintStream myPrintStream = createOutputStream(originalOutputStream, myConsole.newMessageStream())) {
-				System.setOut(myPrintStream);
-	
-				view.setProjectName(project.getName());
-	
-				project.build(IncrementalProjectBuilder.FULL_BUILD, monitor);
-				Trace trace = view.getGenerator().run(runConfig, resource, monitor, classpath);
-				
-				if (view.isShowForExceptionFeatures()) {
-					Slicer.sliceForExceptiuon(trace, view.getGenerator());
-				}
-				trace.finalizeGraph();
-				view.setTrace(trace);
-				
-				
-				if (view.getTRACE().getMain().size() < 10_000) {
-					view.refreshVisuals();
-				}
-	
-				// check for cancellation
-				if (monitor.isCanceled()) {
-					return;
-				}
+			PrintStream myPrintStream = createOutputStream(originalOutputStream, myConsole.newMessageStream());
+			System.setOut(myPrintStream);
+
+			view.setProjectName(project.getName());
+
+			project.build(IncrementalProjectBuilder.FULL_BUILD, monitor);
+			Trace trace = view.getGenerator().run(runConfig, resource, monitor, classpath);
+			
+			if (view.isShowForExceptionFeatures()) {
+				Slicer.sliceForExceptiuon(trace, view.getGenerator());
 			}
-		} finally {
+			trace.finalizeGraph();
+			view.setTrace(trace);
+			
+			
+			if (view.getTRACE().getMain().size() < 10_000) {
+				view.refreshVisuals();
+			}
+
+			// check for cancellation
+			if (monitor.isCanceled()) {
+				return;
+			}
 			VarvizView.checked.clear();
 			monitor.done();
 			System.setOut(originalOutputStream);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
 		}
 	}
 
@@ -197,7 +197,7 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 		IConsole[] existing = conMan.getConsoles();
 		for (int i = 0; i < existing.length; i++) {
 			if (name.equals(existing[i].getName())) {
-				((MessageConsole) existing[i]).destroy();
+				return ((MessageConsole) existing[i]);//.destroy();
 			}
 		}
 		// no console found, so create a new one
