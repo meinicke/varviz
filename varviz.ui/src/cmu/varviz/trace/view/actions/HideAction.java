@@ -44,6 +44,7 @@ public class HideAction extends Action {
 				parent.filterExecution(e -> e != element, true);
 			}
 			view.getTRACE().finalizeGraph();
+			view.setTrace(view.getTRACE());
 			view.refreshVisuals();
 		}
 	}
