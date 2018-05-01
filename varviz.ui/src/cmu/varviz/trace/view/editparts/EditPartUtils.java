@@ -21,7 +21,7 @@ public class EditPartUtils {
 		if (Conditional.isContradiction(ctx)) {
 			return "False";
 		}
-		ctx = Conditional.simplifyCondition(ctx, Conditional.additionalConstraint);
+//		ctx = Conditional.simplifyCondition(ctx, Conditional.additionalConstraint);
 		String contextString = Conditional.getCTXString(ctx);
 		contextString = contextString.replaceAll("\\|", Character.toString(LOGICAL_OR));
 		contextString = contextString.replaceAll("\\&", Character.toString(LOGICAL_AND));

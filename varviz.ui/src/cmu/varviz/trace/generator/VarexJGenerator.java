@@ -10,16 +10,10 @@ import org.eclipse.jdt.launching.VMRunnerConfiguration;
 
 import cmu.conditional.Conditional;
 import cmu.varviz.trace.Trace;
-import cmu.varviz.trace.filters.And;
-import cmu.varviz.trace.filters.InteractionFilter;
-import cmu.varviz.trace.filters.Or;
-import cmu.varviz.trace.view.VarvizView;
 import cmu.varviz.utils.FileUtils;
-import cmu.vatrace.ExceptionFilter;
 import de.fosd.typechef.featureexpr.FeatureExpr;
 import de.fosd.typechef.featureexpr.FeatureExprFactory;
 import de.fosd.typechef.featureexpr.SingleFeatureExpr;
-import de.fosd.typechef.featureexpr.bdd.BDDFeatureExprFactory;
 import gov.nasa.jpf.JPF;
 
 /**
@@ -53,7 +47,7 @@ public class VarexJGenerator implements TraceGenerator {
 
 	@Override
 	public void clearIgnoredFeatures() {
-		JPF.ignoredFeatures.clear();
+//		JPF.ignoredFeatures.clear();
 	}
 
 	@Override
@@ -63,12 +57,12 @@ public class VarexJGenerator implements TraceGenerator {
 
 	@Override
 	public Map<FeatureExpr, Boolean> getIgnoredFeatures() {
-		return JPF.ignoredFeatures;
+		return null;//JPF.ignoredFeatures;
 	}
 
 	@Override
 	public Trace run(VMRunnerConfiguration runConfig, IResource resource, IProgressMonitor monitor, String[] classpath) throws CoreException {
-		Conditional.additionalConstraint = BDDFeatureExprFactory.True();
+//		Conditional.additionalConstraint = BDDFeatureExprFactory.True();
 		clearIgnoredFeatures();
 		StringBuilder cp = new StringBuilder();
 		for (String c : classpath) {
@@ -76,16 +70,16 @@ public class VarexJGenerator implements TraceGenerator {
 			cp.append(',');
 		}
 		String featureModelPath = getFeatureModel(resource);
-		
+		//+interaction= [context, composedContext, local, stack, interaction]
 		FeatureExprFactory.setDefault(FeatureExprFactory.bdd());
 		final String[] args = { "+classpath=" + cp, "+choice=MapChoice", "+stack=HybridStackHandler", "+nhandler.delegateUnhandledNative", "+search.class=.search.RandomSearch",
-				featureModelPath != null ? "+ featuremodel=" + featureModelPath : "", runConfig.getClassToLaunch() };
-		JPF.vatrace = new Trace();
-		JPF.vatrace.filter = new Or(new And(VarvizView.basefilter, new InteractionFilter(VarvizView.MIN_INTERACTION_DEGREE)), new ExceptionFilter());/// remove code clone
+				featureModelPath != null ? "+ featuremodel=" + featureModelPath : "","+interaction=context", "+project=" + resource.getProject().getRawLocation().toOSString(), runConfig.getClassToLaunch() };//		JPF.vatrace = new Trace();
+//		JPF.vatrace.filter = new Or(new And(VarvizView.basefilter, new InteractionFilter(VarvizView.MIN_INTERACTION_DEGREE)), new ExceptionFilter());/// remove code clone
 		FeatureExprFactory.setDefault(FeatureExprFactory.bdd());
 		JPF.main(args);
 		
-		return JPF.vatrace;
+//		return JPF.vatrace;
+		return null;
 	}
 
 

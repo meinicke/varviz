@@ -140,7 +140,7 @@ public class MethodEditPart extends AbstractTraceEditPart implements NodeEditPar
 							// a -> True
 							direction = Direction.CENTER;
 							childEditPart.getFigure().setLocation(new Point(-childEditPart.getFigure().getBounds().width / 2, h));
-						} else if (Conditional.isSatisfiable(prevctx.and(ctx)) || direction == Direction.RIGHT/* TODO */) {
+//						} else if (Conditional.isSatisfiable(prevctx.and(ctx)) || direction == Direction.RIGHT/* TODO */) {
 							// True -> a
 							direction = Direction.LEFT;
 							childEditPart.getFigure().setLocation(new Point(previousFigure.getFigure().getBounds().getBottom().x -(childEditPart.getFigure().getBounds().width + BORDER_MARGIN), h));

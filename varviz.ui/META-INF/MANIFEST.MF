@@ -40,6 +40,7 @@ Bundle-ClassPath: .,
  lib/RunTest.jar,
  lib/scala-library-2.11.8.jar,
  lib/varviz.jar,
- lib/sampleJ.jar
+ lib/sampleJ.jar,
+ lib/Coverage.jar
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: varviz

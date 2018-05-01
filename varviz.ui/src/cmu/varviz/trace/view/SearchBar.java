@@ -19,12 +19,12 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Text;
 
 import cmu.samplej.statement.IFStatement2;
+import cmu.samplej.statement.ReturnStatement;
 import cmu.varviz.trace.IFStatement;
 import cmu.varviz.trace.Method;
 import cmu.varviz.trace.MethodElement;
 import cmu.varviz.trace.NodeColor;
 import cmu.varviz.trace.uitrace.GraphicalStatement;
-import cmu.vatrace.ReturnStatement;
 
 /**
  * Handles the search in the {@link VarvizView}.
@@ -142,14 +142,15 @@ public class SearchBar extends ControlContribution {
 			}
 
 			private boolean unmodifiableStatement(MethodElement element) {
-				return element instanceof ReturnStatement || 
+				return //element instanceof ReturnStatement || 
 					   element instanceof cmu.samplej.statement.ReturnStatement ||
 					   element instanceof IFStatement || 
 					   element instanceof IFStatement2;
 			}
 
 			private void highlightElement(MethodElement element) {
-				if (element instanceof ReturnStatement || element instanceof cmu.samplej.statement.ReturnStatement) {
+				if (//element instanceof ReturnStatement ||
+						element instanceof cmu.samplej.statement.ReturnStatement) {
 					return;
 				}
 				highlightedElements.add(element);

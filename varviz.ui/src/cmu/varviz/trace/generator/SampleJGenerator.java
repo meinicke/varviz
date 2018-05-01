@@ -20,12 +20,7 @@ import cmu.conditional.Conditional;
 import cmu.samplej.Collector;
 import cmu.samplej.SampleJMonitor;
 import cmu.varviz.trace.Trace;
-import cmu.varviz.trace.filters.And;
-import cmu.varviz.trace.filters.InteractionFilter;
-import cmu.varviz.trace.filters.Or;
 import cmu.varviz.trace.filters.StatementFilter;
-import cmu.varviz.trace.view.VarvizView;
-import cmu.vatrace.ExceptionFilter;
 import de.fosd.typechef.featureexpr.FeatureExpr;
 import de.fosd.typechef.featureexpr.SingleFeatureExpr;
 
@@ -79,8 +74,9 @@ public class SampleJGenerator implements TraceGenerator {
 		};
 
 		Conditional.setFM(getFeatureModel(resource));
-		final StatementFilter filter = new Or(new And(VarvizView.basefilter, new InteractionFilter(VarvizView.MIN_INTERACTION_DEGREE)),
-				new ExceptionFilter());
+		final StatementFilter filter = null;
+//		new Or(new And(VarvizView.basefilter, new InteractionFilter(VarvizView.MIN_INTERACTION_DEGREE)),
+//				new ExceptionFilter());
 		Collector collector = new Collector(filter, getOptions(resource));
 		String projectPath = project.getLocation().toOSString();
 		try {
