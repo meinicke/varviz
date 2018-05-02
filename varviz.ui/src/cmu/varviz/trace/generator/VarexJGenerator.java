@@ -72,7 +72,7 @@ public class VarexJGenerator implements TraceGenerator {
 		String featureModelPath = getFeatureModel(resource);
 		//+interaction= [context, composedContext, local, stack, interaction]
 		FeatureExprFactory.setDefault(FeatureExprFactory.bdd());
-		final String[] args = { "+classpath=" + cp, "+choice=MapChoice", "+stack=HybridStackHandler", "+nhandler.delegateUnhandledNative", "+search.class=.search.RandomSearch",
+		final String[] args = { "+classpath=" + cp, "+choice=TreeChoice", "+stack=HybridStackHandler", "+nhandler.delegateUnhandledNative", "+search.class=.search.RandomSearch",
 				featureModelPath != null ? "+ featuremodel=" + featureModelPath : "","+interaction=context", "+project=" + resource.getProject().getRawLocation().toOSString(), runConfig.getClassToLaunch() };//		JPF.vatrace = new Trace();
 //		JPF.vatrace.filter = new Or(new And(VarvizView.basefilter, new InteractionFilter(VarvizView.MIN_INTERACTION_DEGREE)), new ExceptionFilter());/// remove code clone
 		FeatureExprFactory.setDefault(FeatureExprFactory.bdd());

@@ -26,7 +26,6 @@ import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
 
 import cmu.varviz.trace.Trace;
-import cmu.varviz.trace.view.VarvizView;
 
 /**
  * Runs the Java Application to generate the {@link Trace}.
@@ -87,40 +86,24 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 			// Launch the configuration - 1 unit of work
 			monitor.subTask("Run application with VarexJ");
 
-			final VarvizView view = VarvizView.getInstance();
 			final IResource resource = configuration.getWorkingCopy().getMappedResources()[0];
 			IProject project = resource.getProject();
-//			MessageConsole myConsole = findAndCreateConsole((view.isUseVarexJ() ?"VarexJ: ": "SampleJ: ") + project.getName() + ":" + runConfig.getClassToLaunch());
-//			myConsole.clearConsole();
+			MessageConsole myConsole = findAndCreateConsole("VarexJ: " + project.getName() + ":" + runConfig.getClassToLaunch());
+			myConsole.clearConsole();
 			
-//			PrintStream myPrintStream = createOutputStream(originalOutputStream, myConsole.newMessageStream());
-//			System.setOut(myPrintStream);
+			PrintStream myPrintStream = createOutputStream(originalOutputStream, myConsole.newMessageStream());
+			System.setOut(myPrintStream);
 
-			view.setProjectName(project.getName());
 
 			project.build(IncrementalProjectBuilder.FULL_BUILD, monitor);
-			Trace trace = view.getGenerator().run(runConfig, resource, monitor, classpath);
+			VarexJGenerator.geGenerator().run(runConfig, resource, monitor, classpath);
 			
-			if (view.isShowForExceptionFeatures()) {
-//				Slicer.sliceForExceptiuon(trace, view.getGenerator());
-			}
-//			trace.finalizeGraph();
-//			view.setTrace(trace);
-			
-			
-//			if (view.getTRACE().getMain().size() < 10_000) {
-//				view.refreshVisuals();
-//			}
-
 			// check for cancellation
-			if (monitor.isCanceled()) {
-				return;
-			}
-			VarvizView.checked.clear();
 			monitor.done();
-			System.setOut(originalOutputStream);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
+		} finally {
+			System.setOut(originalOutputStream);
 		}
 	}
 
