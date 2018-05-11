@@ -110,7 +110,7 @@ public class Trace {
 	
 	public void highlightException(FeatureExpr ctx) {
 		for (Edge e : edges) {
-			if (!Conditional.isContradiction(e.ctx.and(ctx))) {
+			if (!Conditional.isContradiction(Conditional.and(e.ctx, ctx))) {
 				if (e.ctx.equivalentTo(ctx)) {
 					e.setWidth(2);
 					e.setColor(NodeColor.red);
@@ -120,7 +120,7 @@ public class Trace {
 				} else if (Conditional.isTautology(e.ctx)) {
 					e.setWidth(1);
 					e.setColor(NodeColor.black);
-				} else if (!Conditional.isContradiction(e.ctx.not().and(ctx))) {
+				} else if (!Conditional.isContradiction(Conditional.andNot(ctx, e.ctx))) {
 					e.setWidth(2);
 					e.setColor(NodeColor.yellow);
 				} else {
@@ -139,7 +139,7 @@ public class Trace {
 
 	public void highlightContext(FeatureExpr ctx, NodeColor color, int width) {
 		for (Edge e : edges) {
-			if (e.ctx.and(ctx).isSatisfiable()) {
+			if (!Conditional.isContradiction(Conditional.and(e.ctx, ctx))) {
 					e.setWidth(width);
 					e.setColor(color);
 					e.from.setWidth(width);
@@ -201,7 +201,7 @@ public class Trace {
 			if (Conditional.equivalentTo(context, methodElement.getCTX())) {
 				return false;
 			}
-			if (methodElement.getCTX().andNot(context).isSatisfiable()) {
+			if (!Conditional.isContradiction(Conditional.andNot(methodElement.getCTX(), context))) {
 				return false;
 			}
 			return true;

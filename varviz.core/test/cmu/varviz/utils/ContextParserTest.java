@@ -57,7 +57,7 @@ public class ContextParserTest {
 	
 	@Test
 	public void testContext_a_and_b() {
-		FeatureExpr expectedCtx = a.and(b);
+		FeatureExpr expectedCtx = Conditional.and(a,b);
 		String contextString = "a&amp;b";
 		FeatureExpr ctx =  ContextParser.getContext(contextString);
 		assertTrue(ctx.equivalentTo(expectedCtx));
@@ -81,7 +81,7 @@ public class ContextParserTest {
 	
 	@Test
 	public void testContext_a_and_b2() {
-		FeatureExpr expectedCtx = a.and(b);
+		FeatureExpr expectedCtx = Conditional.and(a,b);
 		String contextString = "a&b";
 		FeatureExpr ctx =  ContextParser.getContext(contextString);
 		assertTrue(ctx.equivalentTo(expectedCtx));

@@ -6,6 +6,7 @@ import java.util.Deque;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.IStructuredSelection;
 
+import cmu.conditional.Conditional;
 import cmu.varviz.trace.Method;
 import cmu.varviz.trace.MethodElement;
 import cmu.varviz.trace.view.VarvizView;
@@ -50,7 +51,7 @@ public class RemovePathAction extends Action {
 			}
 			while (!stack.isEmpty()) {
 				final MethodElement currentStatement = stack.pop();
-				if (currentStatement.getCTX().equals(currentStatement.getCTX().and(ctx))) {
+				if (currentStatement.getCTX().equals(Conditional.and(currentStatement.getCTX(),ctx))) {
 					final Method parent = currentStatement.getParent();
 					if (parent != null) {
 						parent.filterExecution(e -> e != currentStatement);

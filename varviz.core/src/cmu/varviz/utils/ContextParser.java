@@ -30,10 +30,10 @@ public class ContextParser implements XMLvarviz {
 					if (feature == null) {
 						feature = Conditional.createFeature(string.substring(1));
 					}
-					andContext = andContext.andNot(feature);
+					andContext = Conditional.andNot(andContext,feature);
 				} else {
 					SingleFeatureExpr feature = Conditional.createFeature(string);
-					andContext = andContext.and(feature);
+					andContext = Conditional.and(andContext,feature);
 				}
 			}
 			ctx = ctx.or(andContext);

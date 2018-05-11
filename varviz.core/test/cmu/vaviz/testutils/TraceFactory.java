@@ -1,6 +1,7 @@
 package cmu.vaviz.testutils;
 
 import cmu.conditional.ChoiceFactory;
+import cmu.conditional.Conditional;
 import cmu.conditional.One;
 import cmu.varviz.trace.Method;
 import cmu.varviz.trace.Statement;
@@ -32,7 +33,7 @@ public class TraceFactory {
 		Method method = new Method("method", main, 43, a);
 		method.setFile("method.java");
 		
-		s = new MyStatement("iadd", method, 54, b.and(a));
+		s = new MyStatement("iadd", method, 54, Conditional.and(b, a));
 		s = new MyStatement("PUTSTATIC", method, 56, a);
 		
 		s = new MyStatement("GETFIELD", method, 75, a.not());
