@@ -114,7 +114,11 @@ public class VarvizView extends ViewPart {
 	// TODO dirty solutions for VarvizConfigurationDelegate (remove if possible)
 	private static VarvizView INSTANCE = null;
 	
+	@SuppressWarnings("unused")
 	public static VarvizView getInstance() {
+		if (INSTANCE == null) {
+			new VarvizView();
+		}
 		return INSTANCE;
 	}
 	
