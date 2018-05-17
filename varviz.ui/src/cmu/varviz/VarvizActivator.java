@@ -9,6 +9,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
+import cmu.varviz.trace.view.VarvizView;
 import de.fosd.typechef.featureexpr.FeatureExprFactory;
 
 /**
@@ -44,6 +45,7 @@ public class VarvizActivator extends AbstractUIPlugin {
 	public void stop(BundleContext context) throws Exception {
 		plugin = null;
 		super.stop(context);
+		VarvizView.getInstance().getGenerator().shutdown();
 	}
 
 	public static VarvizActivator getDefault() {

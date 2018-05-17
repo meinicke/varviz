@@ -47,8 +47,11 @@ public class VarexJGenerator implements TraceGenerator {
 		if (!jpfPath.exists()) {
 			jpfPath.mkdir();
 		}
+		jpfPath.deleteOnExit();
+		FileUtils.copyFileFromVarvizJar("/res", "jpf-classes.jar", jpfPath);
 		FileUtils.copyFileFromVarvizJar("/res", "site.properties", jpfPath);
 	}
+	
 	
 
 	@Override
@@ -88,5 +91,12 @@ public class VarexJGenerator implements TraceGenerator {
 		return JPF.vatrace;
 	}
 
+	@Override
+	public void shutdown() {
+		File userHome = new File(System.getProperty("user.home"));
+		File jpfPath = new File(userHome.getPath() + "/.jpf");
+		
+		FileUtils.deleteDeep(jpfPath);
+	}
 
 }

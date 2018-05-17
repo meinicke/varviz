@@ -10,7 +10,9 @@ import cmu.varviz.VarvizException;
 public interface FileUtils {
 	
 	public static void copyFileFromVarvizJar(String sourcePath, String resourceName, File destination) {
-		if (new File(destination, resourceName).exists()) {
+		File file = new File(destination, resourceName);
+		if (file.exists()) {
+			file.deleteOnExit();
 			return;
 		}
 		try (InputStream stream = VarvizColors.class.getResourceAsStream(sourcePath + "/" + resourceName)){
@@ -20,15 +22,25 @@ public interface FileUtils {
 
             int readBytes;
             byte[] buffer = new byte[4096];
-            File file = new File(destination + "/" + resourceName);
+            file = new File(destination + File.separator + resourceName);
             try (OutputStream resStreamOut = java.nio.file.Files.newOutputStream(file.toPath())) {
 	            while ((readBytes = stream.read(buffer)) > 0) {
 	                resStreamOut.write(buffer, 0, readBytes);
 	            }
             }
+            file.deleteOnExit();
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new VarvizException(e.getMessage());
         }
     }
+
+	public static void deleteDeep(File file) {
+		if (file.isDirectory()) {
+			for(File child: file.listFiles()) {
+				deleteDeep(child);
+			}
+		}
+		file.delete();
+	}
 	
 }

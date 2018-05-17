@@ -40,5 +40,7 @@ public interface TraceGenerator {
 		}
 		return "";
 	}
-	
+
+	void shutdown();
+
 }

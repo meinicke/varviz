@@ -108,7 +108,9 @@ public class SampleJGenerator implements TraceGenerator {
 		options.toArray(optionsArr);
 		return optionsArr;
 	}
-	
 
-
+	@Override
+	public void shutdown() {
+		// nothing here
+	}
 }

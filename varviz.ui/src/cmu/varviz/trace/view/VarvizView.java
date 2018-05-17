@@ -317,13 +317,15 @@ public class VarvizView extends ViewPart {
 	}
 
 	public void refreshVisuals() {
-		Display.getDefault().syncExec(() -> {
-			viewer.setContents(trace);
-			viewer.getContents().refresh();
-			LAYOUT_MANAGER.layout(viewer.getContents());
-
-			VarvizViewerUtils.refocusView(viewer, trace);
-		});
+		if (viewer != null) {
+			Display.getDefault().syncExec(() -> {
+				viewer.setContents(trace);
+				viewer.getContents().refresh();
+				LAYOUT_MANAGER.layout(viewer.getContents());
+	
+				VarvizViewerUtils.refocusView(viewer, trace);
+			});
+		}
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
