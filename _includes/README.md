@@ -19,7 +19,7 @@ We further show that variational traces can be scaled to programs with many opti
 
 [MAC Packaged](https://cmu.box.com/s/5fmcfgx3jjciao3edl74e4evwf0vsz69)
 
-<a href="https://github.com/meinicke/varviz/blob/gh-pages/resources/ICSE%20Poster.png"><img alt="Poster" src="https://github.com/meinicke/varviz/blob/gh-pages/resources/ICSE%20Poster.png" width="800"/></a>
+<a href="https://raw.githubusercontent.com/meinicke/varviz/gh-pages/resources/ICSE%20Poster.png"><img alt="Poster" src="https://raw.githubusercontent.com/meinicke/varviz/gh-pages/resources/ICSE%20Poster.png" width="800"/></a>
 
 
 <a href="/resources/ICSEPoster.png"><img alt="Poster" src="/resources/ICSEPoster.png" width="800"/></a>
