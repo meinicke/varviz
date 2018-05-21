@@ -1,4 +1,4 @@
-<a href="https://raw.githubusercontent.com/meinicke/varviz/gh-pages/resources/ICSE%20Poster.png"><img alt="Poster" src="https://raw.githubusercontent.com/meinicke/varviz/gh-pages/resources/ICSE%20Poster.png" width="800"/></a>
+<a href="https://github.com/meinicke/varviz/blob/gh-pages/resources/ICSEPoster.png?raw=true"><img alt="Poster" src="https://github.com/meinicke/varviz/blob/gh-pages/resources/ICSEPoster.png?raw=true" width="800"/></a>
 
 
 ## Download
