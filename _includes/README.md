@@ -23,3 +23,4 @@ We further show that variational traces can be scaled to programs with many opti
 [MAC Packaged](https://cmu.box.com/s/5fmcfgx3jjciao3edl74e4evwf0vsz69)
 
 <a href="/resources/VarexJ/Traces/Elevator.png"><img alt="Elevator" src="/resources/VarexJ/Traces/Elevator.png" width="800"/></a>
+<a href="/resources/VarexJ/Traces/ICSEPoster.png"><img alt="Elevator" src="/resources/VarexJ/Traces/ICSEPoster.png" width="800"/></a>
