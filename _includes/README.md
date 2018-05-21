@@ -16,7 +16,7 @@ We further show that variational traces can be scaled to programs with many opti
 
 ## Download
 
-[WIN-64 Packaged](https://cmu.box.com/s/5zov85s94l7yiu4fkkilidcgydcesaeg)
+[WIN-64 Packaged](https://cmu.box.com/s/tyeibd0ewspfqqqn21mc4cdmsjtw23x0)
 
 [MAC Packaged](https://cmu.box.com/s/5fmcfgx3jjciao3edl74e4evwf0vsz69)
 
