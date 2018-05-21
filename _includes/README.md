@@ -13,6 +13,9 @@ We further show that variational traces can be scaled to programs with many opti
 
 <a href="/resources/varviz/ICSEPoster.png"><img alt="Poster" src="/resources/varviz/ICSEPoster.png" width="800"/></a>
 
+<a href="/resources/varviz/ICSE Poster.png"><img alt="Poster" src="/resources/varviz/ICSE Poster.png" width="800"/></a>
+
+
 ## Download
 
 [WIN-64 Packaged](https://cmu.box.com/s/5zov85s94l7yiu4fkkilidcgydcesaeg)
