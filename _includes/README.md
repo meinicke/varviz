@@ -1,7 +1,7 @@
 Varviz
 ======
 
-### Download
+## Download
 
 [WIN-64](https://cmu.box.com/s/5zov85s94l7yiu4fkkilidcgydcesaeg)
 
