@@ -11,6 +11,8 @@ We further provide an Eclipse plugin Varviz that enables users to use variationa
 In a user study, we show that users of variational traces are more than twice as fast to finish debugging tasks than users of the standard Eclipse debugger.
 We further show that variational traces can be scaled to programs with many options.
 
+<a href="/resources/Varviz/ICSE Poster.png"><img alt="Poster" src="/resources/Varviz/ICSE Poster.png" width="800"/></a>
+
 ## Download
 
 [WIN-64 Packaged](https://cmu.box.com/s/5zov85s94l7yiu4fkkilidcgydcesaeg)
