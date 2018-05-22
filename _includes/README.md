@@ -3,7 +3,7 @@
 
 ## Download
 
-[WIN-64 Packaged](https://www.dropbox.com/s/qixlro3tbvv5ghu/eclipse_win_64.zip?dl=0)
+[WIN-64 Packaged](https://www.dropbox.com/s/ry6h91tjwuzflla/eclipse_win_64.zip?dl=0)
 
-[MAC Packaged](https://www.dropbox.com/s/tdk07fjr6dti7g6/eclipse_Varviz_mac.zip?dl=0)
+[MAC Packaged](https://www.dropbox.com/s/9u0bsz63fc6w8y5/eclipse_Varviz_mac.zip?dl=0)
 
