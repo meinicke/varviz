@@ -8,6 +8,10 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.content.IContentDescription;
 import org.eclipse.core.runtime.content.IContentType;
+import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
@@ -52,24 +56,34 @@ public class EditorHelper {
 		scrollToLine(editor, lineNumber);
 	}
 	
-	private static IFile getFile(String fileName) {
-		IProject prj = ResourcesPlugin.getWorkspace().getRoot().getProject(VarvizView.getInstance().getProjectName());		
-		IFile file = prj.getFile("src/" + fileName);
-		if (!file.exists()) {
-			throw new VarvizException("file " + file.getFullPath() + " does not exist");
-		}
-		return file;
-	}
+	 
 	
 	private static IFile getFile(MethodInfo mi) {
-		IProject prj = ResourcesPlugin.getWorkspace().getRoot().getProject(VarvizView.getInstance().getProjectName());		
-		IFile file = prj.getFile("src/" + mi.getSourceFileName());
-		if (!file.exists()) {
-			throw new VarvizException("file " + file.getFullPath() + " does not exist");
-		}
-		return file;
+		return getFile(mi.getSourceFileName());
 	}
 
+	private static IFile getFile(String fileName) {
+		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(VarvizView.getInstance().getProjectName());
+		final IJavaProject javaProject = JavaCore.create(project);
+		try {
+			IClasspathEntry[] oldEntries = javaProject.getRawClasspath();
+			for (int i = 0; i < oldEntries.length; i++) {
+				if (oldEntries[i].getEntryKind() == IClasspathEntry.CPE_SOURCE) {
+					IFile file = project.getFile(oldEntries[i].getPath().removeFirstSegments(1).append(fileName));
+					if (file.exists()) {
+						return file;
+					}
+				}
+			}
+		} catch (JavaModelException e) {
+			e.printStackTrace();
+		}
+		throw new VarvizException("file " + fileName + " does not exist");
+		
+		
+	}
+	
+	
 	private static IEditorPart openEditor(IFile file, IWorkbenchPage page) {
 		IEditorPart editor = null;
 		if (page != null) {
