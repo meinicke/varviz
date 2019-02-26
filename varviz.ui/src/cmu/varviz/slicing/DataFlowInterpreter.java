@@ -16,6 +16,8 @@ import jdk.internal.org.objectweb.asm.tree.analysis.BasicValue;
 /**
  * Annotates the control flow graph with conditional nodes.
  * 
+ * @see <a href="https://asm.ow2.io/javadoc/org/objectweb/asm/tree/analysis/BasicInterpreter.html"</a>BasicInterpreter.html
+ * 
  * @author Jens Meinicke
  *
  */
