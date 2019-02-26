@@ -30,9 +30,9 @@ import scala.collection.Iterator;
  * @author Jens Meinicke
  *
  */
-public class Slicer {
+public class Projector {
 	
-	private Slicer() {
+	private Projector() {
 		// nothing here
 	}
 
@@ -40,26 +40,26 @@ public class Slicer {
 	 * tries to set all features that do not matter for the given expression to fixed values.
 	 * @return returns the new constraint with the fixed features.
 	 */
-	public static FeatureExpr sliceContext(final FeatureExpr ctx, TraceGenerator generator) {
+	public static FeatureExpr projectOnContext(final FeatureExpr ctx, TraceGenerator generator) {
 		if (Conditional.isContradiction(ctx)) {
 			return FeatureExprFactory.True();
 		}
 		scala.collection.immutable.Set<SingleFeatureExpr> distinctfeatureObjects = ctx.collectDistinctFeatureObjects();
-		Set<SingleFeatureExpr> sliceFeatures = new HashSet<>(distinctfeatureObjects.size());
+		Set<SingleFeatureExpr> projectionFeatures = new HashSet<>(distinctfeatureObjects.size());
 		Iterator<SingleFeatureExpr> iterator = distinctfeatureObjects.iterator();
 		while (iterator.hasNext()) {
-			sliceFeatures.add(iterator.next());
+			projectionFeatures.add(iterator.next());
 		}
-		return sliceFeatures(sliceFeatures, generator);
+		return projectFeatures(projectionFeatures, generator);
 	}
 	
 	/**
 	 * tries to set all features that do not matter for the given expression to fixed values.
 	 * @return returns the new constraint with the fixed features.
 	 */
-	public static FeatureExpr sliceFeatures(final Set<SingleFeatureExpr> sliceFeatures, TraceGenerator generator) {
-		System.out.print("slice Trace for :");
-		for (SingleFeatureExpr singleFeatureExpr : sliceFeatures) {
+	public static FeatureExpr projectFeatures(final Set<SingleFeatureExpr> projectionFeatures, TraceGenerator generator) {
+		System.out.print("project Trace for :");
+		for (SingleFeatureExpr singleFeatureExpr : projectionFeatures) {
 			System.out.print(getCTXString(singleFeatureExpr, false)+ ", ");
 		}
 		System.out.println();
@@ -70,11 +70,11 @@ public class Slicer {
 
 		FeatureExpr constraint = FeatureExprFactory.True();
 		for (Entry<String, SingleFeatureExpr> feature : generator.getFeatures().entrySet()) {
-			if (!sliceFeatures.contains(feature.getValue())) {
-				if (checkSat(constraint, sliceFeatures, not(feature.getValue()))) {
+			if (!projectionFeatures.contains(feature.getValue())) {
+				if (checkSat(constraint, projectionFeatures, not(feature.getValue()))) {
 					generator.getIgnoredFeatures().put(feature.getValue(), Boolean.FALSE);
 					constraint = constraint.andNot(feature.getValue());
-					} else if (checkSat(constraint, sliceFeatures, feature.getValue())) {
+					} else if (checkSat(constraint, projectionFeatures, feature.getValue())) {
 					generator.getIgnoredFeatures().put(feature.getValue(), Boolean.TRUE);
 					constraint = constraint.and(feature.getValue());
 				}
@@ -86,29 +86,29 @@ public class Slicer {
 	}
 
 	/**
-	 * Checks if the slice features can all be selected and unselected for the given constraint.
+	 * Checks if the projection features can all be selected and unselected for the given constraint.
 	 * @param constraint The constraint 
-	 * @param sliceFeatures the features we slice for
+	 * @param projectionFeatures the features we project for
 	 * @param featue A feature (can be selected or unselected); 
 	 * @return
 	 */
-	private static boolean checkSat(FeatureExpr constraint, Set<SingleFeatureExpr> sliceFeatures, FeatureExpr featue) {
+	private static boolean checkSat(FeatureExpr constraint, Set<SingleFeatureExpr> projectionFeatures, FeatureExpr featue) {
 		if (!isSatisfiable(and(constraint, featue))) {
 			return false;
 		}
 		// check if context features are still conditional (i.e., they can be true and false)
-		for (SingleFeatureExpr slicefeature : sliceFeatures) {
-			if (!isSatisfiable(and(and(constraint, featue), slicefeature))) {
+		for (SingleFeatureExpr projectionfeature : projectionFeatures) {
+			if (!isSatisfiable(and(and(constraint, featue), projectionfeature))) {
 				return false;
 			}
-			if (!isSatisfiable(and(and(constraint, featue), not(slicefeature)))) {
+			if (!isSatisfiable(and(and(constraint, featue), not(projectionfeature)))) {
 				return false;
 			}
 		}
 		return true;
 	}
 	
-	public static void sliceForFeatures(Trace trace, Map<SingleFeatureExpr, Boolean> featureSelection, TraceGenerator generator) {
+	public static void projectForFeatures(Trace trace, Map<SingleFeatureExpr, Boolean> featureSelection, TraceGenerator generator) {
 		long start = System.currentTimeMillis();
 		FeatureExpr constraint = FeatureExprFactory.True();
 		
@@ -139,7 +139,7 @@ public class Slicer {
 	 * Sets the given constrint.
 	 * 
 	 */
-	public static void sliceForConstraint(Trace trace, FeatureExpr constraint, TraceGenerator generator) {
+	public static void projectionForConstraint(Trace trace, FeatureExpr constraint, TraceGenerator generator) {
 		Conditional.additionalConstraint = and(Conditional.additionalConstraint, constraint);
 		System.out.println("set Constraint: "+ Conditional.additionalConstraint);
 		
@@ -155,16 +155,16 @@ public class Slicer {
 	}
 	
 	/**
-	 * Slices the given  {@link Trace} for the exception.
+	 * Projects the given  {@link Trace} for the exception.
 	 * @param traceGenerator 
 	 * 
 	 */
-	public static void sliceForExceptiuon(Trace trace, TraceGenerator generator) {
+	public static void projectionForExceptiuon(Trace trace, TraceGenerator generator) {
 		long start = System.currentTimeMillis();
 		FeatureExpr exceptionContext = trace.getExceptionContext();
 		exceptionContext = Conditional.simplifyCondition(exceptionContext);
 		
-		FeatureExpr constraint = Slicer.sliceContext(exceptionContext, generator);
+		FeatureExpr constraint = Projector.projectOnContext(exceptionContext, generator);
 		if (Conditional.isTautology(constraint)) {
 			return;
 		}

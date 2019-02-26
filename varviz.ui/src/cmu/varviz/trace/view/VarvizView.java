@@ -49,7 +49,7 @@ import cmu.varviz.trace.uitrace.GraphicalStatement;
 import cmu.varviz.trace.uitrace.GraphicalTrace;
 import cmu.varviz.trace.view.actions.HideAction;
 import cmu.varviz.trace.view.actions.RemovePathAction;
-import cmu.varviz.trace.view.actions.Slicer;
+import cmu.varviz.trace.view.actions.Projector;
 import cmu.varviz.trace.view.editparts.TraceEditPartFactory;
 
 /**
@@ -316,7 +316,7 @@ public class VarvizView extends ViewPart {
 				
 				if (showForExceptionFeatures) {
 					int originalSize = trace.getMain().size();
-					Slicer.sliceForExceptiuon(trace, generator);
+					Projector.projectionForExceptiuon(trace, generator);
 					trace.finalizeGraph();
 					int slicedSize = trace.getMain().size();
 					if (originalSize > slicedSize && slicedSize < 10_000) {

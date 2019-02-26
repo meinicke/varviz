@@ -29,7 +29,7 @@ import cmu.varviz.slicing.BackwardsSlicer;
 import cmu.varviz.trace.Statement;
 import cmu.varviz.trace.Trace;
 import cmu.varviz.trace.view.VarvizView;
-import cmu.varviz.trace.view.actions.Slicer;
+import cmu.varviz.trace.view.actions.Projector;
 
 /**
  * Runs the Java Application to generate the {@link Trace}.
@@ -106,7 +106,7 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 			
 			
 			if (view.isShowForExceptionFeatures()) {
-				Slicer.sliceForExceptiuon(trace, view.getGenerator());
+				Projector.projectionForExceptiuon(trace, view.getGenerator());
 			}
 			trace.finalizeGraph();
 
