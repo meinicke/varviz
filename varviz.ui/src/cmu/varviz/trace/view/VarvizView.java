@@ -35,6 +35,7 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import cmu.varviz.VarvizActivator;
 import cmu.varviz.io.graphviz.Format;
 import cmu.varviz.io.graphviz.GrapVizExport;
+import cmu.varviz.slicing.BackwardsSlicer;
 import cmu.varviz.trace.Method;
 import cmu.varviz.trace.MethodElement;
 import cmu.varviz.trace.Statement;
@@ -67,6 +68,7 @@ public class VarvizView extends ViewPart {
 	private static final QualifiedName SHOW_LABELS_QN = new QualifiedName(VarvizView.class.getName() + "#showLables","showLables");
 	private static final QualifiedName USE_VAREXJ_QN = new QualifiedName(VarvizView.class.getName() + "#useVarexJ", "useVarexJ");
 	private static final QualifiedName REEXECUTE_QN = new QualifiedName(VarvizView.class.getName() + "#REEXECUTE", "REEXECUTE");
+	private static final QualifiedName SLICE_QN = new QualifiedName(VarvizView.class.getName() + "#SLICE", "SLICE");
 	
 	private static final LayoutManager LAYOUT_MANAGER = new LayoutManager();
 
@@ -76,7 +78,7 @@ public class VarvizView extends ViewPart {
 
 		@Override
 		public boolean filter(Statement s) {
-			return !(hasParent(s.getParent(), "java."));
+			return !(hasParent(s.getParent(), "xxxxxxxxxxxxxxxxxx"));
 		}
 
 		private boolean hasParent(Method parent, String filter) {
@@ -102,7 +104,8 @@ public class VarvizView extends ViewPart {
 
 	private boolean showForExceptionFeatures = Boolean.parseBoolean(getProperty(REEXECUTE_QN));
 	private boolean showLables = Boolean.parseBoolean(getProperty(SHOW_LABELS_QN));
-
+	private boolean sliceException = Boolean.parseBoolean(getProperty(SLICE_QN));
+	
 	private ScrollingGraphicalViewer viewer;
 
 	private boolean useVarexJ = Boolean.parseBoolean(getProperty(USE_VAREXJ_QN));
@@ -111,7 +114,6 @@ public class VarvizView extends ViewPart {
 	private Trace trace = new Trace();
 	private GraphicalTrace graphicalTrace = null;
 	
-	// TODO dirty solutions for VarvizConfigurationDelegate (remove if possible)
 	private static VarvizView INSTANCE = null;
 	
 	@SuppressWarnings("unused")
@@ -140,6 +142,10 @@ public class VarvizView extends ViewPart {
 	
 	public boolean isShowForExceptionFeatures() {
 		return showForExceptionFeatures;
+	}
+	
+	public boolean isSliceException() {
+		return sliceException;
 	}
 	
 	public boolean isShowLables() {
@@ -173,6 +179,8 @@ public class VarvizView extends ViewPart {
 	
 
 	private static final double[] ZOOM_LEVELS;
+
+	private String[] classpath;
 	static {
 		ZOOM_LEVELS = new double[] { .1, .15, .2, .3, .4, .5, .6, .7, .8, .9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2 };
 	}
@@ -200,6 +208,7 @@ public class VarvizView extends ViewPart {
 		toolbarManager.add(new SearchBar(this));
 		createShowLabelsButton(toolbarManager);
 		createExceptionButton(toolbarManager);
+		createSliceButton(toolbarManager);
 		createGeneratorButton(toolbarManager);
 
 		((ScalableFreeformRootEditPart) viewer.getRootEditPart()).getZoomManager().setZoomLevels(ZOOM_LEVELS);
@@ -317,10 +326,29 @@ public class VarvizView extends ViewPart {
 				}
 			}
 		};
-		exceptionButton.setToolTipText("Show Trace for Exception Features Only");
+		exceptionButton.setToolTipText("Project on exception features");
 		toolbarManager.add(exceptionButton);
 		exceptionButton.setChecked(showForExceptionFeatures);
 		exceptionButton.setImageDescriptor(VarvizActivator.REFESH_EXCEPTION_IMAGE_DESCRIPTOR);
+	}
+	
+	private void createSliceButton(IToolBarManager toolbarManager) {
+		Action exceptionButton = new Action() {
+			@Override
+			public void run() {
+				sliceException = !sliceException;
+				if (sliceException && classpath != null) {
+					Statement exceptionSatement = (Statement) trace.getEND().getFrom().simplify(trace.getExceptionContext()).getValue();
+					new BackwardsSlicer().slice(classpath, exceptionSatement, trace);
+					refreshVisuals();
+				}
+				setProperty(REEXECUTE_QN, Boolean.toString(sliceException));
+			}
+		};
+		exceptionButton.setToolTipText("Slice on exception");
+		toolbarManager.add(exceptionButton);
+		exceptionButton.setChecked(sliceException);
+		exceptionButton.setImageDescriptor(VarvizActivator.GENERATOR_IMAGE_DESCRIPTOR);
 	}
 
 	private void createShowLabelsButton(IToolBarManager toolbarManager) {
@@ -392,6 +420,10 @@ public class VarvizView extends ViewPart {
 		if (GraphicalViewer.class.equals(adapter) || ViewPart.class.equals(adapter))
 			return viewer;
 		return super.getAdapter(adapter);
+	}
+
+	public void setClassPath(String[] classpath) {
+		this.classpath = classpath;
 	}
 
 }

@@ -25,6 +25,8 @@ import org.eclipse.ui.console.IConsoleManager;
 import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
 
+import cmu.varviz.slicing.BackwardsSlicer;
+import cmu.varviz.trace.Statement;
 import cmu.varviz.trace.Trace;
 import cmu.varviz.trace.view.VarvizView;
 import cmu.varviz.trace.view.actions.Slicer;
@@ -102,14 +104,22 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 			project.build(IncrementalProjectBuilder.FULL_BUILD, monitor);
 			Trace trace = view.getGenerator().run(runConfig, resource, monitor, classpath);
 			
+			
 			if (view.isShowForExceptionFeatures()) {
 				Slicer.sliceForExceptiuon(trace, view.getGenerator());
 			}
 			trace.finalizeGraph();
+
+			view.setClassPath(classpath);
+			if (view.isSliceException()) {
+				// TODO there may be multiple exception statements
+				Statement exceptionSatement = (Statement) trace.getEND().getFrom().simplify(trace.getExceptionContext()).getValue();
+				new BackwardsSlicer().slice(classpath, exceptionSatement, trace);
+			}
+			
 			view.setTrace(trace);
 			
-			
-			if (view.getTRACE().getMain().size() < 10_000) {
+			if (view.getTRACE().getMain().size() < 20_000) {
 				view.refreshVisuals();
 			}
 
@@ -124,7 +134,7 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 			throw new RuntimeException(e);
 		}
 	}
-
+	
 	/** 
 	 *  returns the user specified classpath entries.
 	 *  the eclipse implementations changed with version Oxigen.3 and {@link AbstractJavaLaunchConfigurationDelegate#getClassPath} 
