@@ -26,10 +26,12 @@ import gov.nasa.jpf.vm.MethodInfo;
 
 public final class BackwardsSlicer {
 
-	private Map<MethodElement, Statement> ifStatementGraph = new HashMap<>();
-	private Map<String, Set<Statement>> fields = new HashMap<>();
-	private Map<String, Set<Statement>> localVars = new HashMap<>();
-	private Map<String, Set<Method>> methods = new HashMap<>();
+	private final Map<MethodElement, Statement> ifStatementGraph = new HashMap<>();
+	private final Map<String, Set<Statement>> fields = new HashMap<>();
+	private final Map<String, Set<Statement>> localVars = new HashMap<>();
+	private final Map<String, Set<Method>> methods = new HashMap<>();
+	
+	private final DataFlowEngine dataFlowEngine = new DataFlowEngine();
 
 	public void slice(String[] classpath, Statement exceptionSatement, Trace trace) {
 		createMaps(trace.getMain());
@@ -66,7 +68,7 @@ public final class BackwardsSlicer {
 		MethodDataFlow methodDataFlow = null;
 		for (String cp : classpath) {
 			if (!cp.endsWith(".jar")) {
-				methodDataFlow = DataFlowEngine.getDataDependncies(cp + "/" +  packageName.replaceAll("\\.", "/"), className + ".class", methodName);
+				methodDataFlow = dataFlowEngine.getDataDependncies(cp + "/" +  packageName.replaceAll("\\.", "/"), className + ".class", methodName);
 			}
 			if (methodDataFlow != null) {
 				break;

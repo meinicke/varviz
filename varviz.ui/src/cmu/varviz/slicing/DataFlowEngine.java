@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.annotation.Nullable;
 
@@ -17,20 +19,24 @@ import jdk.internal.org.objectweb.asm.tree.analysis.Frame;
 
 public final class DataFlowEngine {
 
+	private Map<String, Map<String, MethodDataFlow>> cache = new HashMap<>();
 	
-	private DataFlowEngine() {}
-	
-	public static MethodDataFlow getDataDependncies(String binPath, String classPath, String methodName) {
-		ClassNode classNode = getClassNode(classPath, binPath);
-		if (classNode == null) {
-			// case search in jars
-			return null;
+	public MethodDataFlow getDataDependncies(String binPath, String classPath, String methodName) {
+		Map<String, MethodDataFlow> classCache = cache.computeIfAbsent(classPath, x -> new HashMap<>());
+		MethodDataFlow methodDataFlow = classCache.get(methodName);
+		if (methodDataFlow == null) {
+			ClassNode classNode = getClassNode(classPath, binPath);
+			if (classNode == null) {
+				// case search in jars
+				return null;
+			}
+			MethodNode methodNode = getMethodNode(classNode, methodName); 
+			methodDataFlow = getDataDependncies(classNode, methodNode);
 		}
-		MethodNode methodNode = getMethodNode(classNode, methodName); 
-		return getDataDependncies(classNode, methodNode);
+		return methodDataFlow;
 	}
 	
-	private static @Nullable ClassNode getClassNode(String classPath, String binPath) {
+	private @Nullable ClassNode getClassNode(String classPath, String binPath) {
 		File binFolder = new File(binPath);
 		
 		File classFile = new File(binFolder, classPath);
@@ -45,7 +51,7 @@ public final class DataFlowEngine {
 		return null;
 	}
 
-	private static @Nullable MethodNode getMethodNode(ClassNode classNode, String methodName) {
+	private @Nullable MethodNode getMethodNode(ClassNode classNode, String methodName) {
 		for (MethodNode methodNode : classNode.methods) {
 			if (methodNode.name.equals(methodName)) {
 				return methodNode;
@@ -54,7 +60,7 @@ public final class DataFlowEngine {
 		return null;
 	}
 
-	private static MethodDataFlow getDataDependncies(ClassNode classNode, MethodNode methodNode) {
+	private MethodDataFlow getDataDependncies(ClassNode classNode, MethodNode methodNode) {
 		try {
 			DataFlowInterpreter interpreter = new DataFlowInterpreter(methodNode);
 			Frame<BasicValue>[] frames = new Analyzer<>(interpreter).analyze(classNode.name, methodNode);
