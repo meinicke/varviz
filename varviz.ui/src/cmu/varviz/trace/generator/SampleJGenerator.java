@@ -81,7 +81,7 @@ public class SampleJGenerator implements TraceGenerator {
 		Conditional.setFM(getFeatureModel(resource));
 		final StatementFilter filter = new Or(new And(VarvizView.basefilter, new InteractionFilter(VarvizView.MIN_INTERACTION_DEGREE)),
 				new ExceptionFilter());
-		Collector collector = new Collector(filter, getOptions(resource));
+		Collector collector = new Collector(getOptions(resource));
 		String projectPath = project.getLocation().toOSString();
 		try {
 			return(collector.createTrace(runConfig.getClassToLaunch(), projectPath, runConfig.getClassPath(),

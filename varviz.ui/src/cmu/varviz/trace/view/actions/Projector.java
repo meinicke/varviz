@@ -60,7 +60,7 @@ public class Projector {
 	public static FeatureExpr projectFeatures(final Set<SingleFeatureExpr> projectionFeatures, TraceGenerator generator) {
 		System.out.print("project Trace for :");
 		for (SingleFeatureExpr singleFeatureExpr : projectionFeatures) {
-			System.out.print(getCTXString(singleFeatureExpr, false)+ ", ");
+			System.out.print(getCTXString(singleFeatureExpr)+ ", ");
 		}
 		System.out.println();
 
@@ -131,7 +131,7 @@ public class Projector {
 		System.out.println("constraint:" + Conditional.getCTXString(constraint));
 		
 		for (Entry<FeatureExpr, Boolean> entry : generator.getIgnoredFeatures().entrySet()) {
-			System.out.println("set feature " + getCTXString(entry.getKey(), false) + " to " + entry.getValue());
+			System.out.println("set feature " + getCTXString(entry.getKey()) + " to " + entry.getValue());
 		}
 	}
 	
@@ -150,7 +150,7 @@ public class Projector {
 		System.out.println("constraint:" + Conditional.getCTXString(constraint));
 		
 		for (Entry<FeatureExpr, Boolean> entry : generator.getIgnoredFeatures().entrySet()) {
-			System.out.println("set feature " + getCTXString(entry.getKey(), false) + " to " + entry.getValue());
+			System.out.println("set feature " + getCTXString(entry.getKey()) + " to " + entry.getValue());
 		}
 	}
 	
@@ -174,7 +174,7 @@ public class Projector {
 		System.out.println("constraint:" + Conditional.getCTXString(constraint));
 		
 		for (Entry<FeatureExpr, Boolean> entry : generator.getIgnoredFeatures().entrySet()) {
-			System.out.println("set feature " + getCTXString(entry.getKey(), false) + " to " + entry.getValue());
+			System.out.println("set feature " + getCTXString(entry.getKey()) + " to " + entry.getValue());
 		}
 	}
 
