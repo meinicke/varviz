@@ -78,7 +78,7 @@ public class VarvizView extends ViewPart {
 
 		@Override
 		public boolean filter(Statement s) {
-			return !(hasParent(s.getParent(), "xxxxxxxxxxxxxxxxxx"));
+			return !(hasParent(s.getParent(), "java."));
 		}
 
 		private boolean hasParent(Method parent, String filter) {
