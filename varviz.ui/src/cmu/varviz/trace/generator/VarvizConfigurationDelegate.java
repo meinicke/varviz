@@ -28,6 +28,8 @@ import org.eclipse.ui.console.MessageConsoleStream;
 
 import cmu.varviz.trace.Trace;
 import cmu.varviz.trace.view.VarvizView;
+import de.fosd.typechef.featureexpr.FeatureExprFactory;
+import gov.nasa.jpf.JPF;
 
 /**
  * Runs the Java Application to generate the {@link Trace}.
@@ -39,7 +41,7 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 
 	private static final int numberOfRuns = 1;
 	
-	private int currentMemory = Integer.MAX_VALUE;
+	private long currentMemory = Integer.MAX_VALUE;
 	
 	@Override
 	public void launch(ILaunchConfiguration configuration, String mode, ILaunch launch, IProgressMonitor monitor) throws CoreException {
@@ -104,121 +106,51 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 			view.setProjectName(project.getName());
 
 			project.build(IncrementalProjectBuilder.FULL_BUILD, monitor);
-//<<<<<<< HEAD
-//			Trace trace = view.getGenerator().run(runConfig, resource, monitor, classpath);
-//			
-//			
-//			if (view.isShowForExceptionFeatures()) {
-//				Projector.projectionForExceptiuon(trace, view.getGenerator());
-//=======
-//			
 			long[] times = new long[numberOfRuns];
-			int[] memorys = new int[numberOfRuns];
-//			for (int i = 0; i < numberOfRuns; i++) {
-//				long start = 0;
-//				long end = Long.MAX_VALUE;
-//				if (VarvizView.useVarexJ) {
-//					// TODO move this to VarexJ Generator Class
-//					FeatureExprFactory.setDefault(FeatureExprFactory.bdd());
-//					final String[] args = { "+classpath=" + cp, "+choice=MapChoice", "+stack=HybridStackHandler", "+nhandler.delegateUnhandledNative", "+search.class=.search.RandomSearch",
-//							featureModelPath != null ? "+ featuremodel=" + featureModelPath : "", runConfig.getClassToLaunch() };
-//					JPF.vatrace = new Trace();
-//					JPF.vatrace.filter = new Or(new And(VarvizView.basefilter, new InteractionFilter(VarvizView.minDegree)), new ExceptionFilter());
-//					FeatureExprFactory.setDefault(FeatureExprFactory.bdd());
-//					
-//					start = System.currentTimeMillis();
-//					currentMemory = Integer.MAX_VALUE;
-//					JPF.main(args);
-//					memorys[i] = currentMemory;
-//					JPF.vatrace.finalizeGraph();
-//					end = System.currentTimeMillis();
-//					
-//					VarvizView.TRACE = JPF.vatrace;
-//				} else {
-//					// TODO move to SampleJ builder
-//					// run SampleJ
-//					final SampleJMonitor samplejMonitor = new SampleJMonitor() {
-//						@Override
-//						public void beginTask(String name, int totalWork) {
-//							monitor.beginTask(name, totalWork);
-//						}
-//	
-//						@Override
-//						public void worked(int work) {
-//							monitor.worked(work);
-//						}
-//					};
-//	
-//					Conditional.setFM(getFeatureModel(resource));
-//					Collector collector = new Collector(getOptions(resource));
-//					String projectPath = project.getLocation().toOSString();
-//					try {
-//						Collector.FILTER = new Or(new And(VarvizView.basefilter, new InteractionFilter(VarvizView.minDegree)),
-//								new ExceptionFilter());
-//						
-//						start = System.currentTimeMillis();
-//						VarvizView.TRACE = collector.createTrace(runConfig.getClassToLaunch(), projectPath, runConfig.getClassPath(),
-//								samplejMonitor);
-//						end = System.currentTimeMillis();
-//						
-//						memorys[i] = collector.stats.getStats("Memory (MB)");
-//					} finally {
-//						project.build(IncrementalProjectBuilder.FULL_BUILD, monitor);
-//					}
-//				}
-//				times[i] = end - start;
-				
-				// clean up
-//				VarvizView.TRACE = null;
-//				JPF.vatrace = null;
-//				VarvizView.checked.clear();
-//				System.gc();
-//>>>>>>> refs/heads/FSEEval
-//			}
-//<<<<<<< HEAD
-//			trace.finalizeGraph();
-//
-//			view.setClassPath(classpath);
-//			if (view.isSliceException()) {
-//				// TODO there may be multiple exception statements
-//				Statement exceptionSatement = (Statement) trace.getEND().getFrom().simplify(trace.getExceptionContext()).getValue();
-//				new BackwardsSlicer().slice(classpath, exceptionSatement, trace);
-//			}
-//			
-//			view.setTrace(trace);
-//			
-//			if (view.getTRACE().getMain().size() < 20_000) {
-//				view.refreshVisuals();
-//			}
-//=======
-//			if (VarvizView.TRACE.getMain().size() < 10_000) {
-//				VarvizView.refreshVisuals();
-//			}
-//>>>>>>> refs/heads/FSEEval
+			long[] memorys = new long[numberOfRuns];
+			FeatureExprFactory.setDefault(FeatureExprFactory.bdd());
+			for (int i = 0; i < numberOfRuns; i++) {
+				System.gc();
+				currentMemory = (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory())>>20;
+				System.out.println("Memory before: " + currentMemory);
+			
+				long start =System.currentTimeMillis();
+				Trace trace = view.getGenerator().run(runConfig, resource, monitor, classpath);
+				memorys[i] = currentMemory;
+				System.out.println("Memory after: " + currentMemory);
+				trace.finalizeGraph();
+				long end = System.currentTimeMillis();
+				times[i] = end - start;
 
-			// check for cancellation
+				JPF.vatrace = null;
+				VarvizView.checked.clear();
+				System.gc();
+			}
 			if (monitor.isCanceled()) {
 				return;
 			}
-//<<<<<<< HEAD
-//=======
-			
 			System.out.println(Arrays.toString(times));
 			Arrays.sort(times);
-			System.out.println(times[0] + "ms");
+			System.out.println("MIN: " +  times[0] + "ms");
+			long medianTime = times[times.length]/2;
+			if (numberOfRuns % 2 == 0) { 
+				medianTime = (medianTime + times[times.length/2 - 1]) / 2;
+			}
+			System.out.println("MED: " + medianTime + "ms");
+			
 			System.out.println(Arrays.toString(memorys));
 			Arrays.sort(memorys);
 			System.out.println("MIN: " + memorys[0] + "MB");
+			long medianMemory = memorys[memorys.length/2];
+			if (numberOfRuns % 2 == 0) {
+				medianMemory = (medianMemory + memorys[memorys.length/2 - 1]) / 2;
+			}
+			System.out.println("MED: " + medianMemory + "MB");
 		} finally {
-//>>>>>>> refs/heads/FSEEval
 			VarvizView.checked.clear();
 			monitor.done();
 			System.setOut(originalOutputStream);
-//		} catch (Exception e) {
-//			throw new RuntimeException(e);
 		}
-		
-		
 	}
 	
 	/** 
@@ -251,15 +183,19 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 		return new PrintStream(originalOut) {
 			
 			@Override
+			public void print(String s) {
+				super.print(s);
+			}
+			
+			@Override
 			public void println(String s) {
 				if (s.startsWith("max memory:")) {
 					String memory = s;
 					memory = memory.replaceFirst("max memory:", "");
 					memory = memory.replaceFirst("MB", "");
 					memory = memory.trim();
-					currentMemory = Integer.parseInt(memory);
+					currentMemory = Integer.parseInt(memory) - currentMemory;
 				}
-				
 				super.println(s);
 			}
 			
