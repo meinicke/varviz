@@ -33,14 +33,14 @@ public final class BackwardsSlicer {
 	
 	private final DataFlowEngine dataFlowEngine = new DataFlowEngine();
 
-	public void slice(String[] classpath, Statement exceptionSatement, Trace trace) {
+	public void slice(String[] classpath, Statement sliceStatement, Trace trace) {
 		createMaps(trace.getMain());
 		createIfStatementRelation(trace.getMain());
 				
-		Set<Statement> exceptionDependencies = getDependentStatements(exceptionSatement, classpath);
+		Set<Statement> exceptionDependencies = getDependentStatements(sliceStatement, classpath);
 		
 		Set<Statement> allDependencies = new HashSet<>();
-		allDependencies.add(exceptionSatement);
+		allDependencies.add(sliceStatement);
 		while (!exceptionDependencies.isEmpty()) {
 			Set<Statement> statements = exceptionDependencies;
 			exceptionDependencies = new HashSet<>();
@@ -169,18 +169,24 @@ public final class BackwardsSlicer {
 		FeatureExpr ifCondition = ifStatement.getCTX();
 		List<MethodElement> nextList = new ArrayList<>();
 		nextList.addAll(ifStatement.getTo().toList());
-		
+		// TODO why would there be visited elements / is there a loop in the trace?
+		Set<MethodElement> visited = new HashSet<>();
 		while (!nextList.isEmpty()) {
 			MethodElement next = nextList.remove(0);
 			if (next == null) {
 				continue;
 			}
-			FeatureExpr nextCondition = next.getCTX();
+			if (visited.contains(next)) {
+				continue;
+			}
+			visited.add(next);
 			
-			// TODO fix this condition
-			if (!Conditional.equivalentTo(ifCondition, nextCondition)) {
+			FeatureExpr nextCondition = next.getCTX();
+			if (Conditional.isSatisfiable(Conditional.andNot(ifCondition, nextCondition))) {
 				ifStatementGraph.put(next, ifStatement);
-				nextList.addAll(next.getTo().toList());
+				for (MethodElement methodElement : next.getTo().toList()) {
+					nextList.add(methodElement);
+				}
 			}
 		}
 	}

@@ -3,8 +3,11 @@ package cmu.varviz.trace.generator;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
@@ -26,10 +29,14 @@ import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
 
 import cmu.varviz.slicing.BackwardsSlicer;
+import cmu.varviz.trace.Method;
+import cmu.varviz.trace.MethodElement;
+import cmu.varviz.trace.NodeColor;
+import cmu.varviz.trace.Shape;
 import cmu.varviz.trace.Statement;
 import cmu.varviz.trace.Trace;
 import cmu.varviz.trace.view.VarvizView;
-import cmu.varviz.trace.view.actions.Projector;
+import cmu.vatrace.ReturnStatement;
 
 /**
  * Runs the Java Application to generate the {@link Trace}.
@@ -102,26 +109,85 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 			view.setProjectName(project.getName());
 
 			project.build(IncrementalProjectBuilder.FULL_BUILD, monitor);
+			
 			Trace trace = view.getGenerator().run(runConfig, resource, monitor, classpath);
-			
-			
-			if (view.isShowForExceptionFeatures()) {
-				Projector.projectionForExceptiuon(trace, view.getGenerator());
-			}
 			trace.finalizeGraph();
 
 			view.setClassPath(classpath);
-			if (view.isSliceException()) {
-				// TODO there may be multiple exception statements
-				Statement exceptionSatement = (Statement) trace.getEND().getFrom().simplify(trace.getExceptionContext()).getValue();
-				new BackwardsSlicer().slice(classpath, exceptionSatement, trace);
+			
+			System.out.println("Start Slicing");
+			final List<Statement> elements = getAllElements(trace.getMain(), new ArrayList<>());
+			percentReduction = new ArrayList<>();
+			
+			boolean random = true;
+			if (random) {
+				// CASE: random
+				while (percentReduction.size() < 1) {
+					int randID = new Random().nextInt(elements.size());
+					if (trace == null) {
+						trace = view.getGenerator().run(runConfig, resource, monitor, classpath);
+					}
+					trace.finalizeGraph();
+					createNewSlice(trace,classpath, randID);
+					view.setTrace(trace);
+					view.refreshVisuals();
+					trace = null;
+				}
+			} else {
+				for (int i = 0; i < elements.size(); i++) {
+					try {
+						trace = view.getGenerator().run(runConfig, resource, monitor, classpath);
+						i = createNewSlice(trace, classpath, i);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
 			}
 			
-			view.setTrace(trace);
+			System.out.println(percentReduction);
 			
-			if (view.getTRACE().getMain().size() < 20_000) {
-				view.refreshVisuals();
+			int sum = 0;
+			for (Integer reduction : percentReduction) {
+				sum += reduction;
 			}
+			java.util.Collections.sort(percentReduction);
+			
+			
+			int averageReduction = sum / percentReduction.size();
+			System.out.println("Avereage reduction: " + averageReduction + "/10000");
+			System.out.println("Min reduction: " + percentReduction.get(0) + "/10000");
+			
+//			int[] randomElementID = new int[] {new Random().nextInt(elements.size())};
+//			Statement randomElement = elements.get(randomElementID[0]);
+//			while (randomElement.getColor() != NodeColor.darkorange) {
+//				randomElementID[0] = new Random().nextInt(elements.size());
+//				randomElement = elements.get(randomElementID[0]);
+//			}
+//			System.out.println("Slice for: " + randomElement + " id:" + randomElementID[0]);
+//			
+//			
+//			
+//			int originalSize = trace.getMain().size();
+//			trace.setFilter(element -> elements.indexOf(element) <= randomElementID[0]);
+//			trace.finalizeGraph();
+//			new BackwardsSlicer().slice(classpath, randomElement, trace);
+//			int sliceSize = trace.getMain().size();
+//			System.out.println(originalSize + "-> " + sliceSize);
+//			System.out.println(100 - (sliceSize * 100 / originalSize) + "% reduction");
+//			System.out.println("======================================================");
+//			
+			
+//			if (view.isSliceException()) {
+//				// TODO there may be multiple exception statements
+//				Statement exceptionSatement = (Statement) trace.getEND().getFrom().simplify(trace.getExceptionContext()).getValue();
+//				new BackwardsSlicer().slice(classpath, exceptionSatement, trace);
+//			}
+			
+//			view.setTrace(trace);
+			
+//			if (view.getTRACE().getMain().size() < 20_000) {
+//				view.refreshVisuals();
+//			}
 
 			// check for cancellation
 			if (monitor.isCanceled()) {
@@ -130,11 +196,50 @@ public class VarvizConfigurationDelegate extends AbstractJavaLaunchConfiguration
 			VarvizView.checked.clear();
 			monitor.done();
 			System.setOut(originalOutputStream);
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			throw new RuntimeException(e);
 		}
 	}
 	
+	private List<Integer> percentReduction;
+	
+	private int createNewSlice(Trace trace, String[] classpath, int i) throws CoreException {
+		final List<Statement> elements = getAllElements(trace.getMain(), new ArrayList<>());
+		int[] randomElementID = new int[] {i};
+		Statement randomElement = elements.get(randomElementID[0]);
+//		while (randomElement.getShape() == Shape.Mdiamond) {
+		while (randomElement.getColor() != NodeColor.darkorange || randomElement instanceof ReturnStatement || randomElement.toString().contains("branchTokenTypes")) {
+			randomElementID[0] = new Random().nextInt(elements.size());
+			if (randomElementID[0] >= elements.size()) {
+				return randomElementID[0];
+			}
+			randomElement = elements.get(randomElementID[0]);
+		}
+		System.out.println("Slice for: " + randomElement + " id:" + randomElementID[0]);
+		int originalSize = trace.getMain().size();
+		trace.setFilter(element -> elements.indexOf(element) <= randomElementID[0]);
+		trace.finalizeGraph();
+		new BackwardsSlicer().slice(classpath, randomElement, trace);
+		int sliceSize = trace.getMain().size();
+		System.out.println(originalSize + "-> " + sliceSize);
+		int reduction = 10000 - (sliceSize * 10000 / originalSize);
+		percentReduction.add(reduction);
+		System.out.println(reduction + "/1000 reduction");
+		System.out.println("======================================================");
+		return randomElementID[0];
+	}
+
+	private List<Statement> getAllElements(Method method, ArrayList<Statement> elements) {
+		for (MethodElement methodElement : method.getChildren()) {
+			if (methodElement instanceof Method) {
+				getAllElements((Method) methodElement, elements);
+			} else {
+				elements.add((Statement) methodElement);
+			}
+		}
+		return elements;
+	}
+
 	/** 
 	 *  returns the user specified classpath entries.
 	 *  the eclipse implementations changed with version Oxigen.3 and {@link AbstractJavaLaunchConfigurationDelegate#getClassPath} 
