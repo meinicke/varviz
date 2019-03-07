@@ -5,6 +5,7 @@ import static jdk.internal.org.objectweb.asm.Opcodes.*;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
+import cmu.varviz.utils.ByteCodeUtils;
 import jdk.internal.org.objectweb.asm.Opcodes;
 import jdk.internal.org.objectweb.asm.tree.AbstractInsnNode;
 import jdk.internal.org.objectweb.asm.tree.FieldInsnNode;
@@ -115,7 +116,7 @@ public class MethodDataFlow {
 			dependencies.addDependency(dataDependencyValue);
 			break;
 		default:
-			throw new RuntimeException(instruction.getOpcode() + " not handled: " + instruction);
+			throw new RuntimeException(ByteCodeUtils.getMnemonic(instruction) + " not handled: " + instruction);
 		}
 		return dependencies;
 	}
