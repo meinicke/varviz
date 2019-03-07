@@ -116,6 +116,10 @@ public abstract class MethodElement {
 	public String getID() {
 		return TraceUtils.toShortID(elementID);
 	}
+	
+	public int getElementID() {
+		return elementID;
+	}
 
 	public void setFiltered(boolean filtered) {
 		this.filtered = filtered;

@@ -79,13 +79,43 @@ public class MethodDataFlow {
 			}
 			break;
 		case ALOAD:
+		case ILOAD:
+		case FLOAD:
+		case DLOAD:
+		case LLOAD:
 			value = frame.getLocal(((VarInsnNode) instruction).var);
 			if (value instanceof DataDependencyValue) {
 				dependencies.addDependencies(((DataDependencyValue) value).dependencies);
 			}
 			break;
-		default:
+		case PUTFIELD:
+		case PUTSTATIC:
+			value = frame.pop();
+			IDependency dataDependencyValue = new DependencyFactory(methodNode).createDependency(instruction);
+			dependencies.addDependency(dataDependencyValue);
+			if (value instanceof DataDependencyValue) {
+				dependencies.addDependencies(((DataDependencyValue) value).dependencies);
+			}
 			break;
+		case ISTORE:
+		case ASTORE:
+		case FSTORE:
+		case LSTORE:
+			value = frame.pop();
+			dataDependencyValue = new DependencyFactory(methodNode).createDependency(instruction);
+			dependencies.addDependency(dataDependencyValue);
+			if (value instanceof DataDependencyValue) {
+				dependencies.addDependencies(((DataDependencyValue) value).dependencies);
+			}
+			break;
+		case GETSTATIC:
+		case GETFIELD:
+		case IINC:
+			dataDependencyValue = new DependencyFactory(methodNode).createDependency(instruction);
+			dependencies.addDependency(dataDependencyValue);
+			break;
+		default:
+			throw new RuntimeException(instruction.getOpcode() + " not handled: " + instruction);
 		}
 		return dependencies;
 	}

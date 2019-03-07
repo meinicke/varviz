@@ -7,6 +7,10 @@ public class DataFlowDependencies {
 
 	private Set<IDependency> dependencies = new HashSet<>();
 
+	public void addDependency(IDependency dependency) {
+		this.dependencies.add(dependency);
+	}
+	
 	public void addDependencies(Set<IDependency> dependencies) {
 		this.dependencies.addAll(dependencies);
 

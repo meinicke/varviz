@@ -49,6 +49,7 @@ import cmu.varviz.trace.uitrace.GraphicalStatement;
 import cmu.varviz.trace.uitrace.GraphicalTrace;
 import cmu.varviz.trace.view.actions.HideAction;
 import cmu.varviz.trace.view.actions.RemovePathAction;
+import cmu.varviz.trace.view.actions.SliceAction;
 import cmu.varviz.trace.view.actions.Projector;
 import cmu.varviz.trace.view.editparts.TraceEditPartFactory;
 
@@ -397,6 +398,7 @@ public class VarvizView extends ViewPart {
 	private void fillContextMenu(IMenuManager menuMgr) {
 		menuMgr.add(new HideAction("Hide Element", this));
 		menuMgr.add(new RemovePathAction("Remove Path", this));
+		menuMgr.add(new SliceAction("Slice for Element", this));
 	}
 
 	@Override
@@ -424,6 +426,10 @@ public class VarvizView extends ViewPart {
 
 	public void setClassPath(String[] classpath) {
 		this.classpath = classpath;
+	}
+	
+	public String[] getClasspath() {
+		return classpath;
 	}
 
 }
