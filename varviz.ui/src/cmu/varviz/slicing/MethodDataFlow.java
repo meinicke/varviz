@@ -111,9 +111,11 @@ public class MethodDataFlow {
 			break;
 		case GETSTATIC:
 		case GETFIELD:
-		case IINC:
+		case IINC: 
 			dataDependencyValue = new DependencyFactory(methodNode).createDependency(instruction);
 			dependencies.addDependency(dataDependencyValue);
+			break;
+		case ATHROW:
 			break;
 		default:
 			throw new RuntimeException(ByteCodeUtils.getMnemonic(instruction) + " not handled: " + instruction);
