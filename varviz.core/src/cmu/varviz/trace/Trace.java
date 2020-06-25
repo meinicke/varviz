@@ -104,7 +104,9 @@ public class Trace {
 
 	public FeatureExpr getExceptionContext() {
 		return main.accumulate((Statement s, FeatureExpr u) -> 
-			s.toString().contains("Exception") || s.toString().contains("Error") ? u.or(s.getCTX()) : u
+			s.toString().contains("Exception") || 
+			s.toString().contains("Error") || 
+			s.toString().contains("Failure") ? u.or(s.getCTX()) : u
 		, BDDFeatureExprFactory.False());
 	}
 	
