@@ -48,6 +48,7 @@ import cmu.varviz.trace.generator.VarexJGenerator;
 import cmu.varviz.trace.uitrace.GraphicalStatement;
 import cmu.varviz.trace.uitrace.GraphicalTrace;
 import cmu.varviz.trace.view.actions.HideAction;
+import cmu.varviz.trace.view.actions.HighlightPathAction;
 import cmu.varviz.trace.view.actions.RemovePathAction;
 import cmu.varviz.trace.view.actions.SliceAction;
 import cmu.varviz.trace.view.actions.Projector;
@@ -397,6 +398,7 @@ public class VarvizView extends ViewPart {
 
 	private void fillContextMenu(IMenuManager menuMgr) {
 		menuMgr.add(new HideAction("Hide Element", this));
+		menuMgr.add(new HighlightPathAction("Highlight Path", this));
 		menuMgr.add(new RemovePathAction("Remove Path", this));
 		menuMgr.add(new SliceAction("Slice for Element", this));
 	}
