@@ -24,6 +24,7 @@ public class VarvizActivator extends AbstractUIPlugin {
 	public static final ImageDescriptor REFESH_EXCEPTION_IMAGE_DESCRIPTOR = getImageDescriptor("refresh_exception.gif");
 	
 	public static final ImageDescriptor LABEL_IMAGE_DESCRIPTOR = getImageDescriptor("label.gif");
+	public static final ImageDescriptor HIDE_FORWARDING_METHODS_IMAGE_DESCRIPTOR = getImageDescriptor("uncheck_all@2x.png");
 	public static final ImageDescriptor GENERATOR_IMAGE_DESCRIPTOR = getImageDescriptor("debug.gif");
 	public static final Image REFESH_TAB_IMAGE = REFESH_TAB_IMAGE_DESCRIPTOR.createImage();
 

@@ -68,6 +68,7 @@ public class VarvizView extends ViewPart {
 	private static final String VAREXJ = "VarexJ";
 	private static final IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
 	private static final QualifiedName SHOW_LABELS_QN = new QualifiedName(VarvizView.class.getName() + "#showLables","showLables");
+	private static final QualifiedName HIDE_FORWARDING_METHODS_QN = new QualifiedName(VarvizView.class.getName() + "#hideForwardingMethods","hideForwardingMethods");
 	private static final QualifiedName USE_VAREXJ_QN = new QualifiedName(VarvizView.class.getName() + "#useVarexJ", "useVarexJ");
 	private static final QualifiedName REEXECUTE_QN = new QualifiedName(VarvizView.class.getName() + "#REEXECUTE", "REEXECUTE");
 	private static final QualifiedName SLICE_QN = new QualifiedName(VarvizView.class.getName() + "#SLICE", "SLICE");
@@ -106,6 +107,7 @@ public class VarvizView extends ViewPart {
 
 	private boolean showForExceptionFeatures = Boolean.parseBoolean(getProperty(REEXECUTE_QN));
 	private boolean showLables = Boolean.parseBoolean(getProperty(SHOW_LABELS_QN));
+	private boolean hideForwardingMethods = Boolean.parseBoolean(getProperty(HIDE_FORWARDING_METHODS_QN));
 	private boolean sliceException = Boolean.parseBoolean(getProperty(SLICE_QN));
 	
 	private ScrollingGraphicalViewer viewer;
@@ -152,6 +154,10 @@ public class VarvizView extends ViewPart {
 	
 	public boolean isShowLables() {
 		return showLables;
+	}
+	
+	public boolean isHideForwardingMethods() {
+		return hideForwardingMethods;
 	}
 	
 	public boolean isUseVarexJ() {
@@ -210,6 +216,7 @@ public class VarvizView extends ViewPart {
 		toolbarManager.add(new SearchBar(this));
 		createShowLabelsButton(toolbarManager);
 		createExceptionButton(toolbarManager);
+		createHideEmptyforwardingMethodsButton(toolbarManager);
 		createSliceButton(toolbarManager);
 		createGeneratorButton(toolbarManager);
 
@@ -366,6 +373,20 @@ public class VarvizView extends ViewPart {
 		showLablesButton.setToolTipText("Show edge context");
 		toolbarManager.add(showLablesButton);
 		showLablesButton.setImageDescriptor(VarvizActivator.LABEL_IMAGE_DESCRIPTOR);
+	}
+	
+	private void createHideEmptyforwardingMethodsButton(IToolBarManager toolbarManager) {
+		Action hideEmptyForwardingMethodsButton = new Action() {
+			@Override
+			public void run() {
+				hideForwardingMethods = !hideForwardingMethods;
+				setProperty(HIDE_FORWARDING_METHODS_QN, Boolean.toString(hideForwardingMethods));
+			}
+		};
+		hideEmptyForwardingMethodsButton.setChecked(hideForwardingMethods);
+		hideEmptyForwardingMethodsButton.setToolTipText("Hide Empty Methods (Needs reexecution)");
+		toolbarManager.add(hideEmptyForwardingMethodsButton);
+		hideEmptyForwardingMethodsButton.setImageDescriptor(VarvizActivator.HIDE_FORWARDING_METHODS_IMAGE_DESCRIPTOR);
 	}
 
 	private static String getProperty(QualifiedName qn) {

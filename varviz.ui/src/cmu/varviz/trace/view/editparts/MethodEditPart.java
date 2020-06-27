@@ -47,6 +47,7 @@ import cmu.varviz.trace.MethodElement;
 import cmu.varviz.trace.Statement;
 import cmu.varviz.trace.Trace;
 import cmu.varviz.trace.uitrace.VarvizEvent;
+import cmu.varviz.trace.view.VarvizView;
 import cmu.varviz.trace.view.figures.MethodFigure;
 import de.fosd.typechef.featureexpr.FeatureExpr;
 
@@ -111,7 +112,8 @@ public class MethodEditPart extends AbstractTraceEditPart implements NodeEditPar
 		final IFigure methodFigure = getFigure();
 		Rectangle bounds = methodFigure.getBounds();
 		final Point referencePoint = bounds.getTopLeft();
-		int h = 40;
+		int h = isEmptyForwardingMethod() ? 0 :40;
+		final int borderMargin = isEmptyForwardingMethod() ? 0 : BORDER_MARGIN;
 
 		Direction direction = Direction.CENTER;
 
@@ -143,14 +145,14 @@ public class MethodEditPart extends AbstractTraceEditPart implements NodeEditPar
 						} else if (Conditional.isSatisfiable(Conditional.and(prevctx,ctx)) || direction == Direction.RIGHT/* TODO */) {
 							// True -> a
 							direction = Direction.LEFT;
-							childEditPart.getFigure().setLocation(new Point(previousFigure.getFigure().getBounds().getBottom().x -(childEditPart.getFigure().getBounds().width + BORDER_MARGIN), h));
+							childEditPart.getFigure().setLocation(new Point(previousFigure.getFigure().getBounds().getBottom().x -(childEditPart.getFigure().getBounds().width + borderMargin), h));
 						} else {
 							// a -> -a
 							direction = Direction.RIGHT;
 							h = previousFigure.getFigure().getBounds().y;// TODO this should be the highet of the other branch 
-							childEditPart.getFigure().setLocation(new Point(previousFigure.getFigure().getBounds().right() + BORDER_MARGIN, h));
+							childEditPart.getFigure().setLocation(new Point(previousFigure.getFigure().getBounds().right() + borderMargin, h));
 						}
-						h = childEditPart.getFigure().getBounds().bottom() + BORDER_MARGIN * 4;
+						h = childEditPart.getFigure().getBounds().bottom() + borderMargin * 4;
 						previous = model;
 						previousFigure = childEditPart;
 						continue;
@@ -194,7 +196,7 @@ public class MethodEditPart extends AbstractTraceEditPart implements NodeEditPar
 							childEditPart.getFigure().setLocation(point);
 						}
 
-						h = childEditPart.getFigure().getBounds().bottom() + BORDER_MARGIN * 4;
+						h = childEditPart.getFigure().getBounds().bottom() + borderMargin * 4;
 						previous = model;
 						previousFigure = childEditPart;
 						continue;
@@ -205,7 +207,7 @@ public class MethodEditPart extends AbstractTraceEditPart implements NodeEditPar
 				childEditPart.getFigure().translateToRelative(referencePoint);
 				childEditPart.getFigure().setLocation(new Point(-childEditPart.getFigure().getBounds().width / 2, h));
 				h += childEditPart.getFigure().getSize().height;
-				h += BORDER_MARGIN * 4;
+				h += borderMargin * 4;
 
 				previous = model;
 				previousFigure = childEditPart;
@@ -225,7 +227,7 @@ public class MethodEditPart extends AbstractTraceEditPart implements NodeEditPar
 			if (object instanceof AbstractGraphicalEditPart) {
 				final AbstractGraphicalEditPart abstractGraphicalEditPart = (AbstractGraphicalEditPart) object;
 				Point location = abstractGraphicalEditPart.getFigure().getBounds().getTopLeft();
-				abstractGraphicalEditPart.getFigure().setLocation(new Point(BORDER_MARGIN + location.x - minX, location.y));
+				abstractGraphicalEditPart.getFigure().setLocation(new Point(borderMargin + location.x - minX, location.y));
 			}
 		}
 
@@ -241,9 +243,23 @@ public class MethodEditPart extends AbstractTraceEditPart implements NodeEditPar
 		Rectangle oldbounds = methodFigure.getBounds();
 		int newHeight = maxH - oldbounds.getTop().y;
 
-		bounds = new Rectangle(oldbounds.x, oldbounds.y, maxW + BORDER_MARGIN, newHeight + BORDER_MARGIN);
+		
+		bounds = new Rectangle(oldbounds.x, oldbounds.y, maxW + borderMargin, newHeight + borderMargin);
 
 		methodFigure.setBounds(bounds);
+	}
+	
+	private boolean isEmptyForwardingMethod() {
+		if (VarvizView.getInstance().isHideForwardingMethods()) {
+			if (getChildren().size() == 1) {
+				Object child = getChildren().get(0);
+				if (child instanceof MethodEditPart) {
+					return true;
+				}
+				
+			}
+		}
+		return false;
 	}
 
 	public Method getMethodModel() {

@@ -12,6 +12,8 @@ import org.eclipse.swt.graphics.Font;
 
 import cmu.varviz.VarvizColors;
 import cmu.varviz.trace.Method;
+import cmu.varviz.trace.MethodElement;
+import cmu.varviz.trace.view.VarvizView;
 
 /**
  * The {@link Figure} representing methods in the trace. 
@@ -33,17 +35,59 @@ public class MethodFigure extends Figure {
 	public MethodFigure(Method method) {
 		super();
 		this.setLayoutManager(new FreeformLayout());
-		this.setName(method.toString());
+		if (!isEmptyForwardingMethod(method)) {
+			Method parent = method.getParent();
+			if (parent != null && isEmptyForwardingMethod(parent)) {
+				this.setName(method.toString() + " ...");
+			} else {
+				this.setName(method.toString());
+				Label tooltip = new Label();
+				tooltip.setText(method.toString());
+				setToolTip(tooltip);
+			}
+		}
 		setBackgroundColor(VarvizColors.WHITE.getColor());
 		setBorder(new LineBorder(VarvizColors.BLACK.getColor(), 1));
 		this.add(label);
 		this.setOpaque(false);
 		Label tooltip = new Label();
-		tooltip.setText(method.toString());
+		tooltip.setText(getToolTipText(method));
 		setToolTip(tooltip);
 		
 		sourceAnchor = new SourceAnchor(this, method);
 		targetAnchor = new TargetAnchor(this);
+	}
+	
+	private String getToolTipText(Method method) {
+		if (!isEmptyForwardingMethod(method)) {
+			Method parent = method.getParent();
+			if (parent != null && isEmptyForwardingMethod(parent)) {
+				StringBuilder sb = new StringBuilder();
+				Method currentMethod = method;
+				while (currentMethod != null) {
+					sb.append(currentMethod.toString());
+					sb.append('\n');
+					currentMethod = currentMethod.getParent();
+				}
+				return sb.substring(0, sb.length() - 1);
+			} else {
+				return method.toString();
+			}
+		}
+		return "";
+	}
+
+	private boolean isEmptyForwardingMethod(Method method) {
+		if (VarvizView.getInstance().isHideForwardingMethods()) {
+			if (method.getChildren().size() == 1) {
+				MethodElement child = method.getChildren().get(0);
+				if (child instanceof Method) {
+					return true;
+				}
+				
+			}
+		}
+		return false;
 	}
 
 	public int getMinWidth() {
