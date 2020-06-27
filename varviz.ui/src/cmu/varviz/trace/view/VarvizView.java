@@ -15,8 +15,6 @@ import org.eclipse.gef.editparts.ScalableFreeformRootEditPart;
 import org.eclipse.gef.ui.actions.PrintAction;
 import org.eclipse.gef.ui.parts.ScrollingGraphicalViewer;
 import org.eclipse.jface.action.Action;
-import org.eclipse.jface.action.ActionContributionItem;
-import org.eclipse.jface.action.IMenuCreator;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
@@ -49,9 +47,9 @@ import cmu.varviz.trace.uitrace.GraphicalStatement;
 import cmu.varviz.trace.uitrace.GraphicalTrace;
 import cmu.varviz.trace.view.actions.HideAction;
 import cmu.varviz.trace.view.actions.HighlightPathAction;
+import cmu.varviz.trace.view.actions.Projector;
 import cmu.varviz.trace.view.actions.RemovePathAction;
 import cmu.varviz.trace.view.actions.SliceAction;
-import cmu.varviz.trace.view.actions.Projector;
 import cmu.varviz.trace.view.editparts.TraceEditPartFactory;
 
 /**
@@ -64,12 +62,12 @@ public class VarvizView extends ViewPart {
 	
 	public static final int MIN_INTERACTION_DEGREE = 2;
 	
-	private static final String SAMPLEJ = "SampleJ";
-	private static final String VAREXJ = "VarexJ";
+//	private static final String SAMPLEJ = "SampleJ";
+//	private static final String VAREXJ = "VarexJ";
 	private static final IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
 	private static final QualifiedName SHOW_LABELS_QN = new QualifiedName(VarvizView.class.getName() + "#showLables","showLables");
 	private static final QualifiedName HIDE_FORWARDING_METHODS_QN = new QualifiedName(VarvizView.class.getName() + "#hideForwardingMethods","hideForwardingMethods");
-	private static final QualifiedName USE_VAREXJ_QN = new QualifiedName(VarvizView.class.getName() + "#useVarexJ", "useVarexJ");
+//	private static final QualifiedName USE_VAREXJ_QN = new QualifiedName(VarvizView.class.getName() + "#useVarexJ", "useVarexJ");
 	private static final QualifiedName REEXECUTE_QN = new QualifiedName(VarvizView.class.getName() + "#REEXECUTE", "REEXECUTE");
 	private static final QualifiedName SLICE_QN = new QualifiedName(VarvizView.class.getName() + "#SLICE", "SLICE");
 	
@@ -112,7 +110,7 @@ public class VarvizView extends ViewPart {
 	
 	private ScrollingGraphicalViewer viewer;
 
-	private boolean useVarexJ = Boolean.parseBoolean(getProperty(USE_VAREXJ_QN));
+	private final boolean useVarexJ = true;// Boolean.parseBoolean(getProperty(USE_VAREXJ_QN));
 	private TraceGenerator generator = useVarexJ ? VarexJGenerator.geGenerator() : SampleJGenerator.geGenerator();
 
 	private Trace trace = new Trace();
@@ -215,10 +213,10 @@ public class VarvizView extends ViewPart {
 
 		toolbarManager.add(new SearchBar(this));
 		createShowLabelsButton(toolbarManager);
-		createExceptionButton(toolbarManager);
 		createHideEmptyforwardingMethodsButton(toolbarManager);
+		createExceptionButton(toolbarManager);
 		createSliceButton(toolbarManager);
-		createGeneratorButton(toolbarManager);
+		//createGeneratorButton(toolbarManager);
 
 		((ScalableFreeformRootEditPart) viewer.getRootEditPart()).getZoomManager().setZoomLevels(ZOOM_LEVELS);
 		viewer.getControl().addMouseWheelListener(ev -> {
@@ -235,60 +233,60 @@ public class VarvizView extends ViewPart {
 		createContextMenu();
 	}
 
-	private void createGeneratorButton(IToolBarManager toolbarManager) {
-		Action generatorAction = new Action(useVarexJ ? VAREXJ : SAMPLEJ, Action.AS_DROP_DOWN_MENU) {
-			@Override
-			public void run() {
-				useVarexJ = !useVarexJ;
-				setProperty(USE_VAREXJ_QN, Boolean.toString(useVarexJ));
-				setText(useVarexJ ? VAREXJ : SAMPLEJ);
-				if (useVarexJ) {
-					generator = VarexJGenerator.geGenerator();
-				} else  {
-					generator = SampleJGenerator.geGenerator();
-				}
-			}
-		};
-		generatorAction.setMenuCreator(new IMenuCreator() {
-			Menu fMenu = null;
-
-			@Override
-			public Menu getMenu(Menu parent) {
-				return null;
-			}
-
-			@Override
-			public Menu getMenu(Control parent) {
-				fMenu = new Menu(parent);
-				ActionContributionItem exportImageContributionItem = new ActionContributionItem(new Action(VAREXJ) {
-					@Override
-					public void run() {
-						generatorAction.setText(this.getText());
-						useVarexJ = true;
-						setProperty(USE_VAREXJ_QN, Boolean.toString(useVarexJ));
-					}
-				});
-				exportImageContributionItem.fill(fMenu, -1);
-				ActionContributionItem exportXMLContributionItem = new ActionContributionItem(new Action(SAMPLEJ) {
-					@Override
-					public void run() {
-						generatorAction.setText(this.getText());
-						useVarexJ = false;
-						setProperty(USE_VAREXJ_QN, Boolean.toString(useVarexJ));
-					}
-				});
-				exportXMLContributionItem.fill(fMenu, -1);
-				return fMenu;
-			}
-
-			@Override
-			public void dispose() {
-				// nothing here
-			}
-
-		});
-		toolbarManager.add(generatorAction);
-	}
+//	private void createGeneratorButton(IToolBarManager toolbarManager) {
+//		Action generatorAction = new Action(useVarexJ ? VAREXJ : SAMPLEJ, Action.AS_DROP_DOWN_MENU) {
+//			@Override
+//			public void run() {
+//				useVarexJ = !useVarexJ;
+//				setProperty(USE_VAREXJ_QN, Boolean.toString(useVarexJ));
+//				setText(useVarexJ ? VAREXJ : SAMPLEJ);
+//				if (useVarexJ) {
+//					generator = VarexJGenerator.geGenerator();
+//				} else  {
+//					generator = SampleJGenerator.geGenerator();
+//				}
+//			}
+//		};
+//		generatorAction.setMenuCreator(new IMenuCreator() {
+//			Menu fMenu = null;
+//
+//			@Override
+//			public Menu getMenu(Menu parent) {
+//				return null;
+//			}
+//
+//			@Override
+//			public Menu getMenu(Control parent) {
+//				fMenu = new Menu(parent);
+//				ActionContributionItem exportImageContributionItem = new ActionContributionItem(new Action(VAREXJ) {
+//					@Override
+//					public void run() {
+//						generatorAction.setText(this.getText());
+//						useVarexJ = true;
+//						setProperty(USE_VAREXJ_QN, Boolean.toString(useVarexJ));
+//					}
+//				});
+//				exportImageContributionItem.fill(fMenu, -1);
+//				ActionContributionItem exportXMLContributionItem = new ActionContributionItem(new Action(SAMPLEJ) {
+//					@Override
+//					public void run() {
+//						generatorAction.setText(this.getText());
+//						useVarexJ = false;
+//						setProperty(USE_VAREXJ_QN, Boolean.toString(useVarexJ));
+//					}
+//				});
+//				exportXMLContributionItem.fill(fMenu, -1);
+//				return fMenu;
+//			}
+//
+//			@Override
+//			public void dispose() {
+//				// nothing here
+//			}
+//
+//		});
+//		toolbarManager.add(generatorAction);
+//	}
 
 	@SuppressWarnings("unused")
 	private void createExportButton(Composite parent, IToolBarManager toolbarManager) {
